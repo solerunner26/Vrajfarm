@@ -1,0 +1,11 @@
+# Vraj Kheti Hisab backup store: never serve anything from here.
+# Install as: /home/<cpanel-user>/vraj_backups/.htaccess
+# (backup_receiver.php also writes this file automatically if it is missing.)
+<IfModule mod_authz_core.c>
+    Require all denied
+</IfModule>
+<IfModule !mod_authz_core.c>
+    Order deny,allow
+    Deny from all
+</IfModule>
+Options -Indexes

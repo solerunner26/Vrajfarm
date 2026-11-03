@@ -23,7 +23,7 @@
 | # | Task (handover doc) | Owner agent / files | Status | Notes / next step |
 |---|---|---|---|---|
 | 1 | Foundation: Gradle, 5 themes, Vk components, icons as ImageVectors, Panchang engine, PIN/biometric lock (02, 04) | android-foundation: build files, `ui/theme`, `ui/components`, `ui/decor`, `panchang`, `security` | **IN PROGRESS (Claude, 2026-11-03)**: partial | Was writing the SVG→ImageVector converter, `ic_vk_*` drawables and the adaptive launcher icon. Next: finish, then `assembleDebug` + Panchang unit tests against the doc 02 vectors. |
-| 2 | Database: 13 Room entities, DAOs, seeding, repositories (03) | room-database: `app/src/**/data/**` only | **IN PROGRESS (Claude, 2026-11-03)**: partial (about 38 files written) | Next: compile against the real project, `testDebugUnitTest`, and make sure the instrumented DAO tests compile. |
+| 2 | Database: 13 Room entities, DAOs, seeding, repositories (03) | room-database: `app/src/**/data/**` only | **DONE (Claude, 2026-11-03)** | Schema v1 exported to `app/schemas/`. Data unit tests pass (22/22). 27 instrumented DAO tests compile but **have not been run yet**: they need a device or emulator (`connectedDebugAndroidTest`). Deviations from doc 03 are listed below under "Database notes". |
 | 3 | WhatsAppLauncher (12) | assets-shopping | TODO | Do first in Wave 2. Other modules depend on it. |
 | 4 | Home dashboard (05) | compose-screens | TODO | Canvas: `design/canvas/Main.dc.html` |
 | 5 | 3-tap entry, APMC, bill photo, voice (06) | compose-screens | TODO | `Entry.dc.html` |
@@ -34,8 +34,23 @@
 | 10 | Shopping, assets, lending, borrower photo, history (11) | assets-shopping | TODO | `Shopping`, `Assets`, `Lend.dc.html` |
 | 11 | Reminders, notifications, Glance widgets (13) | reminders-widgets | TODO | `Reminders`, `Widgets.dc.html` |
 | 12 | Profiles, Help & About (14) | compose-screens | TODO | The credit "Design and Developed by Jaldip Vala" appears ONLY in Help |
-| 13 | PDF reports + 11:45 PM backup + `backup_receiver.php` (15) | backup-reports | TODO | Needs the owner's GoDaddy backup URL (still open) |
+| 13a | Server: `server/backup_receiver.php` + cPanel guide (15) | backup-reports: `server/**` | **DONE, NOT EXECUTED (Claude, 2026-11-03)** | Code reviewed only, because there's no PHP on the dev PC. **First run `php server/tests/run_tests.php` (about 35 checks) on any PHP 8 machine.** Contract changes for the Android worker: too large → **413** `{"error":"size"}` (don't retry); HTTPS is required; rate limit 10/h per IP. The real config is `vraj_config.php` outside the web root (git-ignored). |
+| 13b | Android: PDF reports + 11:45 PM `NightlyBackupWorker` (15) | backup-reports | TODO | Needs the owner's GoDaddy domain (still open). Map the server errors listed in `server/README.md`. |
 | 14 | QA matrix, device checks (16, 17) | qa-tester | TODO | Last. Use the mobile-mcp server from `.mcp.json` if available |
+
+## Database notes (deviations from doc 03, all intentional)
+- **Upserts:** `ProfileDao` is an abstract class with a role-resolving `upsert`. A plain `@Upsert` with unique(role) would silently drop edits.
+- **Personal entries:** `pendingList()` excludes PERSONAL. Use `personalPendingList()` for doc 09 and `pendingListAll()` for report #6.
+- **Farm managers:** `MasterDao.updateFarmManager(…, now)`, plus `setManagerFarms` (exclusive assignment).
+- **Indices and columns:**
+  - txn has extra indices on cycleId and categoryId.
+  - `isPending` is an extension property, not a column.
+- **Not stored in Room:** the "વદ બીજ પણ" toggle (Bij on Vad too). It needs a DataStore key, owned by doc 10.
+- **Repository helpers available to screens:**
+  - `LedgerRepository`: farmPnlStats, vighaRanking, familyAdvanceByMonth
+  - `AssetRepository.lend()`: creates the overdue reminder automatically. `markReturned` closes it.
+  - `ReminderRepository.createPanchangReminder` (deduplicated)
+  - `DataRepositories` is the factory for AppContainer, with a `DataChangeListener` hook for widgets.
 
 ## Open questions for the owner (Jaldip)
 1. Is the festival list in doc 10 §C complete? Are any local fairs missing (Mahuva/Thorala, Swaminarayan days)?

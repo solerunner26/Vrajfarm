@@ -1,0 +1,7 @@
+# Real server configs hold the backup API key / SMTP password. Never commit them.
+vraj_config.php
+backup_config.php
+*.local.php
+# Test run leftovers
+tests/.tmp/
+receiver.log*
