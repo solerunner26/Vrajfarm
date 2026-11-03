@@ -53,4 +53,4 @@ Build order: 02 → 03 first. Then the Wave 2 docs in parallel, starting with 12
 - Build: `./gradlew assembleDebug`
 - Unit tests: `./gradlew testDebugUnitTest`
 - Instrumented tests: `./gradlew connectedDebugAndroidTest`
-- Install on the device: `adb install -r app/build/outputs/apk/debug/app-debug.apk`
+- Install on the device: `adb install -r "%LOCALAPPDATA%\VrajKhetiBuild\app\outputs\apk\debug\app-debug.apk"`

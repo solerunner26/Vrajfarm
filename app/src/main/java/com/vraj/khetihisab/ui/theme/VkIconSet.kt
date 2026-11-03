@@ -1,5 +1,5 @@
 // GENERATED from design/icons/*.svg — do not edit by hand.
-// Regenerate with the svg2vk converter (see ui/theme/VkIcons.kt header).
+// Regenerate: node tools/svg2vk.js <projectRoot>
 package com.vraj.khetihisab.ui.theme
 
 internal enum class VkInk { T, A, B, H }

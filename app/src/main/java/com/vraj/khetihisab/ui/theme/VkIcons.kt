@@ -30,7 +30,7 @@ import java.util.concurrent.ConcurrentHashMap
  * (green only) exist solely for Glance widgets / notifications that cannot use ImageVector.
  *
  * To regenerate VkIconSet.kt and the drawables after editing an SVG, run the svg2vk.js converter
- * (`node svg2vk.js <projectRoot>`), kept with the Wave 1 hand-over notes.
+ * (`node tools/svg2vk.js .` from the project root).
  */
 
 /** Per-theme icon palette (keys T1/T2/A1/A2/B1/B2/H of design/gen-themes.js). */
