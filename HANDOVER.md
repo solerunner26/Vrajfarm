@@ -24,18 +24,18 @@
 |---|---|---|---|---|
 | 1 | Foundation: Gradle, 5 themes, Vk components, icons as ImageVectors, Panchang engine, PIN/biometric lock (02, 04) | android-foundation: build files, `ui/theme`, `ui/components`, `ui/decor`, `panchang`, `security`, `settings/ThemeRepository` | **DONE (Claude, 2026-11-03)**, verified by the lead | `assembleDebug` OK. Unit tests: 65 run, 0 failed, 3 skipped on purpose. **Not yet launched on a device:** the emulator stayed offline. See "Foundation notes" below. |
 | 2 | Database: 13 Room entities, DAOs, seeding, repositories (03) | room-database: `app/src/**/data/**` only | **DONE (Claude, 2026-11-03)** | Schema v1 exported to `app/schemas/`. Data unit tests pass (22/22). 27 instrumented DAO tests compile but **have not been run yet**: they need a device or emulator (`connectedDebugAndroidTest`). Deviations from doc 03 are listed below under "Database notes". |
-| 3 | WhatsAppLauncher (12) | assets-shopping | TODO | Do first in Wave 2. Other modules depend on it. |
-| 4 | Home dashboard (05) | compose-screens | TODO | Canvas: `design/canvas/Main.dc.html` |
-| 5 | 3-tap entry, APMC, bill photo, voice (06) | compose-screens | TODO | `Entry.dc.html` |
-| 6 | Farms P&L + Vigha scorecard (07) | compose-screens | TODO | `Farms.dc.html` |
-| 7 | Family advances + WhatsApp receipt (08) | compose-screens | TODO | `Family.dc.html` |
-| 8 | Personal account (09) | compose-screens | TODO | `Personal.dc.html` |
-| 9 | Panchang alerts, calendar, festival rules (10) | foundation (rules) + compose-screens (UI) + reminders-widgets (scheduling) | TODO | `PanchangAlert` / `PanchangCalendar.dc.html` |
-| 10 | Shopping, assets, lending, borrower photo, history (11) | assets-shopping | TODO | `Shopping`, `Assets`, `Lend.dc.html` |
-| 11 | Reminders, notifications, Glance widgets (13) | reminders-widgets | TODO | `Reminders`, `Widgets.dc.html` |
-| 12 | Profiles, Help & About (14) | compose-screens | TODO | The credit "Design and Developed by Jaldip Vala" appears ONLY in Help |
+| 3 | WhatsAppLauncher (12) | assets-shopping | **IN PROGRESS (Claude Wave 2, 2026-11-03)** | Do first in Wave 2. Other modules depend on it. |
+| 4 | Home dashboard (05) | compose-screens | **IN PROGRESS (Claude Wave 2, 2026-11-03)** | Canvas: `design/canvas/Main.dc.html` |
+| 5 | 3-tap entry, APMC, bill photo, voice (06) | compose-screens | **IN PROGRESS (Claude Wave 2, 2026-11-03)** | `Entry.dc.html` |
+| 6 | Farms P&L + Vigha scorecard (07) | compose-screens | **IN PROGRESS (Claude Wave 2, 2026-11-03)** | `Farms.dc.html` |
+| 7 | Family advances + WhatsApp receipt (08) | compose-screens | **IN PROGRESS (Claude Wave 2, 2026-11-03)** | `Family.dc.html` |
+| 8 | Personal account (09) | compose-screens | **IN PROGRESS (Claude Wave 2, 2026-11-03)** | `Personal.dc.html` |
+| 9 | Panchang alerts, calendar, festival rules (10) | foundation (rules) + compose-screens (UI) + reminders-widgets (scheduling) | **IN PROGRESS (Claude Wave 2, 2026-11-03)** | `PanchangAlert` / `PanchangCalendar.dc.html` |
+| 10 | Shopping, assets, lending, borrower photo, history (11) | assets-shopping | **IN PROGRESS (Claude Wave 2, 2026-11-03)** | `Shopping`, `Assets`, `Lend.dc.html` |
+| 11 | Reminders, notifications, Glance widgets (13) | reminders-widgets | **IN PROGRESS (Claude Wave 2, 2026-11-03)** | `Reminders`, `Widgets.dc.html` |
+| 12 | Profiles, Help & About (14) | compose-screens | **IN PROGRESS (Claude Wave 2, 2026-11-03)** | The credit "Design and Developed by Jaldip Vala" appears ONLY in Help |
 | 13a | Server: `server/backup_receiver.php` + cPanel guide (15) | backup-reports: `server/**` | **DONE, NOT EXECUTED (Claude, 2026-11-03)** | Code reviewed only, because there's no PHP on the dev PC. **First run `php server/tests/run_tests.php` (about 35 checks) on any PHP 8 machine.** Contract changes for the Android worker: too large → **413** `{"error":"size"}` (don't retry); HTTPS is required; rate limit 10/h per IP. The real config is `vraj_config.php` outside the web root (git-ignored). |
-| 13b | Android: PDF reports + 11:45 PM `NightlyBackupWorker` (15) | backup-reports | TODO | Needs the owner's GoDaddy domain (still open). Map the server errors listed in `server/README.md`. |
+| 13b | Android: PDF reports + 11:45 PM `NightlyBackupWorker` (15) | backup-reports | **IN PROGRESS (Claude Wave 2, 2026-11-03)** | Needs the owner's GoDaddy domain (still open). Map the server errors listed in `server/README.md`. |
 | 14 | QA matrix, device checks (16, 17) | qa-tester | TODO | Last. Use the mobile-mcp server from `.mcp.json` if available |
 
 ## Foundation notes
@@ -88,3 +88,12 @@
   - Wrote the handover docs 00–17.
   - Wave 1 agents started, then paused by a usage limit and resumed.
   - Repo initialised and pushed. Added `AGENTS.md` and this board.
+
+## Wave 2 integration contract (in progress)
+Each Wave 2 agent owns only its own packages. It exposes a `NavGraphBuilder.xxxGraph(navController)` and writes its wiring needs to an `INTEGRATION.md` inside its package:
+- `ui/assets/INTEGRATION.md`
+- `ui/home/INTEGRATION.md`
+- `notify/INTEGRATION.md`
+- `backup/INTEGRATION.md`
+
+The **lead integrator** is the only one who edits `ui/app/VkRoot.kt` (NavHost), `di/AppContainer.kt` and `AndroidManifest.xml`. If you take over mid-way, finish the integration from those INTEGRATION.md files.
