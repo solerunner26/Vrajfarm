@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="gu">
+<head>
+<meta charset="utf-8">
+<title>માલિક અને મેનેજર પ્રોફાઇલ</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="/_blob/f1d163bd7079433bcc1afa0784b5089f">
+<script src="/_blob/a577eb47629646d782fd5a8c0182f8dd"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Gujarati:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>body{margin:0}</style>
+</helmet>
+<div class="vk" data-vk-theme="{{th}}" style="width: 360px; height: 1460px;">
+  <header class="vk-hdr" style="padding-bottom: 88px;">
+    <svg class="vk-orn" width="360" height="170" viewBox="0 0 360 170" aria-hidden="true"><g><circle cx="180" cy="170" r="70"></circle><circle cx="180" cy="170" r="100"></circle><circle cx="180" cy="170" r="130"></circle></g></svg>
+    <div class="vk-bar">
+      <a href="Main.dc.html" class="vk-hbtn" aria-label="પાછા"><svg width="24" height="24" viewBox="0 0 24 24" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"></path></svg></a>
+      <h1 class="vk-h1">પ્રોફાઇલ</h1>
+    </div>
+    <svg class="vk-toran" width="360" height="18" viewBox="0 0 360 18" preserveAspectRatio="none" aria-hidden="true"><path d="M0 18V10Q15 0 30 10T60 10T90 10T120 10T150 10T180 10T210 10T240 10T270 10T300 10T330 10T360 10V18Z"></path></svg>
+  </header>
+
+  <div class="vk-body" style="position: relative; margin-top: -72px; padding-top: 0;">
+    <section class="vk-card" style="align-items: center; gap: 8px; text-align: center; padding: 20px 16px;">
+      <button onClick="{{openOwner}}" aria-label="માલિકનો ફોટો બદલો" class="vk-avatar" style="position: relative; width: 120px; height: 120px; border: 4px solid var(--card); font-size: 44px; padding: 0; box-shadow: 0 8px 22px var(--shadow);">
+        ગિ
+        <span class="vk-hbtn tonal" style="position: absolute; right: -2px; bottom: -2px; width: 42px; height: 42px; border: 3px solid var(--card);"><img src="{{ic.camera}}" alt="" style="width: 24px; height: 24px;"></span>
+      </button>
+      <span class="vk-badge gold" style="align-self: center;">માલિક</span>
+      <span style="font-size: 24px; font-weight: 800; white-space: nowrap;">ગિરવાનસિંહ વાળા</span>
+      <span style="font-size: 16px; color: var(--on2); line-height: 1.5;">મુ. પો. થોરાળા, તા. મહુવા,<br>જિ. ભાવનગર</span>
+      <span style="font-size: 16px; font-weight: 700;">+91 [મોબાઇલ નંબર]</span>
+      <button class="vk-btn outlined">પ્રોફાઇલ સુધારો</button>
+    </section>
+
+    <div class="vk-sec"><svg class="vk-leaf" width="20" height="14" viewBox="0 0 20 14" aria-hidden="true"><path class="a" d="M10 13C4 13 1 9 1 3c5 0 9 3 9 10z"></path><path class="b" d="M10 13c0-6 3-10 9-10 0 6-3 10-9 10z"></path></svg><h2>ફાર્મ મેનેજર</h2><span class="ln"></span></div>
+
+    <sc-for list="{{managers}}" as="m" hint-placeholder-count="2">
+      <article class="vk-card">
+        <div style="display: flex; gap: 14px; align-items: center;">
+          <button onClick="{{m.open}}" aria-label="મેનેજરનો ફોટો ઉમેરો" class="vk-sil-bg" style="position: relative; width: 80px; height: 80px; flex: none; padding: 0; border-radius: 40px; border: 2px dashed var(--ol); color: var(--p); font-size: 26px; font-weight: 800;">
+            {{m.initial}}
+            <span class="vk-hbtn tonal" style="position: absolute; right: -4px; bottom: -4px; width: 32px; height: 32px; border: 2px solid var(--card);"><img src="{{ic.camera}}" alt="" style="width: 18px; height: 18px;"></span>
+          </button>
+          <div class="vk-row-main">
+            <span style="font-size: 13px; font-weight: 800; color: var(--p);">{{m.role}}</span>
+            <span class="vk-t" style="font-size: 19px; font-weight: 800;">{{m.name}}</span>
+            <span class="vk-m" style="font-size: 15px;">+91 [મોબાઇલ નંબર]</span>
+          </div>
+        </div>
+        <div class="vk-wrap" style="gap: 6px; align-items: center;">
+          <span class="vk-m">જવાબદારી:</span>
+          <sc-for list="{{m.farms}}" as="f" hint-placeholder-count="4">
+            <span class="vk-badge ok">{{f}}</span>
+          </sc-for>
+        </div>
+        <div class="vk-grid3">
+          <button class="vk-btn filled" style="padding: 0 8px; font-size: 14px;">WhatsApp</button>
+          <button class="vk-btn tonal" style="padding: 0 8px; font-size: 14px;">ફોન કરો</button>
+          <button class="vk-btn outlined" style="padding: 0 8px; font-size: 14px;">સુધારો</button>
+        </div>
+      </article>
+    </sc-for>
+  </div>
+
+  <sc-if value="{{sheet}}" hint-placeholder-val="{{ false }}">
+    <div class="vk-scrim">
+      <div role="dialog" aria-label="ફોટો પસંદ કરો" class="vk-sheet">
+        <span aria-hidden="true" class="vk-handle"></span>
+        <span style="font-size: 20px; font-weight: 800;">{{sheetTitle}}</span>
+        <button onClick="{{close}}" class="vk-row vk-card" style="flex-direction: row; padding: 0 16px; border: 1px solid var(--bd); border-radius: 16px; min-height: 60px;"><img class="ic" src="{{ic.camera}}" alt="" style="width: 34px; height: 34px;"><span class="vk-t">કેમેરાથી ફોટો પાડો</span></button>
+        <button onClick="{{close}}" class="vk-row vk-card" style="flex-direction: row; padding: 0 16px; border: 1px solid var(--bd); border-radius: 16px; min-height: 60px;"><img class="ic" src="{{ic.profile}}" alt="" style="width: 34px; height: 34px;"><span class="vk-t">ગેલેરીમાંથી પસંદ કરો</span></button>
+        <button onClick="{{close}}" class="vk-btn text">રદ કરો</button>
+      </div>
+    </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["green","mati","akash","kesar","night"],"default":"green"},"$preview":{"width":360,"height":1460}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { sheet: null }; }
+  renderVals() {
+    const th = this.props.theme ?? 'green';
+    const managers = [
+      { initial: '૧', role: 'ફાર્મ મેનેજર 1', name: '[મેનેજર 1 નું નામ]', farms: ['ખેતર 1', 'ખેતર 2', 'ખેતર 3', 'ખેતર 4'] },
+      { initial: '૨', role: 'ફાર્મ મેનેજર 2', name: '[મેનેજર 2 નું નામ]', farms: ['ખેતર 5', 'ખેતર 6', 'ખેતર 7', 'ખેતર 8'] },
+    ].map((m) => ({ ...m, open: () => this.setState({ sheet: m.role }) }));
+    return {
+      th, ic: (window.VK_ICONS || {})[th] || {}, managers,
+      sheet: !!this.state.sheet, sheetTitle: (this.state.sheet || 'માલિક') + ' — ફોટો',
+      openOwner: () => this.setState({ sheet: 'માલિક' }), close: () => this.setState({ sheet: null }),
+    };
+  }
+}
+</script>
+</body>
+</html>

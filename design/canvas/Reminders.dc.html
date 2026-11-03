@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="gu">
+<head>
+<meta charset="utf-8">
+<title>રિમાઇન્ડર</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="/_blob/f1d163bd7079433bcc1afa0784b5089f">
+<script src="/_blob/a577eb47629646d782fd5a8c0182f8dd"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Gujarati:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>body{margin:0}</style>
+</helmet>
+<div class="vk" data-vk-theme="{{th}}" style="width: 360px; height: 1240px;">
+  <header class="vk-hdr">
+    <svg class="vk-orn" width="360" height="110" viewBox="0 0 360 110" aria-hidden="true"><g><path d="M0 84 Q180 50 360 82"></path><path d="M0 100 Q180 66 360 98"></path><circle cx="320" cy="20" r="34"></circle></g></svg>
+    <div class="vk-bar">
+      <a href="Main.dc.html" class="vk-hbtn" aria-label="પાછા"><svg width="24" height="24" viewBox="0 0 24 24" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"></path></svg></a>
+      <h1 class="vk-h1">રિમાઇન્ડર</h1>
+    </div>
+    <svg class="vk-toran" width="360" height="18" viewBox="0 0 360 18" preserveAspectRatio="none" aria-hidden="true"><path d="M0 18V10Q15 0 30 10T60 10T90 10T120 10T150 10T180 10T210 10T240 10T270 10T300 10T330 10T360 10V18Z"></path></svg>
+  </header>
+
+  <div class="vk-body" style="padding-bottom: 110px;">
+    <div class="vk-seg" role="group" aria-label="યાદી">
+      <button onClick="{{pickActive}}" class="{{activeCls}}">{{activeLabel}}</button>
+      <button onClick="{{pickArchive}}" class="{{archiveCls}}">{{archiveLabel}}</button>
+    </div>
+
+    <div class="vk-col" style="gap: 10px;">
+      <sc-for list="{{items}}" as="r" hint-placeholder-count="4">
+        <article class="vk-card" style="padding: 14px;">
+          <div style="display: flex; gap: 12px; align-items: flex-start;">
+            <sc-if value="{{r.hasImage}}" hint-placeholder-val="{{ false }}">
+              <div class="vk-sil-bg" style="width: 60px; height: 60px; flex: none; border-radius: 12px; display: flex; align-items: center; justify-content: center;"><img src="{{ic.camera}}" alt="" style="width: 30px; height: 30px;"></div>
+            </sc-if>
+            <div class="vk-row-main" style="gap: 4px;">
+              <span style="display: flex; gap: 6px; align-items: center; min-width: 0;"><span class="{{r.tagCls}}">{{r.tag}}</span><span class="vk-m">{{r.when}}</span></span>
+              <span class="vk-t" style="{{r.titleStyle}}">{{r.title}}</span>
+              <span class="vk-m" style="font-size: 14px;">{{r.note}}</span>
+            </div>
+          </div>
+          <sc-if value="{{r.open}}" hint-placeholder-val="{{ true }}">
+            <button onClick="{{r.done}}" class="vk-btn tonal">DONE · પૂરું થયું</button>
+          </sc-if>
+        </article>
+      </sc-for>
+    </div>
+  </div>
+
+  <button class="vk-fab"><span style="font-size: 24px; line-height: 1;">+</span>નવું રિમાઇન્ડર</button>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["green","mati","akash","kesar","night"],"default":"green"},"$preview":{"width":360,"height":1240}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { tab: 'active', archived: { r5: true } }; }
+  renderVals() {
+    const th = this.props.theme ?? 'green';
+    const s = this.state;
+    const all = [
+      { id: 'r1', kind: 'high', title: 'લાઇટ બિલ ભરવાનું', note: 'PGVCL · કૂવાનું કનેક્શન', when: 'આવતીકાલે · 04-11', img: false },
+      { id: 'r2', kind: 'high', title: 'રોટાવેટર પાછું લાવવું', note: 'રમેશભાઈ પટેલ પાસે', when: 'મુદત વીતી · 30-10', img: true },
+      { id: 'r6', kind: 'panchang', title: 'ચોપડા પૂજન', note: 'દિવાળી · આસો અમાસ', when: '08-11-2026', img: false },
+      { id: 'r3', kind: 'normal', title: 'ઘઉં વાવણી માટે ખેડ', note: 'ખેતર 4 · પૂનમ પછી શરૂ', when: '10-11-2026', img: false },
+      { id: 'r4', kind: 'normal', title: 'CCTV કેમેરા સર્વિસ', note: 'વાડી ગેટ', when: '15-11-2026', img: false },
+      { id: 'r5', kind: 'normal', title: 'મગફળી APMC વેચાણ', note: 'મહુવા યાર્ડ', when: '28-10-2026', img: false },
+    ];
+    const tagText = { high: 'HIGH', normal: 'NORMAL', panchang: 'પંચાંગ' };
+    const tagCls = { high: 'vk-badge strong', normal: 'vk-badge', panchang: 'vk-badge gold' };
+    const showArchive = s.tab === 'archive';
+    const items = all.filter((r) => !!s.archived[r.id] === showArchive).map((r) => ({
+      ...r, hasImage: r.img, open: !showArchive, tag: tagText[r.kind], tagCls: tagCls[r.kind],
+      titleStyle: 'font-size: 18px; font-weight: 800;' + (showArchive ? ' text-decoration: line-through; color: var(--on2);' : ''),
+      done: () => this.setState({ archived: { ...this.state.archived, [r.id]: true } }),
+    }));
+    const activeCount = all.filter((r) => !s.archived[r.id]).length;
+    return {
+      th, ic: (window.VK_ICONS || {})[th] || {}, items,
+      activeLabel: 'ચાલુ ' + activeCount, archiveLabel: 'આર્કાઇવ ' + (all.length - activeCount),
+      activeCls: !showArchive ? 'on' : '', archiveCls: showArchive ? 'on' : '',
+      pickActive: () => this.setState({ tab: 'active' }), pickArchive: () => this.setState({ tab: 'archive' }),
+    };
+  }
+}
+</script>
+</body>
+</html>

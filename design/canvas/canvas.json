@@ -1,0 +1,38 @@
+{
+  "v": 3,
+  "createdOnFiles": {"v": 1, "at": "2026-11-03T10:00:00Z"},
+  "title": "Vraj Kheti Hisab — UI/UX",
+  "launch": {"view": "canvas"},
+  "pages": [],
+  "boards": {
+    "Brand.dc.html": {"x": 0, "y": 0, "w": 1240, "h": 1300, "title": "Brand · 5 themes · M3 components"},
+    "Themes.dc.html": {"x": 1320, "y": 0, "w": 2040, "h": 2120, "title": "Home in all 5 themes"},
+    "Lock.dc.html": {"x": 0, "y": 2560, "w": 360, "h": 820, "title": "01 PIN Lock", "is_interactive": true},
+    "Main.dc.html": {"x": 440, "y": 2560, "w": 360, "h": 1960, "title": "02 Home Dashboard", "is_interactive": true},
+    "Entry.dc.html": {"x": 880, "y": 2560, "w": 360, "h": 1360, "title": "03 3-Tap Entry + APMC Mann", "is_interactive": true},
+    "Farms.dc.html": {"x": 1320, "y": 2560, "w": 360, "h": 1420, "title": "04 8 Farms P&L + Vigha Scorecard", "is_interactive": true},
+    "Family.dc.html": {"x": 1760, "y": 2560, "w": 360, "h": 1220, "title": "05 Family A/B Advances", "is_interactive": true},
+    "Personal.dc.html": {"x": 2200, "y": 2560, "w": 360, "h": 1120, "title": "06 Personal Account", "is_interactive": true},
+    "PanchangAlert.dc.html": {"x": 0, "y": 4880, "w": 360, "h": 900, "title": "07 Panchang Alert Dialog", "is_interactive": true},
+    "PanchangCalendar.dc.html": {"x": 440, "y": 4880, "w": 360, "h": 1320, "title": "08 Panchang Calendar", "is_interactive": true},
+    "Assets.dc.html": {"x": 0, "y": 6620, "w": 360, "h": 1520, "title": "09 Assets & Lending Tracker", "is_interactive": true},
+    "Lend.dc.html": {"x": 440, "y": 6620, "w": 360, "h": 1500, "title": "10 Lend Asset — Borrower Photo + WhatsApp", "is_interactive": true},
+    "Shopping.dc.html": {"x": 880, "y": 6620, "w": 360, "h": 1260, "title": "11 Shopping List", "is_interactive": true},
+    "Reminders.dc.html": {"x": 1320, "y": 6620, "w": 360, "h": 1240, "title": "12 Reminders", "is_interactive": true},
+    "Widgets.dc.html": {"x": 1760, "y": 6620, "w": 760, "h": 640, "title": "13 Home-screen Widgets"},
+    "Profiles.dc.html": {"x": 0, "y": 8560, "w": 360, "h": 1460, "title": "14 Owner & Farm Manager Profiles", "is_interactive": true},
+    "Settings.dc.html": {"x": 440, "y": 8560, "w": 360, "h": 1820, "title": "15 Settings · Theme · Panchang · Backup", "is_interactive": true},
+    "Help.dc.html": {"x": 880, "y": 8560, "w": 360, "h": 1340, "title": "16 Help & About", "is_interactive": true}
+  },
+  "order": ["Main.dc.html", "Brand.dc.html", "Themes.dc.html", "Lock.dc.html", "Entry.dc.html", "Farms.dc.html", "Family.dc.html", "Personal.dc.html", "PanchangAlert.dc.html", "PanchangCalendar.dc.html", "Assets.dc.html", "Lend.dc.html", "Shopping.dc.html", "Reminders.dc.html", "Widgets.dc.html", "Profiles.dc.html", "Settings.dc.html", "Help.dc.html"],
+  "notes": {
+    "t_brand": {"x": 0, "y": -300, "text": "Vraj Kheti Hisab — 5 themes, one Material 3 system", "kind": "title1", "maxW": 3360},
+    "t_core": {"x": 0, "y": 2260, "text": "Core flow — lock, home, entry, farms, family, personal", "kind": "title1", "maxW": 2560},
+    "t_panchang": {"x": 0, "y": 4580, "text": "Panchang — Bij, Agiyaras, Poonam, Amas & festival alerts", "kind": "title1", "maxW": 1600},
+    "t_assets": {"x": 0, "y": 6320, "text": "Assets, lending, shopping, reminders, widgets", "kind": "title1", "maxW": 2520},
+    "t_people": {"x": 0, "y": 8260, "text": "People, settings & help", "kind": "title1", "maxW": 1240},
+    "n_theme": {"x": 1320, "y": 8560, "w": 380, "text": "Every artboard has a Theme tweak (green · mati · akash · kesar · night). Settings › થીમ switches the whole screen live. Gold = Panchang only, red = errors only, in every theme. Names and amounts are sample data.", "fill": "green"},
+    "n_dialog": {"x": 880, "y": 4880, "w": 360, "text": "Alert timing: notification the evening before (7 PM, configurable) + this dialog once on first open of the day. Guidance texts are defaults 'as per belief' and are editable in Settings.", "fill": "green"}
+  },
+  "designSystems": []
+}

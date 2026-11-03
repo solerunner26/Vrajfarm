@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="gu">
+<head>
+<meta charset="utf-8">
+<title>PIN લોક</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="/_blob/f1d163bd7079433bcc1afa0784b5089f">
+<script src="/_blob/a577eb47629646d782fd5a8c0182f8dd"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Gujarati:wght@400;500;600;700;800&amp;family=Baloo+Bhai+2:wght@600;700;800&amp;display=swap" rel="stylesheet">
+<style>body{margin:0}</style>
+</helmet>
+<div class="vk" data-vk-theme="{{th}}" style="width: 360px; height: 820px; padding: 40px 24px 28px; display: flex; flex-direction: column; align-items: center; gap: 18px; background: linear-gradient(160deg, var(--g1), var(--g2) 70%); color: var(--on-g);">
+  <svg width="360" height="780" viewBox="0 0 360 780" aria-hidden="true" style="position: absolute; left: 0; top: 0;"><g fill="none" stroke="currentColor" stroke-opacity="0.1" stroke-width="1.5"><circle cx="180" cy="120" r="80"></circle><circle cx="180" cy="120" r="110"></circle><circle cx="180" cy="120" r="140"></circle><path d="M0 700 Q180 650 360 698"></path><path d="M0 724 Q180 674 360 722"></path><path d="M0 748 Q180 698 360 746"></path></g></svg>
+  <img src="{{ic.logo}}" alt="" style="position: relative; width: 88px; height: 88px; border-radius: 24px; box-shadow: 0 12px 30px rgba(0,0,0,0.25);">
+  <div style="position: relative; display: flex; flex-direction: column; align-items: center; gap: 2px;">
+    <span style="font-family: 'Baloo Bhai 2', sans-serif; font-size: 30px; font-weight: 800; line-height: 1.1; white-space: nowrap;">વ્રજ ખેતી હિસાબ</span>
+    <span style="font-size: 17px; opacity: 0.9; white-space: nowrap;">{{message}}</span>
+  </div>
+  <div aria-label="PIN" style="position: relative; display: flex; gap: 18px; padding: 6px 0;">
+    <sc-for list="{{dots}}" as="d" hint-placeholder-count="4">
+      <span style="{{d.style}}"></span>
+    </sc-for>
+  </div>
+  <div style="position: relative; height: 56px; display: flex; align-items: center;">
+    <sc-if value="{{unlocked}}" hint-placeholder-val="{{ false }}">
+      <a href="Main.dc.html" class="vk-btn onhero">હોમ ખોલો</a>
+    </sc-if>
+  </div>
+  <div style="position: relative; display: grid; grid-template-columns: repeat(3, 72px); gap: 14px 24px; margin-top: auto;">
+    <sc-for list="{{keys}}" as="k" hint-placeholder-count="12">
+      <button onClick="{{k.press}}" aria-label="{{k.aria}}" style="width: 72px; height: 72px; border-radius: 36px; border: none; background: var(--hdr-btn); color: var(--on-g); font-size: 28px; font-weight: 700;">{{k.label}}</button>
+    </sc-for>
+  </div>
+  <button onClick="{{bio}}" class="vk-btn tonal" style="position: relative;"><img src="{{ic.lock}}" alt="">ફિંગરપ્રિન્ટથી ખોલો</button>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["green","mati","akash","kesar","night"],"default":"green"},"$preview":{"width":360,"height":820}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { pin: '' }; }
+  renderVals() {
+    const th = this.props.theme ?? 'green';
+    const pin = this.state.pin;
+    const unlocked = pin.length === 4;
+    const add = (n) => () => { if (this.state.pin.length < 4) this.setState({ pin: this.state.pin + n }); };
+    const keys = ['1','2','3','4','5','6','7','8','9','C','0','⌫'].map((l) => ({
+      label: l,
+      aria: l === '⌫' ? 'છેલ્લો અંક ભૂંસો' : (l === 'C' ? 'બધું ભૂંસો' : l),
+      press: l === '⌫' ? () => this.setState({ pin: this.state.pin.slice(0, -1) }) : (l === 'C' ? () => this.setState({ pin: '' }) : add(l)),
+    }));
+    const dots = [0,1,2,3].map((i) => ({
+      style: 'width: 18px; height: 18px; border-radius: 9px; border: 2px solid currentColor; background: ' + (i < pin.length ? 'currentColor' : 'transparent') + ';',
+    }));
+    return { th, ic: (window.VK_ICONS || {})[th] || {}, keys, dots, unlocked,
+      message: unlocked ? 'ખુલી ગયું — સ્વાગત છે' : '4 અંકનો PIN દાખલ કરો', bio: () => this.setState({ pin: '0000' }) };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="gu">
+<head>
+<meta charset="utf-8">
+<title>મિલકત અને ઉછીનું</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="/_blob/f1d163bd7079433bcc1afa0784b5089f">
+<script src="/_blob/a577eb47629646d782fd5a8c0182f8dd"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Gujarati:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>body{margin:0}</style>
+</helmet>
+<div class="vk" data-vk-theme="{{th}}" style="width: 360px; height: 1520px;">
+  <header class="vk-hdr">
+    <svg class="vk-orn" width="360" height="170" viewBox="0 0 360 170" aria-hidden="true"><g><path d="M0 130 Q180 94 360 128"></path><path d="M0 148 Q180 112 360 146"></path><circle cx="320" cy="30" r="36"></circle></g></svg>
+    <div class="vk-bar">
+      <a href="Main.dc.html" class="vk-hbtn" aria-label="પાછા"><svg width="24" height="24" viewBox="0 0 24 24" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"></path></svg></a>
+      <h1 class="vk-h1">મિલકત અને ઉછીનું</h1>
+    </div>
+    <label class="vk-search">
+      <svg width="22" height="22" viewBox="0 0 24 24" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-4-4"></path></svg>
+      <span class="vk-sr">શોધો</span>
+      <input type="text" placeholder="કોણ લઈ ગયું? નામ, તારીખ…">
+    </label>
+    <svg class="vk-toran" width="360" height="18" viewBox="0 0 360 18" preserveAspectRatio="none" aria-hidden="true"><path d="M0 18V10Q15 0 30 10T60 10T90 10T120 10T150 10T180 10T210 10T240 10T270 10T300 10T330 10T360 10V18Z"></path></svg>
+  </header>
+
+  <div class="vk-body" style="padding-bottom: 110px;">
+    <div class="vk-seg" role="tablist" aria-label="યાદી">
+      <sc-for list="{{tabs}}" as="t" hint-placeholder-count="3">
+        <button onClick="{{t.pick}}" class="{{t.cls}}">{{t.label}}</button>
+      </sc-for>
+    </div>
+
+    <sc-if value="{{showLent}}" hint-placeholder-val="{{ true }}">
+      <div class="vk-col" style="gap: 12px;">
+        <sc-for list="{{lent}}" as="l" hint-placeholder-count="2">
+          <article class="vk-card" style="padding: 14px;">
+            <div style="display: flex; gap: 12px;">
+              <div class="vk-sil-bg" style="position: relative; width: 76px; height: 92px; flex: none; border-radius: 12px; overflow: hidden;">
+                <svg width="76" height="92" viewBox="0 0 76 92" aria-hidden="true"><circle class="vk-sil" cx="38" cy="34" r="15"></circle><path class="vk-sil" d="M8 92c2-20 14-32 30-32s28 12 30 32z"></path></svg>
+                <span style="position: absolute; left: 0; right: 0; bottom: 0; padding: 2px 0; text-align: center; font-size: 11px; font-weight: 700; background: var(--g2); color: var(--on-g);">ફોટો</span>
+              </div>
+              <div class="vk-row-main" style="gap: 3px;">
+                <span style="display: flex; align-items: center; gap: 6px; min-width: 0;"><img src="{{l.icon}}" alt="" style="width: 26px; height: 26px; flex: none;"><span class="vk-t" style="font-size: 18px; font-weight: 800;">{{l.asset}}</span></span>
+                <span class="vk-t" style="font-size: 16px;">{{l.who}}</span>
+                <span class="vk-m">લીધું {{l.from}}</span>
+                <span class="vk-m">પરત {{l.to}}</span>
+                <span class="{{l.badgeCls}}" style="margin-top: 4px;">{{l.badge}}</span>
+              </div>
+            </div>
+            <div class="vk-grid2" style="gap: 8px;">
+              <a href="Lend.dc.html" class="vk-btn filled" style="padding: 0 10px;">યાદ અપાવો</a>
+              <button class="vk-btn tonal" style="padding: 0 10px;">પરત મળ્યું</button>
+            </div>
+          </article>
+        </sc-for>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{showAll}}" hint-placeholder-val="{{ false }}">
+      <div class="vk-grid2" style="gap: 10px;">
+        <sc-for list="{{inventory}}" as="v" hint-placeholder-count="6">
+          <div class="vk-card" style="padding: 14px; gap: 6px; min-height: 132px;">
+            <img src="{{v.icon}}" alt="" style="width: 40px; height: 40px;">
+            <span class="vk-t">{{v.name}}</span>
+            <span class="{{v.cls}}">{{v.status}}</span>
+          </div>
+        </sc-for>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{showHistory}}" hint-placeholder-val="{{ false }}">
+      <div class="vk-col" style="gap: 10px;">
+        <sc-for list="{{history}}" as="h" hint-placeholder-count="3">
+          <div class="vk-card" style="flex-direction: row; align-items: center; padding: 12px 14px;">
+            <div class="vk-sil-bg" style="width: 56px; height: 64px; flex: none; border-radius: 10px; overflow: hidden;"><svg width="56" height="64" viewBox="0 0 56 64" aria-hidden="true"><circle class="vk-sil" cx="28" cy="24" r="11"></circle><path class="vk-sil" d="M6 64c2-14 10-22 22-22s20 8 22 22z"></path></svg></div>
+            <div class="vk-row-main">
+              <span class="vk-t">{{h.asset}} · {{h.who}}</span>
+              <span class="vk-m">લીધું {{h.from}}</span>
+              <span class="vk-m" style="color: var(--p); font-weight: 700;">✓ પરત મળ્યું {{h.back}}</span>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+    </sc-if>
+  </div>
+
+  <a href="Lend.dc.html" class="vk-fab"><img src="{{ic.lend}}" alt="">ઉછીની આપો</a>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["green","mati","akash","kesar","night"],"default":"green"},"$preview":{"width":360,"height":1520}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { tab: 'lent' }; }
+  renderVals() {
+    const th = this.props.theme ?? 'green';
+    const ic = (window.VK_ICONS || {})[th] || {};
+    const tab = this.state.tab;
+    const tabs = [{ id: 'lent', label: 'ઉછીની 2' }, { id: 'all', label: 'બધી 14' }, { id: 'history', label: 'ઇતિહાસ' }]
+      .map((t) => ({ label: t.label, cls: tab === t.id ? 'on' : '', pick: () => this.setState({ tab: t.id }) }));
+    const lent = [
+      { asset: 'રોટાવેટર', icon: ic.asset, who: 'રમેશભાઈ પટેલ', from: '26-10-2026', to: '30-10-2026', badge: '4 દિવસ મોડું', badgeCls: 'vk-badge err' },
+      { asset: 'દવા પંપ', icon: ic.utility, who: 'ભરતભાઈ સોલંકી', from: '01-11-2026', to: '05-11-2026', badge: '2 દિવસ બાકી', badgeCls: 'vk-badge' },
+    ];
+    const inventory = [
+      ['ટ્રેક્ટર', ic.asset, false], ['રોટાવેટર', ic.asset, true], ['થ્રેશર', ic.asset, false],
+      ['દવા પંપ', ic.utility, true], ['મોટર', ic.utility, false], ['ટ્રોલી', ic.lend, false],
+    ].map(([name, icon, out]) => ({ name, icon, status: out ? 'ઉછીનું આપેલ' : 'ઘરે છે', cls: out ? 'vk-badge' : 'vk-badge ok' }));
+    const history = [
+      { asset: 'ટ્રેક્ટર', who: 'મહેશભાઈ ડાભી', from: '23-11-2025 · માગશર સુદ 3', back: '26-11-2025' },
+      { asset: 'થ્રેશર', who: 'રમેશભાઈ પટેલ', from: '12-03-2026', back: '15-03-2026' },
+      { asset: 'ટ્રોલી', who: 'ભરતભાઈ સોલંકી', from: '02-06-2026', back: '03-06-2026' },
+    ];
+    return { th, ic, tabs, lent, inventory, history, showLent: tab === 'lent', showAll: tab === 'all', showHistory: tab === 'history' };
+  }
+}
+</script>
+</body>
+</html>

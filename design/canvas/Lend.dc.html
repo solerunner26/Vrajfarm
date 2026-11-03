@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="gu">
+<head>
+<meta charset="utf-8">
+<title>મિલકત ઉછીની આપો</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="/_blob/f1d163bd7079433bcc1afa0784b5089f">
+<script src="/_blob/a577eb47629646d782fd5a8c0182f8dd"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Gujarati:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>body{margin:0}</style>
+</helmet>
+<div class="vk" data-vk-theme="{{th}}" style="width: 360px; height: 1500px;">
+  <header class="vk-hdr">
+    <svg class="vk-orn" width="360" height="110" viewBox="0 0 360 110" aria-hidden="true"><g><path d="M0 84 Q180 50 360 82"></path><path d="M0 100 Q180 66 360 98"></path><circle cx="320" cy="20" r="34"></circle></g></svg>
+    <div class="vk-bar">
+      <a href="Assets.dc.html" class="vk-hbtn" aria-label="પાછા"><svg width="24" height="24" viewBox="0 0 24 24" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"></path></svg></a>
+      <h1 class="vk-h1">મિલકત ઉછીની આપો</h1>
+    </div>
+    <svg class="vk-toran" width="360" height="18" viewBox="0 0 360 18" preserveAspectRatio="none" aria-hidden="true"><path d="M0 18V10Q15 0 30 10T60 10T90 10T120 10T150 10T180 10T210 10T240 10T270 10T300 10T330 10T360 10V18Z"></path></svg>
+  </header>
+
+  <div class="vk-body" style="gap: 16px;">
+    <section class="vk-col">
+      <span class="vk-label">1 · લઈ જનારનો ફોટો</span>
+      <button onClick="{{snap}}" aria-label="લઈ જનારનો ફોટો પાડો" class="vk-card" style="position: relative; height: 220px; padding: 0; border: 2px dashed var(--ol); align-items: center; justify-content: center; gap: 10px; overflow: hidden;">
+        <sc-if value="{{hasPhoto}}" hint-placeholder-val="{{ false }}">
+          <span class="vk-sil-bg" style="position: absolute; inset: 0; display: flex; align-items: flex-end; justify-content: center;">
+            <svg width="200" height="200" viewBox="0 0 200 200" aria-hidden="true"><circle class="vk-sil" cx="100" cy="80" r="40"></circle><path class="vk-sil" d="M20 200c6-52 38-80 80-80s74 28 80 80z"></path></svg>
+          </span>
+          <span class="vk-badge" style="position: absolute; left: 10px; bottom: 10px; background: var(--g2); color: var(--on-g);">03-11-2026 · 10:42 AM</span>
+          <span class="vk-badge ok" style="position: absolute; right: 10px; top: 10px;">ફરી પાડો</span>
+        </sc-if>
+        <sc-if value="{{noPhoto}}" hint-placeholder-val="{{ true }}">
+          <img src="{{ic.camera}}" alt="" style="width: 68px; height: 68px;">
+          <span style="font-size: 19px; font-weight: 800;">ફોટો પાડો</span>
+          <span class="vk-m" style="font-size: 14px;">ચહેરો અને મિલકત સાથે દેખાય તેવો</span>
+        </sc-if>
+      </button>
+    </section>
+
+    <section class="vk-col">
+      <span class="vk-label">2 · કોણ લઈ જાય છે?</span>
+      <label class="vk-field"><span>નામ</span><input type="text" value="રમેશભાઈ પટેલ"></label>
+      <div style="display: flex; gap: 8px;">
+        <label class="vk-field" style="flex: 1 1 auto;"><span>WhatsApp નંબર</span><input type="tel" value="+91 98XXX XXXXX"></label>
+        <button class="vk-hbtn tonal" aria-label="સંપર્કમાંથી પસંદ કરો" style="width: 64px; height: auto; border-radius: 16px;"><img src="{{ic.profile}}" alt=""></button>
+      </div>
+    </section>
+
+    <section class="vk-col">
+      <span class="vk-label">3 · કઈ મિલકત?</span>
+      <div class="vk-wrap">
+        <sc-for list="{{assets}}" as="a" hint-placeholder-count="5">
+          <button onClick="{{a.pick}}" class="{{a.cls}}">{{a.name}}</button>
+        </sc-for>
+      </div>
+    </section>
+
+    <section class="vk-col">
+      <span class="vk-label">4 · તારીખ</span>
+      <div class="vk-card" style="flex-direction: row; justify-content: space-between; align-items: center; padding: 12px 14px;">
+        <span><span class="vk-m" style="display: block; font-size: 12px;">આપ્યાની તારીખ</span><span style="font-size: 18px; font-weight: 800;">03-11-2026</span></span>
+        <span class="vk-badge gold">આસો વદ નોમ</span>
+      </div>
+      <span class="vk-m">કેટલા દિવસ પછી પરત?</span>
+      <div class="vk-grid4">
+        <sc-for list="{{days}}" as="d" hint-placeholder-count="4">
+          <button onClick="{{d.pick}}" class="{{d.cls}}" style="padding: 0 4px;">{{d.label}}</button>
+        </sc-for>
+      </div>
+      <button onClick="{{toggleNotify}}" role="switch" aria-checked="{{notifyAria}}" class="vk-card" style="flex-direction: row; align-items: center; padding: 10px 14px; min-height: 60px; text-align: left;">
+        <span class="vk-t" style="flex: 1 1 auto; font-size: 16px; font-weight: 600;">પરત તારીખે યાદ આપો</span>
+        <span class="{{notifyCls}}"></span>
+      </button>
+    </section>
+
+    <section class="vk-card" style="gap: 10px;">
+      <span class="vk-label">WhatsApp યાદી પૂર્વાવલોકન</span>
+      <div class="vk-bubble">{{message}}</div>
+    </section>
+
+    <div style="display: grid; grid-template-columns: 1fr 1.6fr; gap: 10px;">
+      <a href="Assets.dc.html" class="vk-btn tonal lg">સાચવો</a>
+      <a href="Assets.dc.html" class="vk-btn filled lg" style="padding: 0 12px;"><img src="{{ic.message}}" alt="">સાચવો + મોકલો</a>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["green","mati","akash","kesar","night"],"default":"green"},"$preview":{"width":360,"height":1500}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { photo: false, asset: 'ટ્રેક્ટર', days: 3, notify: true }; }
+  renderVals() {
+    const th = this.props.theme ?? 'green';
+    const s = this.state;
+    const assets = ['ટ્રેક્ટર', 'રોટાવેટર', 'થ્રેશર', 'દવા પંપ', 'ટ્રોલી'].map((n) => ({ name: n, cls: 'vk-chip' + (s.asset === n ? ' on' : ''), pick: () => this.setState({ asset: n }) }));
+    const returnDate = { 1: '04-11-2026', 3: '06-11-2026', 7: '10-11-2026', 15: '18-11-2026' };
+    const days = [1, 3, 7, 15].map((d) => ({ label: String(d), cls: 'vk-chip' + (s.days === d ? ' on' : ''), pick: () => this.setState({ days: d }) }));
+    const message = 'નમસ્તે રમેશભાઈ પટેલ,\nતમે તા. 03-11-2026 ના રોજ અમારું ' + s.asset + ' લઈ ગયા છો.\nપરત આપવાની તારીખ: ' + returnDate[s.days] + '\nકૃપા કરી સમયસર પરત કરશો.\n— ગિરવાનસિંહ વાળા, થોરાળા';
+    return {
+      th, ic: (window.VK_ICONS || {})[th] || {}, assets, days, message,
+      hasPhoto: s.photo, noPhoto: !s.photo, snap: () => this.setState({ photo: !this.state.photo }),
+      notifyCls: 'vk-switch' + (s.notify ? ' on' : ''), notifyAria: s.notify ? 'true' : 'false',
+      toggleNotify: () => this.setState({ notify: !this.state.notify }),
+    };
+  }
+}
+</script>
+</body>
+</html>

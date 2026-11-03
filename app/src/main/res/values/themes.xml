@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Window theme only. All in-app colour comes from VkTheme (Compose). -->
+    <style name="Theme.VrajKhetiHisab" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:windowBackground">@color/vk_window_bg</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:windowLightStatusBar">false</item>
+    </style>
+</resources>

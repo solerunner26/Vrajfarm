@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="gu">
+<head>
+<meta charset="utf-8">
+<title>મદદ અને માહિતી</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="/_blob/f1d163bd7079433bcc1afa0784b5089f">
+<script src="/_blob/a577eb47629646d782fd5a8c0182f8dd"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Gujarati:wght@400;500;600;700;800&amp;family=Baloo+Bhai+2:wght@600;700;800&amp;display=swap" rel="stylesheet">
+<style>body{margin:0}</style>
+</helmet>
+<div class="vk" data-vk-theme="{{th}}" style="width: 360px; height: 1340px;">
+  <header class="vk-hdr" style="padding-bottom: 40px; align-items: center; text-align: center; gap: 8px;">
+    <svg class="vk-orn" width="360" height="300" viewBox="0 0 360 300" aria-hidden="true"><g><circle cx="180" cy="130" r="70"></circle><circle cx="180" cy="130" r="100"></circle><circle cx="180" cy="130" r="130"></circle><path d="M0 250 Q180 214 360 248"></path></g></svg>
+    <div class="vk-bar" style="align-self: stretch;">
+      <a href="Settings.dc.html" class="vk-hbtn" aria-label="પાછા"><svg width="24" height="24" viewBox="0 0 24 24" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"></path></svg></a>
+      <h1 class="vk-h1" style="text-align: left;">મદદ અને માહિતી</h1>
+    </div>
+    <img src="{{ic.logo}}" alt="Vraj Kheti Hisab logo" style="width: 92px; height: 92px; border-radius: 26px; box-shadow: 0 10px 26px rgba(0,0,0,0.25);">
+    <span style="font-family: 'Baloo Bhai 2', sans-serif; font-size: 30px; font-weight: 800; line-height: 1.1; white-space: nowrap;">વ્રજ ખેતી હિસાબ</span>
+    <span style="font-size: 13px; font-weight: 700; letter-spacing: 0.16em; opacity: 0.85; white-space: nowrap;">VRAJ KHETI HISAB</span>
+    <span style="font-size: 14px; opacity: 0.9; white-space: nowrap;">આવૃત્તિ 1.0 · ઓફલાઇન · ખાનગી</span>
+    <svg class="vk-toran" width="360" height="18" viewBox="0 0 360 18" preserveAspectRatio="none" aria-hidden="true"><path d="M0 18V10Q15 0 30 10T60 10T90 10T120 10T150 10T180 10T210 10T240 10T270 10T300 10T330 10T360 10V18Z"></path></svg>
+  </header>
+
+  <div class="vk-body">
+    <div class="vk-sec"><svg class="vk-leaf" width="20" height="14" viewBox="0 0 20 14" aria-hidden="true"><path class="a" d="M10 13C4 13 1 9 1 3c5 0 9 3 9 10z"></path><path class="b" d="M10 13c0-6 3-10 9-10 0 6-3 10-9 10z"></path></svg><h2>વારંવાર પુછાતા પ્રશ્નો</h2><span class="ln"></span></div>
+    <div class="vk-card flush">
+      <sc-for list="{{faqs}}" as="q" hint-placeholder-count="6">
+        <div style="border-bottom: 1px solid var(--div);">
+          <button onClick="{{q.toggle}}" aria-expanded="{{q.expanded}}" class="vk-row" style="border-bottom: none; min-height: 60px;"><img src="{{q.icon}}" alt="" style="width: 30px; height: 30px; flex: none;"><span class="vk-t" style="flex: 1 1 auto; font-size: 16px; white-space: normal;">{{q.q}}</span><span class="vk-chev">{{q.sign}}</span></button>
+          <sc-if value="{{q.open}}" hint-placeholder-val="{{ false }}">
+            <p class="vk-p" style="padding: 0 16px 14px 58px;">{{q.a}}</p>
+          </sc-if>
+        </div>
+      </sc-for>
+    </div>
+
+    <section class="vk-card" style="gap: 4px;">
+      <span class="vk-badge gold">માલિક</span>
+      <span style="font-size: 18px; font-weight: 800; margin-top: 4px;">ગિરવાનસિંહ વાળા</span>
+      <span style="font-size: 15px; color: var(--on2);">મુ. પો. થોરાળા, તા. મહુવા, જિ. ભાવનગર</span>
+      <span class="vk-m" style="white-space: normal;">Owner: Girwansinh Vala · At Post Thorala, Taluka Mahuva, Dist. Bhavnagar</span>
+    </section>
+
+    <section class="vk-hero" style="align-items: center; text-align: center; gap: 4px; padding: 18px 16px;">
+      <svg class="vk-orn" width="328" height="120" viewBox="0 0 328 120" aria-hidden="true"><g><path d="M0 96 Q164 66 328 94"></path><path d="M0 112 Q164 82 328 110"></path></g></svg>
+      <span style="font-size: 13px; font-weight: 700; opacity: 0.85;">Design and Developed by</span>
+      <span style="font-size: 22px; font-weight: 800;">Jaldip Vala</span>
+      <span style="font-size: 14px; opacity: 0.9;">ડિઝાઇન અને ડેવલપમેન્ટ: જલદીપ વાળા</span>
+    </section>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["green","mati","akash","kesar","night"],"default":"green"},"$preview":{"width":360,"height":1340}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { open: 2 }; }
+  renderVals() {
+    const th = this.props.theme ?? 'green';
+    const ic = (window.VK_ICONS || {})[th] || {};
+    const list = [
+      [ic.income, 'એન્ટ્રી કેવી રીતે લખવી?', 'હોમ પર નીચેનું બટન દબાવો. વિભાગ, ખેતર અને રકમ — માત્ર 3 ટેપમાં એન્ટ્રી થઈ જાય.'],
+      [ic.calculator, 'મણ ગણતરી કેવી રીતે થાય?', 'કુલ મણ = મણ + (વધારાના કિલો ÷ 20). કુલ રકમ = કુલ મણ × મણનો ભાવ.'],
+      [ic.moon, 'બીજ, અગિયારસ, પૂનમ, અમાસ', 'આગલી સાંજે નોટિફિકેશન અને તે દિવસે એપ ખોલતાં સૂચના આવે છે. સેટિંગ્સમાં ચાલુ/બંધ કરો અને લખાણ બદલો.'],
+      [ic.camera, 'ઉછીની મિલકત વખતે ફોટો કેમ?', 'લઈ જનારનો ફોટો તારીખ સાથે સચવાય છે, એટલે પછી શોધી શકો કે કોણ, ક્યારે, શું લઈ ગયું.'],
+      [ic.message, 'WhatsApp યાદી કેવી રીતે મોકલવી?', '“યાદ અપાવો” દબાવો. ગુજરાતીમાં તૈયાર મેસેજ સાથે WhatsApp ખુલશે — ફક્ત મોકલો દબાવો.'],
+      [ic.backup, 'મારો ડેટા સુરક્ષિત છે?', 'બધો ડેટા ફોનમાં જ રહે છે. દરરોજ રાત્રે 11:45 વાગ્યે તમારા પોતાના સર્વર પર બેકઅપ જાય છે.'],
+    ];
+    const faqs = list.map(([icon, q, a], i) => {
+      const open = this.state.open === i;
+      return { icon, q, a, open, expanded: open ? 'true' : 'false', sign: open ? '−' : '+', toggle: () => this.setState({ open: open ? -1 : i }) };
+    });
+    return { th, ic, faqs };
+  }
+}
+</script>
+</body>
+</html>

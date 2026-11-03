@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="gu">
+<head>
+<meta charset="utf-8">
+<title>સેટિંગ્સ</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="/_blob/f1d163bd7079433bcc1afa0784b5089f">
+<script src="/_blob/a577eb47629646d782fd5a8c0182f8dd"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Gujarati:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>body{margin:0}</style>
+</helmet>
+<div class="vk" data-vk-theme="{{th}}" style="width: 360px; height: 1820px;">
+  <header class="vk-hdr">
+    <svg class="vk-orn" width="360" height="110" viewBox="0 0 360 110" aria-hidden="true"><g><path d="M0 84 Q180 50 360 82"></path><path d="M0 100 Q180 66 360 98"></path><circle cx="320" cy="20" r="34"></circle></g></svg>
+    <div class="vk-bar">
+      <a href="Main.dc.html" class="vk-hbtn" aria-label="પાછા"><svg width="24" height="24" viewBox="0 0 24 24" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"></path></svg></a>
+      <h1 class="vk-h1">સેટિંગ્સ</h1>
+    </div>
+    <svg class="vk-toran" width="360" height="18" viewBox="0 0 360 18" preserveAspectRatio="none" aria-hidden="true"><path d="M0 18V10Q15 0 30 10T60 10T90 10T120 10T150 10T180 10T210 10T240 10T270 10T300 10T330 10T360 10V18Z"></path></svg>
+  </header>
+
+  <div class="vk-body">
+    <div class="vk-sec"><svg class="vk-leaf" width="20" height="14" viewBox="0 0 20 14" aria-hidden="true"><path class="a" d="M10 13C4 13 1 9 1 3c5 0 9 3 9 10z"></path><path class="b" d="M10 13c0-6 3-10 9-10 0 6-3 10-9 10z"></path></svg><h2>થીમ</h2><span class="ln"></span></div>
+    <section class="vk-card" style="gap: 12px;">
+      <div role="radiogroup" aria-label="થીમ પસંદ કરો" style="display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px;">
+        <sc-for list="{{themes}}" as="t" hint-placeholder-count="5">
+          <button onClick="{{t.pick}}" role="radio" aria-checked="{{t.checked}}" aria-label="{{t.name}}" style="{{t.style}}">
+            <span style="{{t.swatch}}">{{t.tick}}</span>
+            <span style="font-size: 12px; font-weight: 700; white-space: nowrap;">{{t.name}}</span>
+          </button>
+        </sc-for>
+      </div>
+      <span class="vk-m" style="white-space: normal;">{{themeNote}}</span>
+    </section>
+
+    <section class="vk-card">
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <img src="{{ic.backup}}" alt="" style="width: 44px; height: 44px;">
+        <span class="vk-row-main"><span class="vk-t" style="font-size: 18px; font-weight: 800;">રાત્રિ બેકઅપ</span><span class="vk-m">GoDaddy + ઇમેઇલ · 365 દિવસ</span></span>
+        <span class="vk-badge ok">OK</span>
+      </div>
+      <div class="vk-grid2" style="gap: 10px;">
+        <div class="vk-stat"><div class="k">છેલ્લો બેકઅપ</div><div class="v" style="font-size: 16px;">02-11 · 11:45 PM</div></div>
+        <div class="vk-stat"><div class="k">આગલો</div><div class="v" style="font-size: 16px;">આજે · 11:45 PM</div></div>
+      </div>
+      <button class="vk-btn tonal">હમણાં બેકઅપ લો</button>
+    </section>
+
+    <div class="vk-sec"><svg class="vk-leaf" width="20" height="14" viewBox="0 0 20 14" aria-hidden="true"><path class="a" d="M10 13C4 13 1 9 1 3c5 0 9 3 9 10z"></path><path class="b" d="M10 13c0-6 3-10 9-10 0 6-3 10-9 10z"></path></svg><h2>પંચાંગ સૂચના</h2><span class="ln"></span></div>
+    <section class="vk-card flush">
+      <sc-for list="{{alerts}}" as="a" hint-placeholder-count="6">
+        <button onClick="{{a.toggle}}" role="switch" aria-checked="{{a.checked}}" class="vk-row">
+          <img class="ic" src="{{a.icon}}" alt="" style="width: 32px; height: 32px;">
+          <span class="vk-row-main"><span class="vk-t">{{a.label}}</span><span class="vk-m">{{a.sub}}</span></span>
+          <span class="{{a.cls}}"></span>
+        </button>
+      </sc-for>
+      <div class="vk-row">
+        <img class="ic" src="{{ic.reminder}}" alt="" style="width: 32px; height: 32px;">
+        <span class="vk-row-main"><span class="vk-t">આગલી સાંજે યાદ</span><span class="vk-m">નોટિફિકેશનનો સમય</span></span>
+        <span class="vk-badge" style="align-self: center; font-size: 15px; padding: 6px 12px;">7:00 PM</span>
+      </div>
+      <a href="PanchangAlert.dc.html" class="vk-row">
+        <img class="ic" src="{{ic.bill}}" alt="" style="width: 32px; height: 32px;">
+        <span class="vk-row-main"><span class="vk-t">સલાહનું લખાણ બદલો</span><span class="vk-m">શું કરવું / શું ટાળવું</span></span>
+        <span class="vk-chev">›</span>
+      </a>
+    </section>
+
+    <div class="vk-sec"><svg class="vk-leaf" width="20" height="14" viewBox="0 0 20 14" aria-hidden="true"><path class="a" d="M10 13C4 13 1 9 1 3c5 0 9 3 9 10z"></path><path class="b" d="M10 13c0-6 3-10 9-10 0 6-3 10-9 10z"></path></svg><h2>સામાન્ય</h2><span class="ln"></span></div>
+    <nav aria-label="સેટિંગ્સ યાદી" class="vk-card flush">
+      <a href="Profiles.dc.html" class="vk-row" style="min-height: 60px;"><img class="ic" src="{{ic.profile}}" alt="" style="width: 32px; height: 32px;"><span class="vk-t" style="flex: 1 1 auto;">માલિક અને મેનેજર</span><span class="vk-chev">›</span></a>
+      <a href="Farms.dc.html" class="vk-row" style="min-height: 60px;"><img class="ic" src="{{ic.farm}}" alt="" style="width: 32px; height: 32px;"><span class="vk-t" style="flex: 1 1 auto;">ખેતર, વીઘા અને પાક</span><span class="vk-chev">›</span></a>
+      <a href="Family.dc.html" class="vk-row" style="min-height: 60px;"><img class="ic" src="{{ic.family}}" alt="" style="width: 32px; height: 32px;"><span class="vk-t" style="flex: 1 1 auto;">પરિવાર WhatsApp નંબર</span><span class="vk-chev">›</span></a>
+      <a href="Lock.dc.html" class="vk-row" style="min-height: 60px;"><img class="ic" src="{{ic.lock}}" alt="" style="width: 32px; height: 32px;"><span class="vk-t" style="flex: 1 1 auto;">PIN અને ફિંગરપ્રિન્ટ</span><span class="vk-chev">›</span></a>
+      <a href="Help.dc.html" class="vk-row" style="min-height: 60px;"><img class="ic" src="{{ic.help}}" alt="" style="width: 32px; height: 32px;"><span class="vk-t" style="flex: 1 1 auto;">મદદ અને માહિતી</span><span class="vk-chev">›</span></a>
+    </nav>
+
+    <div class="vk-sec"><svg class="vk-leaf" width="20" height="14" viewBox="0 0 20 14" aria-hidden="true"><path class="a" d="M10 13C4 13 1 9 1 3c5 0 9 3 9 10z"></path><path class="b" d="M10 13c0-6 3-10 9-10 0 6-3 10-9 10z"></path></svg><h2>PDF રિપોર્ટ</h2><span class="ln"></span></div>
+    <div class="vk-wrap">
+      <button class="vk-chip">દૈનિક હિસાબ</button>
+      <button class="vk-chip">ખેતરવાર નફો</button>
+      <button class="vk-chip">વીઘા સ્કોરકાર્ડ</button>
+      <button class="vk-chip">પરિવાર ઉપાડ</button>
+      <button class="vk-chip">અંગત હિસાબ</button>
+      <button class="vk-chip">ઉધાર બાકી</button>
+      <button class="vk-chip">મિલકત અને ઉછીનું</button>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["green","mati","akash","kesar","night"],"default":"green"},"$preview":{"width":360,"height":1820}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { th: null, on: { bij: true, ag: true, poonam: true, amas: true, fest: true, advice: true } }; }
+  renderVals() {
+    const th = this.state.th || this.props.theme || 'green';
+    const ic = (window.VK_ICONS || {})[th] || {};
+    const list = window.VK_THEMES || [];
+    const themes = list.map((t) => {
+      const on = t.id === th;
+      return {
+        name: t.name.replace('વ્રજ ', ''), checked: on ? 'true' : 'false', tick: on ? '✓' : '',
+        pick: () => this.setState({ th: t.id }),
+        style: 'min-height: 84px; padding: 8px 0; border-radius: 14px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; color: var(--on); ' + (on ? 'background: var(--pc); border: 2px solid var(--p);' : 'background: transparent; border: 1px solid var(--bd);'),
+        swatch: 'width: 40px; height: 40px; border-radius: 20px; display: flex; align-items: center; justify-content: center; color: #FFFFFF; font-weight: 800; font-size: 18px; background: linear-gradient(135deg, ' + t.g1 + ', ' + t.g2 + '); box-shadow: inset 0 0 0 2px rgba(255,255,255,0.35);',
+      };
+    });
+    const cur = list.find((t) => t.id === th);
+    const defs = [
+      ['bij', 'બીજ', 'સુદ બીજ · ભાઈબીજ, અષાઢી બીજ', ic.moon],
+      ['ag', 'અગિયારસ', 'સુદ અને વદ અગિયારસ', ic.moon],
+      ['poonam', 'પૂનમ', 'દર મહિનાની પૂનમ', ic.moon],
+      ['amas', 'અમાસ', 'દર મહિનાની અમાસ', ic.moon],
+      ['fest', 'તહેવાર', 'દિવાળી, હોળી, ઉત્તરાયણ…', ic.diya],
+      ['advice', 'કામની સલાહ બતાવો', 'શું કરવું / ટાળવું (માન્યતા)', ic.panchang],
+    ];
+    const alerts = defs.map(([k, label, sub, icon]) => {
+      const on = !!this.state.on[k];
+      return { label, sub, icon, checked: on ? 'true' : 'false', cls: 'vk-switch' + (on ? ' on' : ''), toggle: () => this.setState({ on: { ...this.state.on, [k]: !on } }) };
+    });
+    return {
+      th, ic, themes, alerts,
+      themeNote: 'પસંદ કરેલી થીમ: ' + (cur ? cur.name : '') + (th === 'night' ? ' — રાત્રે આંખને આરામ આપે છે.' : ' — આખી એપ, વિજેટ અને આઇકન બદલાશે.'),
+    };
+  }
+}
+</script>
+</body>
+</html>

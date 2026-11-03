@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- All user-facing copy is Gujarati (CLAUDE.md). Feature agents append their own sections below. -->
+<resources>
+    <string name="app_name">વ્રજ ખેતી હિસાબ</string>
+    <string name="app_wordmark">વ્રજ ખેતી હિસાબ</string>
+
+    <!-- Panchang (doc 02) -->
+    <string name="vs_prefix">વિ.સં.</string>
+    <string name="paksha_sud">સુદ</string>
+    <string name="paksha_vad">વદ</string>
+    <string name="adhik">અધિક</string>
+    <string name="panchang_today">આજનું પંચાંગ</string>
+    <string name="panchang_sunrise">સૂર્યોદય %s</string>
+    <string name="panchang_sunset">સૂર્યાસ્ત %s</string>
+    <string name="panchang_tithi_ends">તિથિ સમાપ્તિ: %s</string>
+    <string name="panchang_belief_footer">માન્યતા પ્રમાણે · સેટિંગ્સમાં બદલી શકો</string>
+
+    <!-- Festival dialog (doc 10) -->
+    <string name="festival_today">આજે</string>
+    <string name="festival_tomorrow">આવતીકાલે</string>
+    <string name="festival_do">કરવા જેવું</string>
+    <string name="festival_avoid">ટાળવા જેવું</string>
+    <string name="festival_ok">સમજાયું</string>
+    <string name="festival_create_reminder">રિમાઇન્ડર બનાવો</string>
+    <string name="festival_open_calendar">કેલેન્ડર જુઓ</string>
+    <string name="alert_type_festival">તહેવાર</string>
+    <string name="alert_type_agiyaras">અગિયારસ</string>
+    <string name="alert_type_amas">અમાસ</string>
+    <string name="alert_type_poonam">પૂનમ</string>
+    <string name="alert_type_bij">બીજ</string>
+
+    <!-- Lock (doc 04) -->
+    <string name="lock_enter_pin">4 અંકનો PIN દાખલ કરો</string>
+    <string name="lock_wrong">ખોટો PIN</string>
+    <string name="lock_retry_in">ફરી પ્રયાસ કરો: %s</string>
+    <string name="lock_bio">ફિંગરપ્રિન્ટથી ખોલો</string>
+    <string name="lock_set_new">નવો PIN બનાવો</string>
+    <string name="lock_confirm">PIN ફરી દાખલ કરો</string>
+    <string name="lock_mismatch">PIN મેળ ખાતો નથી</string>
+    <string name="lock_digits_entered">4 માંથી %d અંક દાખલ થયા</string>
+    <string name="lock_forgot">PIN ભૂલી ગયા?</string>
+    <string name="lock_forgot_title">PIN ભૂલી ગયા?</string>
+    <string name="lock_forgot_body">સુરક્ષા માટે PIN ફરીથી સેટ કરવાની કોઈ ઓનલાઇન રીત નથી. PIN બદલવા માટે ફોનના સેટિંગ્સમાંથી આ એપનો ડેટા સાફ કરો, પછી રાત્રિ બેકઅપમાંથી હિસાબ પાછો લાવો.</string>
+    <string name="lock_forgot_ok">સમજાયું</string>
+    <string name="lock_open_home">હોમ ખોલો</string>
+    <string name="lock_bio_prompt_title">વ્રજ ખેતી હિસાબ ખોલો</string>
+    <string name="lock_bio_prompt_negative">PIN વાપરો</string>
+    <string name="lock_bio_enable_title">ફિંગરપ્રિન્ટ ચાલુ કરશો?</string>
+    <string name="lock_bio_enable_body">આગલી વખતે PIN વગર ફિંગરપ્રિન્ટથી એપ ખોલી શકશો.</string>
+    <string name="lock_bio_enable_yes">ચાલુ કરો</string>
+    <string name="lock_bio_enable_no">હમણાં નહીં</string>
+    <string name="keypad_backspace">છેલ્લો અંક ભૂંસો</string>
+
+    <!-- Settings (doc 04) -->
+    <string name="settings_title">સેટિંગ્સ</string>
+    <string name="settings_farms">ખેતર, વીઘા અને પાક</string>
+    <string name="settings_family">પરિવાર WhatsApp નંબર</string>
+    <string name="settings_categories">ખર્ચના પ્રકાર</string>
+    <string name="settings_lock">PIN + ફિંગરપ્રિન્ટ લોક</string>
+    <string name="vigha_not_set">વીઘા સેટ કરો</string>
+
+    <!-- Theme picker (doc 01 §7) -->
+    <string name="settings_theme">થીમ</string>
+    <string name="settings_theme_follow_system">ફોનનો ડાર્ક મોડ અનુસરો</string>
+    <string name="theme_green">વ્રજ લીલો</string>
+    <string name="theme_mati">માટી</string>
+    <string name="theme_akash">આકાશ</string>
+    <string name="theme_kesar">કેસર</string>
+    <string name="theme_night">રાત્રિ</string>
+    <string name="theme_green_short">લીલો</string>
+    <string name="theme_mati_short">માટી</string>
+    <string name="theme_akash_short">આકાશ</string>
+    <string name="theme_kesar_short">કેસર</string>
+    <string name="theme_night_short">રાત્રિ</string>
+
+    <!-- Shared component copy -->
+    <string name="cd_back">પાછા જાઓ</string>
+    <string name="dock_expense">ખર્ચ / ઉપાડ</string>
+    <string name="dock_income">આવક / વેચાણ</string>
+    <string name="status_ok">બરાબર</string>
+    <string name="status_due_in">%d દિવસમાં</string>
+    <string name="status_due_today">આજે</string>
+    <string name="status_overdue">%d દિવસ મોડું</string>
+    <string name="photo_add">ફોટો</string>
+
+    <!-- Placeholder Home (Wave 1; replaced by doc 05) -->
+    <string name="home_greeting">રામ રામ, ગીરવાનસિંહ</string>
+    <string name="home_sections">વિભાગો</string>
+    <string name="home_section_farm">ખેતી</string>
+    <string name="home_section_family">પરિવાર</string>
+    <string name="home_section_personal">અંગત</string>
+    <string name="home_section_shopping">ખરીદી</string>
+    <string name="home_section_assets">સાધનો</string>
+    <string name="home_section_reminder">રિમાઇન્ડર</string>
+    <string name="home_this_month">આ મહિને</string>
+    <string name="home_recent">તાજેતરની એન્ટ્રી</string>
+    <string name="home_all">બધું જુઓ</string>
+    <string name="home_wave1_note">આ હોમ સ્ક્રીન કામચલાઉ છે.</string>
+</resources>

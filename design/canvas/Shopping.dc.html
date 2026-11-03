@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="gu">
+<head>
+<meta charset="utf-8">
+<title>ખરીદી યાદી</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="/_blob/f1d163bd7079433bcc1afa0784b5089f">
+<script src="/_blob/a577eb47629646d782fd5a8c0182f8dd"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Gujarati:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>body{margin:0}</style>
+</helmet>
+<div class="vk" data-vk-theme="{{th}}" style="width: 360px; height: 1260px;">
+  <header class="vk-hdr">
+    <svg class="vk-orn" width="360" height="110" viewBox="0 0 360 110" aria-hidden="true"><g><path d="M0 84 Q180 50 360 82"></path><path d="M0 100 Q180 66 360 98"></path><circle cx="320" cy="20" r="34"></circle></g></svg>
+    <div class="vk-bar">
+      <a href="Main.dc.html" class="vk-hbtn" aria-label="પાછા"><svg width="24" height="24" viewBox="0 0 24 24" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"></path></svg></a>
+      <h1 class="vk-h1">ખરીદી યાદી</h1>
+      <a href="Assets.dc.html" class="vk-hbtn tonal" aria-label="મિલકત"><img src="{{ic.asset}}" alt=""></a>
+    </div>
+    <svg class="vk-toran" width="360" height="18" viewBox="0 0 360 18" preserveAspectRatio="none" aria-hidden="true"><path d="M0 18V10Q15 0 30 10T60 10T90 10T120 10T150 10T180 10T210 10T240 10T270 10T300 10T330 10T360 10V18Z"></path></svg>
+  </header>
+
+  <div class="vk-body">
+    <div class="vk-seg" role="group" aria-label="યાદી">
+      <button onClick="{{pickFarm}}" class="{{farmCls}}">ખેતી માટે</button>
+      <button onClick="{{pickPersonal}}" class="{{personalCls}}">અંગત / ઘર</button>
+    </div>
+
+    <div style="display: flex; gap: 8px;">
+      <label class="vk-search" style="flex: 1 1 auto;"><span class="vk-sr">નવી વસ્તુ</span><input type="text" placeholder="નવી વસ્તુ ઉમેરો…"></label>
+      <button class="vk-hbtn tonal" aria-label="બોલીને ઉમેરો" style="width: 56px; height: 56px; border-radius: 28px;"><img src="{{ic.mic}}" alt=""></button>
+    </div>
+
+    <sc-for list="{{groups}}" as="g" hint-placeholder-count="2">
+      <section class="vk-col">
+        <span class="vk-label">{{g.date}}</span>
+        <div class="vk-card flush">
+          <sc-for list="{{g.items}}" as="it" hint-placeholder-count="3">
+            <button onClick="{{it.toggle}}" class="vk-row" role="checkbox" aria-checked="{{it.aria}}">
+              <span class="{{it.boxCls}}">✓</span>
+              <span class="vk-row-main"><span class="vk-t" style="{{it.nameStyle}}">{{it.name}}</span><span class="vk-m">{{it.meta}}</span></span>
+              <span class="vk-amt" style="font-size: 16px;">{{it.price}}</span>
+            </button>
+          </sc-for>
+        </div>
+      </section>
+    </sc-for>
+
+    <div class="vk-info"><img src="{{ic.reminder}}" alt="" style="width: 28px; height: 28px; flex: none;"><span>દર રવિવારે સવારે 8 વાગ્યે બાકી ખરીદીની યાદ</span></div>
+  </div>
+
+  <sc-if value="{{showConvert}}" hint-placeholder-val="{{ false }}">
+    <div class="vk-scrim">
+      <div role="dialog" aria-label="મિલકતમાં ઉમેરો" class="vk-sheet">
+        <span aria-hidden="true" class="vk-handle"></span>
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <img src="{{ic.asset}}" alt="" style="width: 52px; height: 52px; flex: none;">
+          <span class="vk-row-main"><span style="font-size: 20px; font-weight: 800;">મિલકતમાં ઉમેરવું છે?</span><span class="vk-m" style="font-size: 15px;">{{convertName}} એક સાધન છે</span></span>
+        </div>
+        <p class="vk-p">મિલકત યાદીમાં ઉમેરવાથી તેને ઉછીનું આપી શકશો અને કોની પાસે છે તે યાદ રહેશે.</p>
+        <div style="display: grid; grid-template-columns: 1fr 1.4fr; gap: 10px;">
+          <button onClick="{{closeConvert}}" class="vk-btn outlined">ના</button>
+          <button onClick="{{closeConvert}}" class="vk-btn filled">હા, ઉમેરો</button>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["green","mati","akash","kesar","night"],"default":"green"},"$preview":{"width":360,"height":1260}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { tab: 'farm', done: {}, convert: null }; }
+  renderVals() {
+    const th = this.props.theme ?? 'green';
+    const s = this.state;
+    const data = s.tab === 'farm'
+      ? [{ date: 'આજે · 03-11-2026', items: [['f1', 'DAP ખાતર 4 થેલી', 'ખેતર 1 · કપાસ', '₹5,400', false], ['f2', 'દવા છાંટવાનો પંપ', 'નવું સાધન', '₹3,200', true], ['f3', 'ડ્રીપ પાઇપ 200 ફૂટ', 'ખેતર 3', '₹2,800', false]] },
+         { date: '01-11-2026', items: [['f4', 'ઘઉંનું બિયારણ', 'ખેતર 4 · રવી', '₹4,600', false], ['f5', 'કોદાળી', 'નવું સાધન', '₹450', true]] }]
+      : [{ date: 'આજે · 03-11-2026', items: [['p1', 'દિવાળી માટે મીઠાઈ', 'ઘર', '₹1,800', false], ['p2', 'કરિયાણું', 'ઘર', '₹2,400', false]] },
+         { date: '30-10-2026', items: [['p3', 'બાળકોનાં કપડાં', 'અંગત', '₹3,500', false]] }];
+    const groups = data.map((g) => ({
+      date: g.date,
+      items: g.items.map(([id, name, meta, price, tool]) => {
+        const on = !!s.done[id];
+        return {
+          name, meta, price, aria: on ? 'true' : 'false',
+          boxCls: 'vk-check' + (on ? ' on' : ''),
+          nameStyle: on ? 'text-decoration: line-through; color: var(--on2);' : '',
+          toggle: () => this.setState({ done: { ...this.state.done, [id]: !on }, convert: !on && tool ? name : null }),
+        };
+      }),
+    }));
+    const farm = s.tab === 'farm';
+    return {
+      th, ic: (window.VK_ICONS || {})[th] || {}, groups,
+      farmCls: farm ? 'on' : '', personalCls: !farm ? 'on' : '',
+      pickFarm: () => this.setState({ tab: 'farm' }), pickPersonal: () => this.setState({ tab: 'personal' }),
+      showConvert: !!s.convert, convertName: s.convert || '',
+      closeConvert: () => this.setState({ convert: null }),
+    };
+  }
+}
+</script>
+</body>
+</html>

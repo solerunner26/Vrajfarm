@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="gu">
+<head>
+<meta charset="utf-8">
+<title>પંચાંગ કેલેન્ડર</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="/_blob/f1d163bd7079433bcc1afa0784b5089f">
+<script src="/_blob/a577eb47629646d782fd5a8c0182f8dd"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Gujarati:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>body{margin:0}</style>
+</helmet>
+<div class="vk" data-vk-theme="{{th}}" style="width: 360px; height: 1320px;">
+  <header class="vk-hdr" style="padding-bottom: 34px; gap: 10px;">
+    <svg class="vk-orn" width="360" height="150" viewBox="0 0 360 150" aria-hidden="true"><g><circle cx="310" cy="40" r="26"></circle><circle cx="310" cy="40" r="44"></circle><path d="M0 120 Q180 84 360 118"></path></g></svg>
+    <div class="vk-bar">
+      <a href="Main.dc.html" class="vk-hbtn" aria-label="પાછા"><svg width="24" height="24" viewBox="0 0 24 24" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"></path></svg></a>
+      <h1 class="vk-h1">પંચાંગ કેલેન્ડર</h1>
+    </div>
+    <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px;">
+      <button class="vk-hbtn" aria-label="પાછલો મહિનો"><svg width="22" height="22" viewBox="0 0 24 24" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"></path></svg></button>
+      <span style="display: flex; flex-direction: column; align-items: center; min-width: 0;"><span style="font-size: 20px; font-weight: 800; white-space: nowrap;">નવેમ્બર 2026</span><span style="font-size: 14px; opacity: 0.88; white-space: nowrap;">આસો — કારતક · વિ.સં. 2082/83</span></span>
+      <button class="vk-hbtn" aria-label="આગલો મહિનો"><svg width="22" height="22" viewBox="0 0 24 24" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"></path></svg></button>
+    </div>
+    <svg class="vk-toran" width="360" height="18" viewBox="0 0 360 18" preserveAspectRatio="none" aria-hidden="true"><path d="M0 18V10Q15 0 30 10T60 10T90 10T120 10T150 10T180 10T210 10T240 10T270 10T300 10T330 10T360 10V18Z"></path></svg>
+  </header>
+
+  <div class="vk-body" style="gap: 12px;">
+    <div class="vk-card" style="padding: 12px; gap: 6px;">
+      <div style="display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; text-align: center; font-size: 12px; font-weight: 700; color: var(--on2);">
+        <span>રવિ</span><span>સોમ</span><span>મંગળ</span><span>બુધ</span><span>ગુરુ</span><span>શુક્ર</span><span>શનિ</span>
+      </div>
+      <div style="display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px;">
+        <sc-for list="{{cells}}" as="c" hint-placeholder-count="30">
+          <button onClick="{{c.pick}}" aria-label="{{c.aria}}" style="{{c.style}}">
+            <span style="font-size: 16px; font-weight: 800; line-height: 1.1;">{{c.day}}</span>
+            <span style="font-size: 11px; font-weight: 600; line-height: 1.2; white-space: nowrap;">{{c.tithi}}</span>
+            <span style="{{c.dotStyle}}"></span>
+          </button>
+        </sc-for>
+      </div>
+    </div>
+
+    <div style="display: flex; flex-wrap: wrap; gap: 8px 14px; font-size: 13px; color: var(--on2);">
+      <span style="display: flex; align-items: center; gap: 6px; white-space: nowrap;"><span style="width: 10px; height: 10px; border-radius: 5px; background: var(--t);"></span>તહેવાર</span>
+      <span style="display: flex; align-items: center; gap: 6px; white-space: nowrap;"><span style="width: 10px; height: 10px; border-radius: 5px; background: var(--p);"></span>પૂનમ / બીજ</span>
+      <span style="display: flex; align-items: center; gap: 6px; white-space: nowrap;"><span style="width: 10px; height: 10px; border-radius: 5px; border: 2px solid var(--p);"></span>અમાસ</span>
+      <span style="display: flex; align-items: center; gap: 6px; white-space: nowrap;"><span style="width: 10px; height: 10px; border-radius: 2px; background: var(--leaf1);"></span>અગિયારસ</span>
+    </div>
+
+    <section class="vk-panch">
+      <svg class="vk-dots" width="40" height="14" viewBox="0 0 40 14" aria-hidden="true"><circle cx="6" cy="7" r="3"></circle><circle cx="20" cy="7" r="4"></circle><circle cx="34" cy="7" r="3"></circle></svg>
+      <span style="font-size: 14px; font-weight: 700; opacity: 0.85;">{{selDate}}</span>
+      <span style="font-size: 22px; font-weight: 800;">{{selTithi}}</span>
+      <sc-if value="{{selHasEvent}}" hint-placeholder-val="{{ true }}">
+        <span class="vk-badge" style="background: var(--card); color: var(--on); font-size: 15px; padding: 4px 12px;">{{selEvent}}</span>
+      </sc-if>
+      <span style="font-size: 15px; line-height: 1.5;">{{selNote}}</span>
+      <div class="vk-grid2" style="gap: 8px; margin-top: 4px;">
+        <a href="PanchangAlert.dc.html" class="vk-btn filled" style="padding: 0 12px;">વિગત જુઓ</a>
+        <a href="Reminders.dc.html" class="vk-btn onhero" style="padding: 0 12px;">રિમાઇન્ડર</a>
+      </div>
+    </section>
+
+    <div class="vk-sec"><svg class="vk-leaf" width="20" height="14" viewBox="0 0 20 14" aria-hidden="true"><path class="a" d="M10 13C4 13 1 9 1 3c5 0 9 3 9 10z"></path><path class="b" d="M10 13c0-6 3-10 9-10 0 6-3 10-9 10z"></path></svg><h2>આ મહિનાના પર્વ</h2><span class="ln"></span></div>
+    <div class="vk-card flush">
+      <sc-for list="{{events}}" as="e" hint-placeholder-count="8">
+        <div class="vk-row" style="min-height: 56px;">
+          <span style="width: 48px; flex: none; font-size: 16px; font-weight: 800; color: var(--p); white-space: nowrap;">{{e.d}}</span>
+          <span class="vk-row-main"><span class="vk-t" style="font-size: 16px;">{{e.name}}</span><span class="vk-m">{{e.tithi}}</span></span>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["green","mati","akash","kesar","night"],"default":"green"},"$preview":{"width":360,"height":1320}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { sel: 8 }; }
+  renderVals() {
+    const th = this.props.theme ?? 'green';
+    // Sample tithis for Nov 2026 (the app computes them in GujaratiPanchangHelper).
+    const t = {};
+    [7, 8, 9, 10, 11, 13, 14].forEach((n, i) => { t[i + 1] = { short: 'વ ' + n, full: 'આસો વદ ' + n, n, p: 'vad' }; });
+    t[8] = { short: 'અમાસ', full: 'આસો અમાસ', n: 30, p: 'amas' };
+    [1, 2, 3, 4, 5, 6, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15].forEach((n, i) => { t[9 + i] = { short: n === 15 ? 'પૂનમ' : 'સુ ' + n, full: n === 15 ? 'કારતક પૂનમ' : 'કારતક સુદ ' + n, n, p: n === 15 ? 'poonam' : 'sud' }; });
+    for (let d = 25; d <= 30; d++) t[d] = { short: 'વ ' + (d - 24), full: 'કારતક વદ ' + (d - 24), n: d - 24, p: 'vad' };
+    const ev = { 5: ['રમા અગિયારસ', 'ag'], 6: ['ધનતેરસ', 'fest'], 7: ['કાળી ચૌદસ', 'fest'], 8: ['દિવાળી', 'fest'], 9: ['નૂતન વર્ષ', 'fest'], 10: ['ભાઈબીજ', 'bij'], 20: ['દેવ ઊઠી અગિયારસ', 'ag'], 24: ['દેવ દિવાળી', 'fest'] };
+    const notes = { amas: 'માન્યતા પ્રમાણે નવી વાવણી કે નવું કામ શરૂ ન કરવું. લક્ષ્મી પૂજન.', poonam: 'માન્યતા પ્રમાણે વાવણી અને નવી ખરીદી માટે શુભ.', ag: 'ઉપવાસનો દિવસ — કાપણી ટાળવી (માન્યતા).', bij: 'નવી શરૂઆત માટે શુભ — ચંદ્ર દર્શન.', fest: 'તહેવાર — શુભ દિવસ.' };
+    const weekdays = ['રવિવાર', 'સોમવાર', 'મંગળવાર', 'બુધવાર', 'ગુરુવાર', 'શુક્રવાર', 'શનિવાર'];
+    const kindOf = (d) => { const x = t[d], e = ev[d]; if (x.p === 'amas') return 'amas'; if (x.p === 'poonam') return 'poonam'; if (e) return e[1]; if (x.p === 'sud' && x.n === 2) return 'bij'; if (x.n === 11) return 'ag'; return null; };
+    const cells = [];
+    for (let d = 1; d <= 30; d++) {
+      const k = kindOf(d);
+      const dot = k === 'amas' ? 'border: 2px solid var(--p);' : (k === 'fest' ? 'background: var(--t);' : (k === 'poonam' || k === 'bij') ? 'background: var(--p);' : k === 'ag' ? 'background: var(--leaf1); border-radius: 2px;' : '');
+      const isSel = this.state.sel === d, isToday = d === 3;
+      cells.push({
+        day: d, tithi: t[d].short, aria: d + ' નવેમ્બર, ' + t[d].full,
+        pick: () => this.setState({ sel: d }),
+        style: 'min-height: 62px; padding: 4px 0; border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; ' +
+          (isSel ? 'background: linear-gradient(135deg, var(--g1), var(--g2)); color: var(--on-g); border: none;' : isToday ? 'background: var(--pc); color: var(--on-pc); border: 1px solid var(--p);' : 'background: transparent; color: var(--on); border: 1px solid transparent;'),
+        dotStyle: 'width: 8px; height: 8px; border-radius: 4px; ' + dot,
+      });
+    }
+    const s = this.state.sel, se = ev[s], k = kindOf(s);
+    const events = Object.keys(ev).map((d) => ({ d: d + '/11', name: ev[d][0], tithi: t[d].full }));
+    return {
+      th, cells, events,
+      selDate: s + ' નવેમ્બર 2026 · ' + weekdays[(s - 1) % 7],
+      selTithi: t[s].full, selHasEvent: !!se, selEvent: se ? se[0] : '',
+      selNote: (k && notes[k]) || 'સામાન્ય દિવસ.',
+    };
+  }
+}
+</script>
+</body>
+</html>

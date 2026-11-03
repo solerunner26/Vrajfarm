@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="gu">
+<head>
+<meta charset="utf-8">
+<title>હોમ સ્ક્રીન વિજેટ</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="/_blob/f1d163bd7079433bcc1afa0784b5089f">
+<script src="/_blob/a577eb47629646d782fd5a8c0182f8dd"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Gujarati:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>body{margin:0}</style>
+</helmet>
+<div class="vk" data-vk-theme="{{th}}" style="width: 760px; height: 640px; padding: 40px; display: grid; grid-template-columns: 340px minmax(0, 1fr); gap: 32px; background: {{wall}};">
+
+  <div class="vk-col" style="gap: 10px;">
+    <span style="font-size: 14px; font-weight: 700; color: #FFFFFF;">ShoppingListGlanceWidget · 4×3</span>
+    <div class="vk-card" style="border-radius: 28px; gap: 4px; border: none;">
+      <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 4px;">
+        <img src="{{ic.shopping}}" alt="" style="width: 36px; height: 36px;">
+        <span class="vk-t" style="flex: 1 1 auto; font-size: 18px; font-weight: 800;">ખરીદી બાકી</span>
+        <span class="vk-badge strong">5</span>
+      </div>
+      <div class="vk-row" style="padding: 0; min-height: 48px;"><span class="vk-check" style="width: 24px; height: 24px;">✓</span><span class="vk-t" style="font-size: 16px; font-weight: 600;">DAP ખાતર 4 થેલી</span></div>
+      <div class="vk-row" style="padding: 0; min-height: 48px;"><span class="vk-check" style="width: 24px; height: 24px;">✓</span><span class="vk-t" style="font-size: 16px; font-weight: 600;">ડ્રીપ પાઇપ 200 ફૂટ</span></div>
+      <div class="vk-row" style="padding: 0; min-height: 48px;"><span class="vk-check" style="width: 24px; height: 24px;">✓</span><span class="vk-t" style="font-size: 16px; font-weight: 600;">ઘઉંનું બિયારણ</span></div>
+      <div class="vk-row" style="padding: 0; min-height: 48px;"><span class="vk-check on" style="width: 24px; height: 24px; font-size: 14px;">✓</span><span class="vk-t" style="font-size: 16px; font-weight: 600; text-decoration: line-through; color: var(--on2);">કરિયાણું</span></div>
+    </div>
+  </div>
+
+  <div class="vk-col" style="gap: 24px;">
+    <div class="vk-col" style="gap: 10px;">
+      <span style="font-size: 14px; font-weight: 700; color: #FFFFFF;">ReminderGlanceWidget · 4×2</span>
+      <div class="vk-card" style="border-radius: 28px; gap: 10px; border: none;">
+        <div style="display: flex; align-items: center; gap: 10px;"><img src="{{ic.reminder}}" alt="" style="width: 34px; height: 34px;"><span style="font-size: 18px; font-weight: 800;">જરૂરી કામ</span></div>
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <span class="vk-row-main"><span class="vk-t" style="font-size: 16px;">લાઇટ બિલ ભરવાનું</span><span class="vk-m">HIGH · આવતીકાલે</span></span>
+          <span class="vk-btn tonal" style="min-height: 44px; padding: 0 14px; font-size: 14px;">DONE</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <span class="vk-row-main"><span class="vk-t" style="font-size: 16px;">રોટાવેટર પાછું લાવવું</span><span class="vk-m" style="color: var(--err); font-weight: 700;">મુદત વીતી</span></span>
+          <span class="vk-btn tonal" style="min-height: 44px; padding: 0 14px; font-size: 14px;">DONE</span>
+        </div>
+      </div>
+    </div>
+
+    <div style="display: flex; gap: 20px;">
+      <div class="vk-col" style="gap: 10px;">
+        <span style="font-size: 14px; font-weight: 700; color: #FFFFFF;">Today · 2×2</span>
+        <div class="vk-hero" style="width: 160px; height: 160px; padding: 14px; gap: 2px; border-radius: 28px;">
+          <svg class="vk-orn" width="160" height="160" viewBox="0 0 160 160" aria-hidden="true"><g><circle cx="130" cy="30" r="22"></circle><circle cx="130" cy="30" r="36"></circle></g></svg>
+          <span style="font-size: 34px; font-weight: 800; line-height: 1.1;">03</span>
+          <span style="font-size: 14px; font-weight: 700; white-space: nowrap;">નવેમ્બર · મંગળ</span>
+          <span style="font-size: 13px; opacity: 0.9; white-space: nowrap;">આસો વદ નોમ</span>
+          <span class="vk-badge gold" style="margin-top: auto;">05 · અગિયારસ</span>
+        </div>
+      </div>
+      <div class="vk-col" style="gap: 10px;">
+        <span style="font-size: 14px; font-weight: 700; color: #FFFFFF;">App icon</span>
+        <div style="width: 160px; height: 160px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;">
+          <img src="{{ic.logo}}" alt="" style="width: 76px; height: 76px;">
+          <span style="font-size: 14px; font-weight: 700; color: #FFFFFF; white-space: nowrap;">વ્રજ ખેતી હિસાબ</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["green","mati","akash","kesar","night"],"default":"green"},"$preview":{"width":760,"height":640}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const th = this.props.theme ?? 'green';
+    // A neutral sample wallpaper; darker for the night theme.
+    const wall = th === 'night' ? 'linear-gradient(160deg, #1B2420, #0A0F0C)' : 'linear-gradient(160deg, #8FA79A, #4A6457 60%, #2F4339)';
+    return { th, wall, ic: (window.VK_ICONS || {})[th] || {} };
+  }
+}
+</script>
+</body>
+</html>

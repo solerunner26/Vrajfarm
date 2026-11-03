@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="gu">
+<head>
+<meta charset="utf-8">
+<title>પંચાંગ સૂચના</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="/_blob/f1d163bd7079433bcc1afa0784b5089f">
+<script src="/_blob/a577eb47629646d782fd5a8c0182f8dd"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Gujarati:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>body{margin:0}</style>
+</helmet>
+<div class="vk" data-vk-theme="{{th}}" style="width: 360px; height: 900px;">
+  <div aria-hidden="true" class="vk-hdr" style="height: 220px;"></div>
+  <div aria-hidden="true" class="vk-body" style="padding-top: 16px;">
+    <div class="vk-card" style="height: 120px;"></div>
+    <div class="vk-card" style="height: 120px;"></div>
+  </div>
+
+  <div class="vk-scrim" style="justify-content: center; padding: 16px; gap: 12px;">
+    <div role="group" aria-label="પ્રકાર પસંદ કરો (ડેમો)" style="display: flex; gap: 6px; flex-wrap: wrap; justify-content: center;">
+      <sc-for list="{{types}}" as="t" hint-placeholder-count="5">
+        <button onClick="{{t.pick}}" class="{{t.cls}}" style="min-height: 44px; font-size: 14px;">{{t.label}}</button>
+      </sc-for>
+    </div>
+
+    <div role="dialog" aria-label="{{title}}" class="vk-dialog">
+      <div class="vk-dialog-band">
+        <svg class="vk-dots" width="56" height="16" viewBox="0 0 56 16" aria-hidden="true" style="right: 16px; top: 14px;"><circle cx="8" cy="8" r="3"></circle><circle cx="28" cy="8" r="5"></circle><circle cx="48" cy="8" r="3"></circle></svg>
+        <div style="width: 64px; height: 64px; flex: none; border-radius: 32px; background: var(--card); display: flex; align-items: center; justify-content: center; border: 2px solid var(--tc-bd);">
+          <svg width="44" height="44" viewBox="0 0 44 44" aria-hidden="true"><circle class="vk-moon-disc" cx="22" cy="22" r="18"></circle><path class="vk-moon-lit" d="{{moonPath}}"></path><circle class="vk-moon-ring" cx="22" cy="22" r="18"></circle></svg>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 2px; min-width: 0;">
+          <span style="font-size: 13px; font-weight: 800; color: var(--t); white-space: nowrap;">{{kicker}}</span>
+          <span style="font-size: 21px; font-weight: 800; line-height: 1.25;">{{title}}</span>
+          <span style="font-size: 14px; font-weight: 600; opacity: 0.9;">{{date}}</span>
+        </div>
+      </div>
+      <div style="padding: 16px 20px 8px; display: flex; flex-direction: column; gap: 12px;">
+        <div class="vk-col" style="gap: 6px;">
+          <span class="vk-do" style="font-size: 15px; font-weight: 800;">કરવા જેવું</span>
+          <sc-for list="{{doList}}" as="d" hint-placeholder-count="2">
+            <span style="display: flex; gap: 8px; align-items: flex-start; font-size: 16px; line-height: 1.45;"><svg class="vk-mark-ok" width="20" height="20" viewBox="0 0 24 24" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: none; margin-top: 2px;"><path d="M5 12l5 5 9-10"></path></svg>{{d}}</span>
+          </sc-for>
+        </div>
+        <sc-if value="{{hasAvoid}}" hint-placeholder-val="{{ true }}">
+          <div class="vk-col" style="gap: 6px;">
+            <span class="vk-avoid" style="font-size: 15px; font-weight: 800;">ટાળવા જેવું</span>
+            <sc-for list="{{avoidList}}" as="v" hint-placeholder-count="2">
+              <span style="display: flex; gap: 8px; align-items: flex-start; font-size: 16px; line-height: 1.45;"><svg class="vk-mark-no" width="20" height="20" viewBox="0 0 24 24" stroke-width="3" stroke-linecap="round" aria-hidden="true" style="flex: none; margin-top: 2px;"><path d="M6 6l12 12M18 6L6 18"></path></svg>{{v}}</span>
+            </sc-for>
+          </div>
+        </sc-if>
+        <span class="vk-m" style="padding: 8px 10px; border-radius: 10px; background: var(--low); white-space: normal;">માન્યતા પ્રમાણે · સેટિંગ્સમાં લખાણ બદલી શકાય</span>
+      </div>
+      <div style="padding: 8px 16px 16px; display: flex; flex-direction: column; gap: 8px;">
+        <button class="vk-btn filled">સમજાયું</button>
+        <a href="Reminders.dc.html" class="vk-btn tonal">રિમાઇન્ડર બનાવો</a>
+        <a href="PanchangCalendar.dc.html" class="vk-btn text" style="min-height: 48px;">કેલેન્ડર જુઓ</a>
+      </div>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["green","mati","akash","kesar","night"],"default":"green"},"$preview":{"width":360,"height":900}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { type: 'amas' }; }
+  renderVals() {
+    const th = this.props.theme ?? 'green';
+    // Moon glyphs on a disc (cx=22, r=18): lit part drawn in the primary tone.
+    const full = 'M22 4a18 18 0 1 1 0 36a18 18 0 1 1 0-36z';
+    const thin = 'M22 4a18 18 0 0 1 0 36a14 18 0 0 0 0-36z';
+    const half = 'M22 4a18 18 0 0 1 0 36z';
+    const none = 'M22 21a1 1 0 1 1 0 2a1 1 0 1 1 0-2z';
+    const data = {
+      bij: { label: 'બીજ', kicker: 'આજે બીજ', title: 'ભાઈબીજ', date: '10-11-2026 · મંગળવાર · કારતક સુદ બીજ', moon: thin,
+        doList: ['નવી શરૂઆત માટે શુભ દિવસ', 'સાંજે ચંદ્ર દર્શન', 'વાવણી કે ખરીદી શરૂ કરી શકાય'], avoidList: [] },
+      agiyaras: { label: 'અગિયારસ', kicker: 'પરમ દિવસે અગિયારસ', title: 'રમા અગિયારસ', date: '05-11-2026 · ગુરુવાર · આસો વદ 11', moon: half,
+        doList: ['ઉપવાસ, ભજન અને દાન-પુણ્ય', 'ઘરમાં ફરાળી રસોઈ'], avoidList: ['કાપણી / લણણી ટાળવી', 'ચોખા ન રાંધવા'] },
+      poonam: { label: 'પૂનમ', kicker: 'આજે પૂનમ', title: 'કારતક પૂનમ', date: '24-11-2026 · મંગળવાર · દેવ દિવાળી', moon: full,
+        doList: ['વાવણી શરૂ કરવી શુભ', 'નવાં ઓજાર ખરીદી અને પૂજા', 'સત્યનારાયણ કથા'], avoidList: [] },
+      amas: { label: 'અમાસ', kicker: 'આજે અમાસ · દિવાળી', title: 'આસો અમાસ', date: '08-11-2026 · રવિવાર', moon: none,
+        doList: ['લક્ષ્મી પૂજન અને ચોપડા પૂજન', 'દીવા પ્રગટાવવા'], avoidList: ['નવી વાવણી શરૂ ન કરવી', 'નવી જમીન કે ઓજાર ખરીદી ટાળવી', 'ખેતરમાં નવું કામ શરૂ ન કરવું'] },
+      festival: { label: 'તહેવાર', kicker: 'આજે તહેવાર', title: 'નૂતન વર્ષ', date: '09-11-2026 · સોમવાર · વિ.સં. 2083', moon: thin,
+        doList: ['ચોપડામાં શુભ શરૂઆત', 'વડીલોના આશીર્વાદ', 'સાલ મુબારક મેસેજ મોકલો'], avoidList: [] },
+    };
+    const cur = data[this.state.type];
+    const types = Object.keys(data).map((k) => ({ label: data[k].label, cls: 'vk-chip' + (this.state.type === k ? ' on' : ''), pick: () => this.setState({ type: k }) }));
+    return { th, types, kicker: cur.kicker, title: cur.title, date: cur.date, moonPath: cur.moon, doList: cur.doList, avoidList: cur.avoidList, hasAvoid: cur.avoidList.length > 0 };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- GENERATED from design sources by svg2vk.js. Compose screens use VkIcon (theme-aware) instead. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <group android:scaleX="0.43" android:scaleY="0.43" android:translateX="12.72" android:translateY="9.925">
+        <path
+            android:pathData="M96,148V92"
+            android:strokeColor="#FFFFFFFF"
+            android:strokeWidth="9"
+            android:strokeLineCap="round" />
+        <path
+            android:pathData="M96,108C60,108 38,84 38,52c34,-2 58,18 58,56z"
+            android:fillColor="#FFFFFFFF" />
+        <path
+            android:pathData="M96,98c0,-34 22,-56 58,-58 0,36 -22,58 -58,58z"
+            android:fillColor="#FFFFFFFF"
+            android:fillAlpha="0.96" />
+        <path
+            android:pathData="M54.5,146H137.5A4.5,4.5 0 0 1 142,150.5V150.5A4.5,4.5 0 0 1 137.5,155H54.5A4.5,4.5 0 0 1 50,150.5V150.5A4.5,4.5 0 0 1 54.5,146Z"
+            android:fillColor="#FFFFFFFF" />
+        <path
+            android:pathData="M69.5,162H122.5A3.5,3.5 0 0 1 126,165.5V165.5A3.5,3.5 0 0 1 122.5,169H69.5A3.5,3.5 0 0 1 66,165.5V165.5A3.5,3.5 0 0 1 69.5,162Z"
+            android:fillColor="#FFFFFFFF"
+            android:fillAlpha="0.7" />
+    </group>
+</vector>

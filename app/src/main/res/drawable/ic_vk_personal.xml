@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- GENERATED from design sources by svg2vk.js. Compose screens use VkIcon (theme-aware) instead. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="40dp"
+    android:height="40dp"
+    android:viewportWidth="96"
+    android:viewportHeight="96">
+    <path
+        android:pathData="M28,0H68A28,28 0 0 1 96,28V68A28,28 0 0 1 68,96H28A28,28 0 0 1 0,68V28A28,28 0 0 1 28,0Z">
+        <aapt:attr name="android:fillColor">
+            <gradient android:type="linear" android:startX="0" android:startY="0" android:endX="96" android:endY="96">
+                <item android:offset="0" android:color="#FFE6F3EB" />
+                <item android:offset="1" android:color="#FFCBE6D6" />
+            </gradient>
+        </aapt:attr>
+    </path>
+    <path
+        android:pathData="M48 16 14 44h9v30a6 6 0 0 0 6 6h38a6 6 0 0 0 6-6V44h9z">
+        <aapt:attr name="android:fillColor">
+            <gradient android:type="linear" android:startX="0" android:startY="0" android:endX="96" android:endY="96">
+                <item android:offset="0" android:color="#FF2E7D5B" />
+                <item android:offset="1" android:color="#FF174A37" />
+            </gradient>
+        </aapt:attr>
+    </path>
+    <path
+        android:pathData="M46,52H50A8,8 0 0 1 58,60V72A8,8 0 0 1 50,80H46A8,8 0 0 1 38,72V60A8,8 0 0 1 46,52Z">
+        <aapt:attr name="android:fillColor">
+            <gradient android:type="linear" android:startX="0" android:startY="0" android:endX="96" android:endY="96">
+                <item android:offset="0" android:color="#FF9ED3B3" />
+                <item android:offset="1" android:color="#FF5FA580" />
+            </gradient>
+        </aapt:attr>
+    </path>
+</vector>

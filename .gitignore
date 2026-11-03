@@ -1,0 +1,28 @@
+# Gradle / build
+.gradle/
+build/
+/captures
+.externalNativeBuild/
+.cxx/
+*.apk
+*.aab
+
+# Local machine config (contains sdk.dir)
+local.properties
+
+# IDE
+.idea/
+*.iml
+.DS_Store
+
+# Kotlin
+.kotlin/
+
+# Claude Code local-only settings
+.claude/settings.local.json
+
+# Secrets (never commit)
+*.jks
+*.keystore
+secrets.properties
+backup_config.php

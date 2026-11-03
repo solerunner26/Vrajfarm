@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="gu">
+<head>
+<meta charset="utf-8">
+<title>8 ખેતર હિસાબ</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="/_blob/f1d163bd7079433bcc1afa0784b5089f">
+<script src="/_blob/a577eb47629646d782fd5a8c0182f8dd"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Gujarati:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>body{margin:0}</style>
+</helmet>
+<div class="vk" data-vk-theme="{{th}}" style="width: 360px; height: 1420px;">
+  <header class="vk-hdr" style="padding-bottom: 36px; gap: 14px;">
+    <svg class="vk-orn" width="360" height="260" viewBox="0 0 360 260" aria-hidden="true"><g><path d="M0 200 Q180 160 360 198"></path><path d="M0 220 Q180 180 360 218"></path><path d="M0 240 Q180 200 360 238"></path><circle cx="310" cy="60" r="40"></circle></g></svg>
+    <div class="vk-bar">
+      <a href="Main.dc.html" class="vk-hbtn" aria-label="પાછા"><svg width="24" height="24" viewBox="0 0 24 24" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"></path></svg></a>
+      <h1 class="vk-h1">૮ ખેતર હિસાબ</h1>
+      <button class="vk-hbtn tonal" aria-label="PDF રિપોર્ટ"><img src="{{ic.report}}" alt=""></button>
+    </div>
+    <div class="vk-grid2">
+      <div><div style="font-size: 13px; opacity: 0.85;">ખેતી આવક</div><div style="font-size: 22px; font-weight: 800; white-space: nowrap;">₹4,86,000</div></div>
+      <div><div style="font-size: 13px; opacity: 0.85;">ખેતી ખર્ચ</div><div style="font-size: 22px; font-weight: 800; white-space: nowrap;">₹1,92,500</div></div>
+      <div><div style="font-size: 13px; opacity: 0.85;">ચોખ્ખો નફો</div><div style="font-size: 26px; font-weight: 800; white-space: nowrap;">₹2,93,500</div></div>
+      <div><div style="font-size: 13px; opacity: 0.85;">કુલ જમીન</div><div style="font-size: 22px; font-weight: 800; white-space: nowrap;">52 વીઘા</div></div>
+    </div>
+    <svg class="vk-toran" width="360" height="18" viewBox="0 0 360 18" preserveAspectRatio="none" aria-hidden="true"><path d="M0 18V10Q15 0 30 10T60 10T90 10T120 10T150 10T180 10T210 10T240 10T270 10T300 10T330 10T360 10V18Z"></path></svg>
+  </header>
+
+  <div class="vk-body">
+    <div class="vk-wrap" role="group" aria-label="સિઝન">
+      <sc-for list="{{seasons}}" as="se" hint-placeholder-count="3">
+        <button onClick="{{se.pick}}" class="{{se.cls}}">{{se.label}}</button>
+      </sc-for>
+    </div>
+    <div class="vk-info"><img src="{{ic.lock}}" alt="" style="width: 26px; height: 26px; flex: none;"><span>અંગત ખર્ચ આ હિસાબમાં ગણાતો નથી.</span></div>
+
+    <div class="vk-sec"><svg class="vk-leaf" width="20" height="14" viewBox="0 0 20 14" aria-hidden="true"><path class="a" d="M10 13C4 13 1 9 1 3c5 0 9 3 9 10z"></path><path class="b" d="M10 13c0-6 3-10 9-10 0 6-3 10-9 10z"></path></svg><h2>સ્કોરકાર્ડ</h2><span class="ln"></span></div>
+    <div class="vk-seg" role="group" aria-label="ક્રમ">
+      <button onClick="{{byVigha}}" class="{{vighaCls}}">નફો / વીઘા</button>
+      <button onClick="{{byTotal}}" class="{{totalCls}}">કુલ નફો</button>
+    </div>
+
+    <div class="vk-col">
+      <sc-for list="{{rows}}" as="r" hint-placeholder-count="8">
+        <div class="vk-card" style="padding: 12px 14px; gap: 8px;">
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <span class="vk-avatar" style="{{r.rankStyle}}">{{r.rank}}</span>
+            <span class="vk-row-main"><span class="vk-t">{{r.name}}</span><span class="vk-m">{{r.crop}} · {{r.vighaLabel}}</span></span>
+            <span style="display: flex; flex-direction: column; align-items: flex-end;"><span class="{{r.amtCls}}" style="font-size: 20px;">{{r.value}}</span><span class="vk-m" style="font-size: 12px;">{{r.sub}}</span></span>
+          </div>
+          <div class="vk-track"><div class="vk-fill" style="{{r.barStyle}}"></div></div>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["green","mati","akash","kesar","night"],"default":"green"},"$preview":{"width":360,"height":1420}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { mode: 'vigha', season: 0 }; }
+  renderVals() {
+    const th = this.props.theme ?? 'green';
+    const data = [
+      ['ખેતર 1', 'કપાસ', 12, 132000, 48000], ['ખેતર 2', 'મગફળી', 8, 72000, 26000],
+      ['ખેતર 3', 'ડુંગળી', 10, 118000, 39500], ['ખેતર 4', 'ઘઉં', 6, 42000, 18000],
+      ['ખેતર 5', 'બાજરી', 5, 22000, 11000], ['ખેતર 6', 'જીરું', 7, 64000, 25000],
+      ['ખેતર 7', 'તલ', 4, 36000, 14000], ['ખેતર 8', 'ચણા', 0, 0, 11000],
+    ].map(([name, crop, vigha, inc, exp]) => {
+      const profit = inc - exp;
+      return { name, crop, vigha, profit, perVigha: vigha > 0 ? profit / vigha : 0 };
+    });
+    const byV = this.state.mode === 'vigha';
+    const key = byV ? 'perVigha' : 'profit';
+    data.sort((a, b) => b[key] - a[key]);
+    const max = Math.max(...data.map((d) => d[key]), 1);
+    const fmt = (n) => (n < 0 ? '−₹' : '₹') + Math.abs(Math.round(n)).toLocaleString('en-IN');
+    const rows = data.map((d, i) => {
+      const v = d[key];
+      return {
+        rank: i + 1, name: d.name, crop: d.crop,
+        vighaLabel: d.vigha > 0 ? d.vigha + ' વીઘા' : 'વીઘા સેટ કરો',
+        value: byV ? (d.vigha > 0 ? fmt(v) : '—') : fmt(v),
+        sub: byV ? 'પ્રતિ વીઘા' : 'કુલ નફો',
+        rankStyle: 'width: 36px; height: 36px; font-size: 16px;' + (i < 3 ? '' : ' background: var(--cont); color: var(--on);'),
+        amtCls: 'vk-amt ' + (v < 0 ? 'err' : 'in'),
+        barStyle: 'width: ' + Math.max(0, Math.round((v / max) * 100)) + '%;',
+      };
+    });
+    const seasons = ['ખરીફ 2026', 'રવી', 'આખું વર્ષ'].map((l, i) => ({ label: l, cls: 'vk-chip' + (this.state.season === i ? ' on' : ''), pick: () => this.setState({ season: i }) }));
+    return {
+      th, ic: (window.VK_ICONS || {})[th] || {}, rows, seasons,
+      vighaCls: byV ? 'on' : '', totalCls: !byV ? 'on' : '',
+      byVigha: () => this.setState({ mode: 'vigha' }), byTotal: () => this.setState({ mode: 'total' }),
+    };
+  }
+}
+</script>
+</body>
+</html>

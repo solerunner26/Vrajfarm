@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- FileProvider authority: ${applicationId}.files (doc 02 §1). -->
+<paths>
+    <files-path name="bill_photos" path="bill_photos/" />
+    <files-path name="people_photos" path="people_photos/" />
+    <files-path name="borrower_photos" path="borrower_photos/" />
+    <files-path name="reminder_photos" path="reminder_photos/" />
+    <files-path name="reports" path="reports/" />
+    <files-path name="tmp" path="tmp/" />
+</paths>

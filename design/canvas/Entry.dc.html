@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="gu">
+<head>
+<meta charset="utf-8">
+<title>3-ટેપ એન્ટ્રી અને મણ ગણક</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="/_blob/f1d163bd7079433bcc1afa0784b5089f">
+<script src="/_blob/a577eb47629646d782fd5a8c0182f8dd"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Gujarati:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>body{margin:0}</style>
+</helmet>
+<div class="vk" data-vk-theme="{{th}}" style="width: 360px; height: 1360px;">
+  <header class="vk-hdr">
+    <svg class="vk-orn" width="360" height="110" viewBox="0 0 360 110" aria-hidden="true"><g><path d="M0 84 Q180 50 360 82"></path><path d="M0 100 Q180 66 360 98"></path><circle cx="320" cy="20" r="34"></circle></g></svg>
+    <div class="vk-bar">
+      <a href="Main.dc.html" class="vk-hbtn" aria-label="પાછા"><svg width="24" height="24" viewBox="0 0 24 24" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"></path></svg></a>
+      <h1 class="vk-h1">નવી એન્ટ્રી</h1>
+      <button class="vk-hbtn tonal" aria-label="બોલીને લખો"><img src="{{ic.mic}}" alt=""></button>
+    </div>
+    <svg class="vk-toran" width="360" height="18" viewBox="0 0 360 18" preserveAspectRatio="none" aria-hidden="true"><path d="M0 18V10Q15 0 30 10T60 10T90 10T120 10T150 10T180 10T210 10T240 10T270 10T300 10T330 10T360 10V18Z"></path></svg>
+  </header>
+
+  <div class="vk-body">
+    <div class="vk-seg" role="group" aria-label="પ્રકાર">
+      <button onClick="{{setIncome}}" class="{{incomeCls}}">આવક / વેચાણ</button>
+      <button onClick="{{setExpense}}" class="{{expenseCls}}">ખર્ચ / ઉપાડ</button>
+    </div>
+
+    <section class="vk-col">
+      <span class="vk-label">ટેપ 1 · વિભાગ</span>
+      <div class="vk-grid4">
+        <sc-for list="{{sections}}" as="s" hint-placeholder-count="4">
+          <button onClick="{{s.pick}}" class="{{s.cls}}"><img src="{{s.icon}}" alt=""><span>{{s.label}}</span></button>
+        </sc-for>
+      </div>
+    </section>
+
+    <section class="vk-col">
+      <span class="vk-label">ટેપ 2 · ખેતર અને પાક</span>
+      <div class="vk-grid4">
+        <sc-for list="{{farms}}" as="f" hint-placeholder-count="8">
+          <button onClick="{{f.pick}}" class="{{f.cls}}"><span>{{f.no}}</span><span class="s">{{f.crop}}</span></button>
+        </sc-for>
+      </div>
+    </section>
+
+    <section class="vk-card">
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <img src="{{ic.calculator}}" alt="" style="width: 36px; height: 36px;">
+        <span class="vk-t" style="flex: 1 1 auto; font-size: 18px; font-weight: 800;">APMC મણ ગણક</span>
+        <span class="vk-m" style="flex: none;">1 મણ = 20 કિલો</span>
+      </div>
+      <div class="vk-grid3">
+        <sc-for list="{{fields}}" as="fd" hint-placeholder-count="3">
+          <button onClick="{{fd.pick}}" class="{{fd.cls}}"><span class="k">{{fd.label}}</span><span class="v">{{fd.value}}</span></button>
+        </sc-for>
+      </div>
+      <div class="vk-hero" style="flex-direction: row; justify-content: space-between; align-items: flex-end; padding: 12px 14px; border-radius: 12px;">
+        <span><span class="k" style="display: block;">કુલ મણ</span><span style="display: block; font-size: 18px; font-weight: 800; white-space: nowrap;">{{totalMann}}</span></span>
+        <span style="text-align: right;"><span class="k" style="display: block;">કુલ રકમ</span><span style="display: block; font-size: 28px; font-weight: 800; white-space: nowrap;">{{totalAmount}}</span></span>
+      </div>
+    </section>
+
+    <div class="vk-grid3" style="gap: 10px;">
+      <sc-for list="{{keys}}" as="k" hint-placeholder-count="12">
+        <button onClick="{{k.press}}" aria-label="{{k.aria}}" class="vk-key">{{k.label}}</button>
+      </sc-for>
+    </div>
+
+    <section class="vk-col">
+      <span class="vk-label">ટેપ 3 · ચુકવણી</span>
+      <div class="vk-seg" role="group" aria-label="ચુકવણી">
+        <button onClick="{{setPaid}}" class="{{paidCls}}">રોકડ ચૂકવેલ</button>
+        <button onClick="{{setPending}}" class="{{pendingCls}}">ઉધાર બાકી</button>
+      </div>
+    </section>
+
+    <div class="vk-grid2" style="gap: 8px;">
+      <button class="vk-btn outlined" style="padding: 0 12px;"><img src="{{ic.camera}}" alt="">પાવતી ફોટો</button>
+      <button class="vk-btn outlined" style="padding: 0 12px;"><img src="{{ic.mic}}" alt="">બોલીને નોંધ</button>
+    </div>
+
+    <a href="Main.dc.html" class="vk-btn lg filled">સાચવો · {{totalAmount}}</a>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["green","mati","akash","kesar","night"],"default":"green"},"$preview":{"width":360,"height":1360}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { kind: 'income', section: 'farm', farm: 3, field: 'mann', mann: '30', kg: '10', rate: '1600', paid: true };
+  }
+  renderVals() {
+    const th = this.props.theme ?? 'green';
+    const ic = (window.VK_ICONS || {})[th] || {};
+    const s = this.state;
+    const sections = [
+      { id: 'farm', label: 'ખેતર', icon: ic.farm }, { id: 'family', label: 'પરિવાર', icon: ic.family },
+      { id: 'general', label: 'સામાન્ય', icon: ic.utility }, { id: 'personal', label: 'અંગત', icon: ic.personal },
+    ].map((x) => ({ ...x, cls: 'vk-tile' + (s.section === x.id ? ' on' : ''), pick: () => this.setState({ section: x.id }) }));
+    const crops = ['કપાસ', 'મગફળી', 'ડુંગળી', 'ઘઉં', 'બાજરી', 'જીરું', 'તલ', 'ચણા'];
+    const farms = crops.map((c, i) => ({ no: 'ખેતર ' + (i + 1), crop: c, cls: 'vk-tile' + (s.farm === i + 1 ? ' on' : ''), pick: () => this.setState({ farm: i + 1 }) }));
+    const fields = [{ id: 'mann', label: 'મણ' }, { id: 'kg', label: 'વધારાના કિલો' }, { id: 'rate', label: 'મણનો ભાવ ₹' }].map((f) => ({
+      label: f.label, value: s[f.id] || '0', cls: 'vk-numf' + (s.field === f.id ? ' on' : ''), pick: () => this.setState({ field: f.id }),
+    }));
+    const type = (ch) => () => {
+      const cur = this.state[this.state.field] || '';
+      if (ch === '.' && cur.indexOf('.') >= 0) return;
+      if (cur.length >= 7) return;
+      this.setState({ [this.state.field]: cur === '0' && ch !== '.' ? ch : cur + ch });
+    };
+    const keys = ['1','2','3','4','5','6','7','8','9','.','0','⌫'].map((l) => ({
+      label: l, aria: l === '⌫' ? 'ભૂંસો' : l,
+      press: l === '⌫' ? () => this.setState({ [this.state.field]: (this.state[this.state.field] || '').slice(0, -1) }) : type(l),
+    }));
+    const mann = parseFloat(s.mann) || 0, kg = parseFloat(s.kg) || 0, rate = parseFloat(s.rate) || 0;
+    const total = mann + kg / 20;
+    const amount = Math.round(total * rate);
+    return {
+      th, ic, sections, farms, fields, keys,
+      totalMann: total.toFixed(2) + ' મણ',
+      totalAmount: '₹' + amount.toLocaleString('en-IN'),
+      incomeCls: s.kind === 'income' ? 'on' : '', expenseCls: s.kind === 'expense' ? 'on' : '',
+      setIncome: () => this.setState({ kind: 'income' }), setExpense: () => this.setState({ kind: 'expense' }),
+      paidCls: s.paid ? 'on' : '', pendingCls: !s.paid ? 'on err' : '',
+      setPaid: () => this.setState({ paid: true }), setPending: () => this.setState({ paid: false }),
+    };
+  }
+}
+</script>
+</body>
+</html>
