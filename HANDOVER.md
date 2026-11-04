@@ -151,3 +151,18 @@ Each Wave 2 agent owns only its own packages. It exposes a `NavGraphBuilder.xxxG
 - `backup/INTEGRATION.md`
 
 The **lead integrator** is the only one who edits `ui/app/VkRoot.kt` (NavHost), `di/AppContainer.kt` and `AndroidManifest.xml`. If you take over mid-way, finish the integration from those INTEGRATION.md files.
+
+## NEXT TASK FOR ANY AI (2026-11-04, Claude paused at its usage limit)
+1. **QA on an emulator or device (doc 16, doc 17):**
+   - Boot the AVD `Medium_Phone_API_36.1`, adding `-gpu swiftshader_indirect` if adb stays "offline".
+   - Build with `./gradlew installDebug`, then launch.
+   - Click through: PIN → Home → Entry (each of the 5 sections, APMC) → Farms → Family → Personal → Shopping → Assets → Lend → Reminders → Settings → Reports → Profiles → Help → Panchang calendar.
+   - Check all 5 themes, one-line labels and no overlap. Run `./gradlew connectedDebugAndroidTest`.
+2. **Fix what QA finds.** Then the known gaps:
+   - an Entry edit route
+   - backup restore
+   - the owner's answers to open questions 1–6
+3. **Release build:**
+   - signing config with the keystore outside the repo
+   - `assembleRelease`
+   - R8 check
