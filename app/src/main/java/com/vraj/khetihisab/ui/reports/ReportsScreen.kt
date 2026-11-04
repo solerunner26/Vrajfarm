@@ -130,6 +130,7 @@ fun ReportsScreen(vm: ReportsViewModel, onBack: () -> Unit) {
     if (sel != null && !u.generating) {
         val sheet = rememberModalBottomSheetState(skipPartiallyExpanded = true)
         ModalBottomSheet(onDismissRequest = vm::close, sheetState = sheet) {
+        com.vraj.khetihisab.ui.components.VkSheetSystemBars()
             ReportOptions(sel, u.range, u.failed, vm)
         }
     }

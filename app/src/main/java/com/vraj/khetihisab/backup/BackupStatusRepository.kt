@@ -40,7 +40,8 @@ data class BackupStatus(
 ) {
     fun stateAt(nowMillis: Long): BackupState {
         val success = lastSuccessAt
-        val failure = lastFailureAt
+        // "Not set up yet" is not a failure: show the neutral "બેકઅપ બાકી" pill, never red.
+        val failure = lastFailureAt.takeIf { lastFailure != BackupFailure.NOT_CONFIGURED }
         return when {
             failure != null && (success == null || failure > success) -> BackupState.FAILED
             success == null -> BackupState.NEVER
@@ -49,7 +50,8 @@ data class BackupStatus(
         }
     }
 
-    val lastWasFailure: Boolean get() = lastFailureAt != null && (lastSuccessAt == null || lastFailureAt > lastSuccessAt)
+    val lastWasFailure: Boolean get() = lastFailure != BackupFailure.NOT_CONFIGURED &&
+        lastFailureAt != null && (lastSuccessAt == null || lastFailureAt > lastSuccessAt)
 
     companion object {
         const val STALE_AFTER_MS = 48L * 60 * 60 * 1000

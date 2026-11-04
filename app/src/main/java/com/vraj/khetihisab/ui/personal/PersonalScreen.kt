@@ -90,7 +90,7 @@ fun PersonalScreen(
         ) {
             item(key = "header") {
                 VkTopHeader(
-                    stringResource(R.string.scr_personal_title),
+                    stringResource(R.string.scr_sec_personal),
                     onBack = onBack,
                     actions = {
                         Box(

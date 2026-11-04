@@ -308,6 +308,7 @@ private fun ConfirmReturnDialog(l: LoanWithAsset, onYes: () -> Unit, onNo: () ->
 private fun AssetDetailSheet(d: AssetDetail, onDismiss: () -> Unit, onLend: () -> Unit, onDelete: () -> Unit, onPhoto: (String) -> Unit) {
     val sheet = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     ModalBottomSheet(onDismissRequest = onDismiss, sheetState = sheet, containerColor = MaterialTheme.colorScheme.surfaceContainerLowest) {
+        com.vraj.khetihisab.ui.components.VkSheetSystemBars()
         Column(
             Modifier.fillMaxWidth().verticalScroll(rememberScrollState()).padding(start = 20.dp, end = 20.dp, bottom = 24.dp).navigationBarsPadding(),
             verticalArrangement = Arrangement.spacedBy(12.dp),

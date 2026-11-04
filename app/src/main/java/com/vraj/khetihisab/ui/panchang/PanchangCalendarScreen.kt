@@ -284,6 +284,7 @@ private fun DaySheet(date: LocalDate, cell: CalendarCell?, vm: PanchangCalendarV
     val day = cell?.day ?: remember(date) { runCatching { PanchangSource.day(date) }.getOrNull() }
     val special: SpecialDay? = cell?.special
     ModalBottomSheet(onDismissRequest = onDismiss, sheetState = sheet) {
+        com.vraj.khetihisab.ui.components.VkSheetSystemBars()
         Column(
             Modifier
                 .fillMaxWidth()

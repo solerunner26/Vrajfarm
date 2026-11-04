@@ -84,7 +84,7 @@ fun LendScreen(vm: LendViewModel, onBack: () -> Unit, onDone: () -> Unit) {
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
             ) {
                 VkTonalButton(stringResource(R.string.as_save), onClick = { vm.save(send = false) }, modifier = Modifier.weight(1f), enabled = !st.saving)
-                VkPrimaryButton(stringResource(R.string.as_save_send), onClick = { vm.save(send = true) }, modifier = Modifier.weight(1f), icon = VkIcon.MESSAGE, enabled = !st.saving)
+                VkPrimaryButton(stringResource(R.string.as_save_send), onClick = { vm.save(send = true) }, modifier = Modifier.weight(1f), enabled = !st.saving)
             }
         },
     ) { pad ->

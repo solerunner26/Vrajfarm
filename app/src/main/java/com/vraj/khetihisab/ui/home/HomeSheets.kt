@@ -44,6 +44,7 @@ internal fun HomeBottomSheet(title: String, onDismiss: () -> Unit, content: @Com
         sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
         containerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
     ) {
+        com.vraj.khetihisab.ui.components.VkSheetSystemBars()
         Column(Modifier.fillMaxWidth().navigationBarsPadding().padding(bottom = 16.dp)) {
             Text(
                 title,

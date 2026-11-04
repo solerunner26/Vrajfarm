@@ -133,7 +133,6 @@
     <string name="scr_no_advance_month">આ મહિને કોઈ ઉપાડ નથી</string>
 
     <!-- Personal (doc 09) -->
-    <string name="scr_personal_title">અંગત / ઘર હિસાબ</string>
     <string name="scr_personal_isolated">આ ખાતું ખેતીના નફા-નુકસાનથી સંપૂર્ણ અલગ છે.</string>
     <string name="scr_income_month">આવક · %s</string>
     <string name="scr_expense_month">ખર્ચ · %s</string>

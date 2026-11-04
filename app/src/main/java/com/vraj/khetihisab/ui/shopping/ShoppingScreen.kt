@@ -308,6 +308,7 @@ private fun ConvertSheet(c: ConvertSheet, vm: ShoppingViewModel) {
         sheetState = sheet,
         containerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
     ) {
+        com.vraj.khetihisab.ui.components.VkSheetSystemBars()
         Column(
             Modifier.fillMaxWidth().padding(start = 20.dp, end = 20.dp, bottom = 24.dp).navigationBarsPadding(),
             verticalArrangement = Arrangement.spacedBy(12.dp),

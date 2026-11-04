@@ -56,14 +56,18 @@ private fun VkButtonBase(
 ) {
     val cs = MaterialTheme.colorScheme
     val x = LocalVkExtra.current
-    val bg: Brush = when (kind) {
-        VkButtonKind.Filled -> x.brandBrush
-        VkButtonKind.Tonal -> SolidColor(cs.primaryContainer)
+    // M3 disabled style: 12% onSurface container, 38% onSurface content (no gradient, no shadow).
+    val disabledFill = kind == VkButtonKind.Filled || kind == VkButtonKind.Tonal
+    val bg: Brush = when {
+        !enabled && disabledFill -> SolidColor(cs.onSurface.copy(alpha = 0.12f))
+        kind == VkButtonKind.Filled -> x.brandBrush
+        kind == VkButtonKind.Tonal -> SolidColor(cs.primaryContainer)
         else -> SolidColor(Color.Transparent)
     }
-    val fg = when (kind) {
-        VkButtonKind.Filled -> x.onGradient
-        VkButtonKind.Tonal -> cs.onPrimaryContainer
+    val fg = when {
+        !enabled -> cs.onSurface.copy(alpha = 0.38f)
+        kind == VkButtonKind.Filled -> x.onGradient
+        kind == VkButtonKind.Tonal -> cs.onPrimaryContainer
         else -> cs.primary
     }
     var m = modifier
@@ -75,13 +79,12 @@ private fun VkButtonBase(
     m = m.clip(CircleShape).background(bg)
     if (kind == VkButtonKind.Outlined) m = m.border(1.dp, cs.outline, CircleShape)
     m = m.clickable(enabled = enabled, role = Role.Button, onClick = onClick)
-        .alpha(if (enabled) 1f else 0.45f)
         .padding(horizontal = if (icon != null) 12.dp else 20.dp)
 
     Box(m, contentAlignment = Alignment.Center) {
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center) {
             if (icon != null) {
-                VkIconImage(icon, size = 28.dp)
+                Box(Modifier.alpha(if (enabled) 1f else 0.38f)) { VkIconImage(icon, size = 28.dp) }
                 Spacer(Modifier.width(8.dp))
             }
             if (sign != null) {

@@ -1,6 +1,16 @@
 package com.vraj.khetihisab.ui.app
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.windowInsetsTopHeight
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import com.vraj.khetihisab.ui.theme.LocalVkExtra
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -86,6 +96,9 @@ fun VkRoot(
             onDeepLinkHandled()
         }
     }
+    // Every screen sits on the theme background (Night included), and a brand-coloured scrim keeps
+    // scrolled content from running under the transparent status bar (edge-to-edge).
+    Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
     NavHost(navController = nav, startDestination = VkRoutes.HOME) {
         // Home (start), farms, farm/{id}, family, personal — doc 05/07/08/09.
         // Home shows the once-a-day Panchang dialog (doc 10) as an overlay.
@@ -139,5 +152,12 @@ fun VkRoot(
             )
             LendScreen(vm, onBack = { nav.popBackStack() }, onDone = { nav.popBackStack() })
         }
+    }
+    Box(
+        Modifier
+            .fillMaxWidth()
+            .windowInsetsTopHeight(WindowInsets.statusBars)
+            .background(LocalVkExtra.current.brandBrush),
+    )
     }
 }

@@ -100,7 +100,7 @@
 | Daily Panchang dialog | **DONE, wired** | `PanchangAlertHost` is a Home overlay. Shows once a day; "રિમાઇન્ડર બનાવો" creates a reminder. `PanchangSource` now uses `PanchangAlertEngine`. |
 | Unused strings | **CLEANED** | Removed 176 unused string resources (old duplicates in `strings_screens.xml`). Widget labels used by the manifest were kept. |
 
-**All screens are built and wired.** `assembleDebug` OK. Unit tests: 164 run, 0 failed, 3 skipped on purpose. Instrumented tests compile. **Not yet run on a device or emulator.**
+**All screens are built and wired.** `assembleDebug` OK. Unit tests green. **Instrumented tests: 34 run, 0 failed** on the emulator (Android 16, API 36). Device QA done 2026-11-04; see the change log.
 
 **Known gaps:**
 - Entry has no edit route yet (Family long-press can only delete).
@@ -109,6 +109,37 @@
 - The GoDaddy URL is still a placeholder (open question 6).
 
 ## Change log
+- **2026-11-04 (Claude, device QA + fixes):**
+  - **Tested on the emulator:** `Medium_Phone_API_36.1` with `-gpu host`, 1080×2400. Every screen was clicked through in the Night theme, then Home in mati/akash/kesar.
+  - **Flows verified:**
+    - PIN.
+    - Entry: APMC 30 મણ + 10 kg × ₹1,600 = ₹48,800; ANIMAL ₹4,500 counted; PERSONAL ₹9,999 excluded → business net ₹44,300.
+    - Shopping: add an item.
+    - Lend: borrower, new asset, return date, photo nudge. WhatsApp opens pre-filled; with no WhatsApp installed it falls back to the share sheet and never sends.
+    - The loan creates a return reminder.
+    - Reminders: add.
+    - Settings, Profiles, Help (credit only there).
+    - Daily PDF, whose business-total row is correct.
+    - Panchang calendar + day sheet (Diwali 08-11).
+    - Farms, Family, Personal.
+  - **Fixed:**
+    1. Backup "not set up" now shows the neutral "બેકઅપ બાકી", not red "નિષ્ફળ", and no longer shows the message twice. Implemented in `BackupStatus.stateAt` (NOT_CONFIGURED ≠ failure).
+    2. Disabled `VkPrimaryButton`/`VkTonalButton` now use the M3 disabled style (12 % / 38 % onSurface, no gradient).
+    3. A brand-coloured status-bar scrim plus the theme background are set once in `VkRoot`:
+       - Scrolled content no longer runs under the status bar.
+       - Screens without their own background (Reminders) no longer stay light in Night.
+    4. The Entry amount uses Indian grouping (₹4,500).
+    5. The Settings backup subtitle can wrap to 2 lines.
+    6. The Lend "સાચવો + મોકલો" button had its icon dropped so the label is not cut (doc 01 §8.4).
+    7. `VkSheetSystemBars()` is called in every ModalBottomSheet. M3 took the icon colour from the phone's dark mode, so the clock was dark-on-dark in Night.
+    8. The Farms crop-year switcher uses chevron buttons, so "પાક વર્ષ 2026-27" is no longer cut off.
+    9. The Personal header uses "અંગત / ઘર" (the title was cut by the month chip).
+    10. `ProfileDao.all()` orders OWNER, MANAGER_1, MANAGER_2. It had sorted alphabetically.
+    11. Test libraries were bumped (espresso 3.7.0, runner/core 1.7.0, ext-junit 1.3.0), because Espresso 3.6 crashes on API 36 (`InputManager.getInstance`).
+  - **Minor, not fixed:**
+    - The shopping icon reads a little like a lock.
+    - The Home header has no logo mark (doc 05).
+    - The new-asset dialog has extra bottom space.
 - **2026-11-04 (Claude, cleanup + animal husbandry):**
   - **Removed:**
     - `ui/home/WhatsAppBridge.kt`, a temporary share-sheet stand-in that bypassed `WhatsAppLauncher` (breaking the CLAUDE.md rule). `ScreensShare` now calls `WhatsAppLauncher.open`, and its unused `loanReminder` was dropped.
@@ -152,19 +183,23 @@ Each Wave 2 agent owns only its own packages. It exposes a `NavGraphBuilder.xxxG
 
 The **lead integrator** is the only one who edits `ui/app/VkRoot.kt` (NavHost), `di/AppContainer.kt` and `AndroidManifest.xml`. If you take over mid-way, finish the integration from those INTEGRATION.md files.
 
-## NEXT TASK FOR ANY AI (2026-11-04, Claude paused at its usage limit)
-1. **QA on an emulator or device (doc 16, doc 17):**
-   - Boot the AVD `Medium_Phone_API_36.1`, adding `-gpu swiftshader_indirect` if adb stays "offline".
-   - Build with `./gradlew installDebug`, then launch.
-   - Click through: PIN → Home → Entry (each of the 5 sections, APMC) → Farms → Family → Personal → Shopping → Assets → Lend → Reminders → Settings → Reports → Profiles → Help → Panchang calendar.
-   - Check all 5 themes, one-line labels and no overlap. Run `./gradlew connectedDebugAndroidTest`.
-2. **Fix what QA finds.** Then the known gaps:
-   - an Entry edit route
+## NEXT TASK FOR ANY AI (updated 2026-11-04 after device QA)
+Emulator QA is done and its findings are fixed (see the change log). What is left:
+1. **Known gaps:**
+   - an Entry edit route (Family long-press can only delete)
    - backup restore
-   - the owner's answers to open questions 1–6
-3. **Release build:**
-   - signing config with the keystore outside the repo
+   - the owner's answers to open questions 1–6, including the real GoDaddy URL
+2. **Release build:**
+   - signing config with the keystore outside the repo (never commit it)
    - `assembleRelease`
-   - R8 check
+   - R8 check: reinstall and smoke-test the release APK
+3. **Real S22 check (doc 16):**
+   - sunlight contrast
+   - biometric unlock
+   - the WhatsApp intent with WhatsApp installed
+   - camera photos for bill, borrower and profile
+   - widgets
+   - exact-alarm permission
+4. Run `php server/tests/run_tests.php` on a PHP 8 machine.
 
-> Emulator note (2026-11-04): `Medium_Phone_API_36.1` with `-gpu swiftshader_indirect` crashed (exit 139, segfault) on this PC. Try another AVD (`community_api29`), `-gpu host`, or a USB-connected Galaxy S22 with USB debugging on.
+> Emulator note: `swiftshader_indirect` crashes on this PC (exit 139). Use `emulator -avd Medium_Phone_API_36.1 -gpu host`. The PIN pad ignores `adb input text`, so tap its keys instead. `connectedDebugAndroidTest` uninstalls the app afterwards, so set up the PIN again.
