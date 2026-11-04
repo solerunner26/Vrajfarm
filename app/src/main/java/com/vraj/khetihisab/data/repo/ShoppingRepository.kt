@@ -51,6 +51,11 @@ class ShoppingRepository(
         listener.onDataChanged()
     }
 
+    suspend fun update(i: ShoppingItemEntity) {
+        dao.update(i.copy(updatedAt = clock()))
+        listener.onDataChanged()
+    }
+
     suspend fun softDelete(id: Long) {
         dao.softDelete(id, clock())
         listener.onDataChanged()

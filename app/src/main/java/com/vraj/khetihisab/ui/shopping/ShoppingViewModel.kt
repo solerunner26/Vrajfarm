@@ -160,6 +160,16 @@ class ShoppingViewModel(
         }
     }
 
+    fun saveEdit(item: ShoppingItemEntity, name: String, priceText: String) {
+        val n = name.trim()
+        if (n.isEmpty()) return
+        viewModelScope.launch { store.update(item.copy(name = n, estPricePaise = MoneyInput.toPaise(priceText))) }
+    }
+
+    fun delete(id: Long) {
+        viewModelScope.launch { store.delete(id) }
+    }
+
     fun undo(id: Long) {
         viewModelScope.launch { store.setBought(id, false) }
     }

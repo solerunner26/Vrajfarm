@@ -59,12 +59,22 @@ import com.vraj.khetihisab.ui.theme.VkIconImage
 import java.time.YearMonth
 
 @Composable
-fun PersonalRoute(onBack: () -> Unit, onExpense: () -> Unit, onIncome: () -> Unit) {
+fun PersonalRoute(
+    onBack: () -> Unit,
+    onExpense: () -> Unit,
+    onIncome: () -> Unit,
+    onEditEntry: (Long) -> Unit = {},
+    section: com.vraj.khetihisab.data.entity.AccountSection = com.vraj.khetihisab.data.entity.AccountSection.PERSONAL,
+) {
     val others = stringResource(R.string.scr_others)
-    val section = stringResource(R.string.scr_sec_personal_short)
-    val vm = screenViewModel { deps, handle -> PersonalViewModel(deps.repos, handle, others, section) }
+    val label = stringResource(
+        if (section == com.vraj.khetihisab.data.entity.AccountSection.GENERAL) R.string.scr_sec_general_short else R.string.scr_sec_personal_short,
+    )
+    val vm = screenViewModel(key = "section_${section.name}") { deps, handle ->
+        PersonalViewModel(deps.repos, handle, others, label, section = section)
+    }
     val state by vm.state.collectAsStateWithLifecycle()
-    PersonalScreen(state, onBack, vm::selectMonth, onExpense, onIncome)
+    PersonalScreen(state, onBack, vm::selectMonth, onExpense, onIncome, onEditEntry = onEditEntry, general = section == com.vraj.khetihisab.data.entity.AccountSection.GENERAL)
 }
 
 /** Isolated personal / home account (doc 09, artboard 06). Only `section = PERSONAL` numbers. */
@@ -75,22 +85,26 @@ fun PersonalScreen(
     onSelectMonth: (YearMonth) -> Unit,
     onExpense: () -> Unit,
     onIncome: () -> Unit,
+    onEditEntry: (Long) -> Unit = {},
+    /** સામાન્ય ખર્ચ (light, water, CCTV …): counts in the business P&L, unlike અંગત. */
+    general: Boolean = false,
 ) {
     val cs = MaterialTheme.colorScheme
+    var actionsFor by remember { mutableStateOf<com.vraj.khetihisab.ui.home.LedgerRowUi?>(null) }
     val pad = Modifier.padding(horizontal = 16.dp)
     var pickMonth by rememberSaveable { mutableStateOf(false) }
     var bill by remember { mutableStateOf<String?>(null) }
     val monthGu = ScreensFormat.monthGu(state.month)
 
-    Box(Modifier.fillMaxSize().background(cs.surface)) {
+    Column(Modifier.fillMaxSize().background(cs.surface)) {
         LazyColumn(
-            Modifier.fillMaxSize().testTag("personal_list"),
-            contentPadding = PaddingValues(bottom = DockBottomPadding),
+            Modifier.weight(1f).fillMaxWidth().testTag("personal_list"),
+            contentPadding = PaddingValues(bottom = 16.dp),
             verticalArrangement = Arrangement.spacedBy(14.dp),
         ) {
             item(key = "header") {
                 VkTopHeader(
-                    stringResource(R.string.scr_sec_personal),
+                    stringResource(if (general) R.string.scr_sec_general else R.string.scr_sec_personal),
                     onBack = onBack,
                     actions = {
                         Box(
@@ -103,9 +117,9 @@ fun PersonalScreen(
             item(key = "info") {
                 VkCard(pad.fillMaxWidth(), tone = VkTone.Primary) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        VkIconImage(VkIcon.LOCK, size = 28.dp)
+                        VkIconImage(if (general) VkIcon.UTILITY else VkIcon.LOCK, size = 28.dp)
                         Spacer(Modifier.width(12.dp))
-                        Text(stringResource(R.string.scr_personal_isolated), style = MaterialTheme.typography.bodyLarge, color = cs.onSecondaryContainer)
+                        Text(stringResource(if (general) R.string.v2_general_info else R.string.scr_personal_isolated), style = MaterialTheme.typography.bodyLarge, color = cs.onSecondaryContainer)
                     }
                 }
             }
@@ -119,7 +133,7 @@ fun PersonalScreen(
                             StatTile(stringResource(R.string.scr_expense_month, monthGu), ScreensFormat.signedRupees(state.totals.expense), big = true)
                         }
                     }
-                    Text(
+                    if (!general) Text(
                         stringResource(R.string.scr_savings, ScreensFormat.signedRupees(state.savings)),
                         style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.ExtraBold),
                         color = if (state.savings < 0) cs.error else cs.primary,
@@ -132,10 +146,10 @@ fun PersonalScreen(
             if (state.showUdhaar) {
                 item(key = "udhaar") {
                     VkCard(pad.fillMaxWidth(), tone = VkTone.Error) {
-                        Text(stringResource(R.string.scr_personal_udhaar), style = MaterialTheme.typography.titleMedium, color = cs.onErrorContainer, maxLines = 1)
+                        Text(stringResource(if (general) R.string.scr_udhaar_title else R.string.scr_personal_udhaar), style = MaterialTheme.typography.titleMedium, color = cs.onErrorContainer, maxLines = 1)
                         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                            StatTile(stringResource(R.string.hm_personal_payable), ScreensFormat.signedRupees(state.udhaar.payable), Modifier.weight(1f), cs.onErrorContainer, big = true)
-                            StatTile(stringResource(R.string.hm_personal_receivable), ScreensFormat.signedRupees(state.udhaar.receivable), Modifier.weight(1f), cs.onErrorContainer, big = true)
+                            StatTile(stringResource(if (general) R.string.scr_udhaar_payable else R.string.hm_personal_payable), ScreensFormat.signedRupees(state.udhaar.payable), Modifier.weight(1f), cs.onErrorContainer, big = true)
+                            StatTile(stringResource(if (general) R.string.scr_udhaar_receivable else R.string.hm_personal_receivable), ScreensFormat.signedRupees(state.udhaar.receivable), Modifier.weight(1f), cs.onErrorContainer, big = true)
                         }
                     }
                 }
@@ -170,19 +184,23 @@ fun PersonalScreen(
                                 billPath = r.billPath,
                                 onViewBill = { bill = it },
                                 pendingBadge = r.pending,
+                                onClick = { actionsFor = r },
                             )
                         }
                     }
                 }
             }
         }
-        VkBottomDock(onExpense = onExpense, onIncome = onIncome, modifier = Modifier.align(Alignment.BottomCenter))
+        VkBottomDock(onExpense = onExpense, onIncome = onIncome)
     }
 
     if (pickMonth) {
         MonthPickerDialog(state.month, onPick = { onSelectMonth(it); pickMonth = false }, onDismiss = { pickMonth = false })
     }
     bill?.let { BillViewer(it) { bill = null } }
+    actionsFor?.let { r ->
+        com.vraj.khetihisab.ui.home.EntryActionsSheet(r, onEdit = { onEditEntry(r.id) }, onDismiss = { actionsFor = null })
+    }
 }
 
 @Composable

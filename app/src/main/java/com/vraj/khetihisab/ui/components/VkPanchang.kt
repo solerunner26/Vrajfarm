@@ -51,7 +51,7 @@ fun VkPanchangCard(day: PanchangDay, onClick: () -> Unit, modifier: Modifier = M
     Box(modifier.fillMaxWidth()) {
         VkCard(Modifier.fillMaxWidth(), tone = VkTone.Panchang, onClick = onClick) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                VkMoonPhase(day.moonIllumination, day.waxing, size = 48.dp)
+                VkMoonPhase(day.moonIllumination, day.waxing, size = 64.dp)
                 Spacer(Modifier.width(14.dp))
                 Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
                     Text(stringResource(R.string.panchang_today), style = MaterialTheme.typography.labelMedium, color = cs.onTertiaryContainer.copy(alpha = 0.85f), maxLines = 1)
@@ -108,7 +108,7 @@ fun VkFestivalDialog(
                         if (PanchangAlertType.FESTIVAL in special.types) {
                             VkIconImage(VkIcon.DIYA, size = 56.dp)
                         } else {
-                            VkMoonPhase(day.moonIllumination, day.waxing, size = 56.dp)
+                            VkMoonPhase(day.moonIllumination, day.waxing, size = 72.dp)
                         }
                         Spacer(Modifier.width(14.dp))
                         Column(Modifier.weight(1f)) {

@@ -1,6 +1,7 @@
 package com.vraj.khetihisab.ui.family
 
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -61,7 +62,7 @@ import com.vraj.khetihisab.ui.theme.VkIcon
 import java.time.YearMonth
 
 @Composable
-fun FamilyRoute(onBack: () -> Unit, onAddAdvance: (familyId: Long?) -> Unit) {
+fun FamilyRoute(onBack: () -> Unit, onAddAdvance: (familyId: Long?) -> Unit, onEditEntry: (Long) -> Unit = {}) {
     val ctx = LocalContext.current
     val fallback = stringResource(R.string.scr_advance)
     val vm = screenViewModel { deps, handle ->
@@ -78,6 +79,7 @@ fun FamilyRoute(onBack: () -> Unit, onAddAdvance: (familyId: Long?) -> Unit) {
         onSavePhone = vm::savePhone,
         onSend = { phone, text -> ScreensShare.whatsApp(ctx, deps, phone, text) },
         onAddAdvance = { onAddAdvance(state.family?.id) },
+        onEditEntry = onEditEntry,
     )
 }
 
@@ -92,6 +94,7 @@ fun FamilyScreen(
     onSavePhone: (String) -> Unit,
     onSend: (phone: String?, text: String) -> Unit,
     onAddAdvance: () -> Unit,
+    onEditEntry: (Long) -> Unit = {},
 ) {
     val cs = MaterialTheme.colorScheme
     val pad = Modifier.padding(horizontal = 16.dp)
@@ -99,6 +102,7 @@ fun FamilyScreen(
     var askPhone by rememberSaveable { mutableStateOf(false) }
     var sendAfterPhone by rememberSaveable { mutableStateOf(false) }
     var deleteId by rememberSaveable { mutableStateOf<Long?>(null) }
+    var actionsFor by remember { mutableStateOf<com.vraj.khetihisab.ui.home.LedgerRowUi?>(null) }
 
     LazyColumn(
         Modifier.fillMaxSize().background(cs.surface).testTag("family_list"),
@@ -108,7 +112,10 @@ fun FamilyScreen(
         item(key = "header") { VkTopHeader(stringResource(R.string.scr_family_title), onBack = onBack) }
         item(key = "seg") {
             VkSegmented(
-                options = listOf(FamilyLogic.CODE_A to stringResource(R.string.scr_family_a), FamilyLogic.CODE_B to stringResource(R.string.scr_family_b)),
+                options = listOf(
+                    FamilyLogic.CODE_A to (state.names[FamilyLogic.CODE_A]?.takeIf { it.isNotBlank() } ?: stringResource(R.string.scr_family_a)),
+                    FamilyLogic.CODE_B to (state.names[FamilyLogic.CODE_B]?.takeIf { it.isNotBlank() } ?: stringResource(R.string.scr_family_b)),
+                ),
                 selected = state.code,
                 onSelect = onSelectFamily,
                 modifier = pad,
@@ -117,11 +124,11 @@ fun FamilyScreen(
         item(key = "hero") {
             VkCard(pad.fillMaxWidth().testTag("family_hero"), tone = VkTone.Primary) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    PersonAvatar(photoPath = null, initial = state.code, size = 56.dp, onClick = { askPhone = true })
+                    PersonAvatar(photoPath = null, initial = if (state.code == FamilyLogic.CODE_B) "૨" else "૧", size = 56.dp, onClick = { askPhone = true })
                     Spacer(Modifier.width(12.dp))
                     Column(Modifier.weight(1f)) {
                         Text(
-                            state.displayName.ifEmpty { stringResource(R.string.scr_family_x, state.code) },
+                            state.displayName.ifEmpty { stringResource(if (state.code == FamilyLogic.CODE_B) R.string.scr_family_b else R.string.scr_family_a) },
                             style = MaterialTheme.typography.titleLarge,
                             color = cs.onSecondaryContainer,
                             maxLines = 1,
@@ -175,7 +182,13 @@ fun FamilyScreen(
                         kind = AmountKind.NEUTRAL,
                         billPath = null,
                         onViewBill = {},
-                        onLongClick = { deleteId = r.id },
+                        onClick = {
+                            actionsFor = com.vraj.khetihisab.ui.home.LedgerRowUi(
+                                id = r.id, title = r.title, meta = r.meta, icon = VkIcon.FAMILY, amountPaise = r.amountPaise,
+                                kind = AmountKind.NEUTRAL, billPath = null, pending = false,
+                                payStatus = com.vraj.khetihisab.data.entity.PayStatus.PAID,
+                            )
+                        },
                     )
                 }
             }
@@ -231,6 +244,9 @@ fun FamilyScreen(
                 sendAfterPhone = false
             },
         )
+    }
+    actionsFor?.let { r ->
+        com.vraj.khetihisab.ui.home.EntryActionsSheet(r, onEdit = { onEditEntry(r.id) }, onDismiss = { actionsFor = null })
     }
     deleteId?.let { id ->
         ConfirmDialog(

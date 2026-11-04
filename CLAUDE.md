@@ -17,10 +17,11 @@ Offline-first Gujarati farm and personal accounting app for Android, built for t
 - SecurityCrypto, Biometric, OkHttp, Coil
 - minSdk 29, targetSdk 35. Package: `com.vraj.khetihisab`.
 
-There is no Firebase or Supabase. All data lives in local Room, plus a nightly upload to the owner's GoDaddy PHP endpoint. The database has **13 entities** (see handover/03).
+There is no Firebase or Supabase. All data lives in local Room. Backup is one JSON file (all 13 tables + photos) sent to Google Drive (automatic nightly, via the system file picker), WhatsApp or e-mail, and restored from any of them (`backup/JsonBackup.kt`). The GoDaddy upload was removed on 2026-11-04. The database has **13 entities** (see handover/03).
+- The app updates itself from GitHub Releases (`update/AppUpdater.kt`). Release with `tools/release.ps1`; versionCode is the git commit count. The release key lives in `%USERPROFILE%\.vrajkheti\` and is never committed.
 
 ## Non-negotiable rules
-- There are 5 account sections: FARM, ANIMAL (પશુપાલન, animal husbandry: cows, buffaloes), FAMILY (farm managers' salary/ઉપાડ), GENERAL, PERSONAL.
+- There are 5 account sections: FARM, ANIMAL (પશુપાલન, animal husbandry: cows, buffaloes), FAMILY (ભાગિયા = farm managers' salary/ઉપાડ; the UI never says પરિવાર), GENERAL, PERSONAL.
   - The **business P&L** (`businessTotals`) counts every section except PERSONAL. Expenses include FAMILY advances.
   - The per-farm P&L and the Vigha scorecard use FARM only.
   - Personal (`PERSONAL`) money never enters any P&L. Add a DAO test for every new P&L query.

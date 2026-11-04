@@ -1,182 +1,279 @@
 package com.vraj.khetihisab.ui.settings
 
+import android.content.Context
+import android.content.Intent
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.lifecycle.ViewModel
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewModelScope
 import com.vraj.khetihisab.R
-import com.vraj.khetihisab.backup.BackupFailure
 import com.vraj.khetihisab.backup.BackupGraph
-import com.vraj.khetihisab.backup.BackupSettings
-import com.vraj.khetihisab.backup.BackupUploader
+import com.vraj.khetihisab.backup.BackupShare
+import com.vraj.khetihisab.backup.BackupState
+import com.vraj.khetihisab.backup.BackupStatus
+import com.vraj.khetihisab.backup.JsonBackup
+import com.vraj.khetihisab.backup.RestoreInbox
+import com.vraj.khetihisab.data.AppDatabase
+import com.vraj.khetihisab.ui.components.VkBadge
 import com.vraj.khetihisab.ui.components.VkCard
+import com.vraj.khetihisab.ui.components.VkOutlinedButton
 import com.vraj.khetihisab.ui.components.VkPrimaryButton
 import com.vraj.khetihisab.ui.components.VkSectionTitle
 import com.vraj.khetihisab.ui.components.VkTonalButton
+import com.vraj.khetihisab.ui.components.VkTone
 import com.vraj.khetihisab.ui.components.VkTopHeader
-import com.vraj.khetihisab.ui.home.screenViewModel
+import com.vraj.khetihisab.ui.theme.VkIcon
+import com.vraj.khetihisab.ui.theme.VkIconImage
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-
-/** Result of "કનેક્શન તપાસો" (`GET ?ping=1`, doc 15 edge cases). */
-sealed interface PingResult {
-    data object Running : PingResult
-    data object Ok : PingResult
-    data class Failed(val failure: BackupFailure) : PingResult
-}
-
-data class BackupSettingsUi(
-    val url: String = "",
-    /** Never holds the stored key: only what the owner types now (blank = keep the stored one). */
-    val keyInput: String = "",
-    val hasKey: Boolean = false,
-    val urlError: BackupSettings.EndpointProblem? = null,
-    val keyError: BackupSettings.KeyProblem? = null,
-    val saved: Boolean = false,
-    val ping: PingResult? = null,
-    val loaded: Boolean = false,
-)
+import java.io.File
+import java.time.LocalDate
 
 /**
- * Endpoint URL + API key entry (doc 15 "Settings"). The key is stored only in
- * EncryptedSharedPreferences via [BackupSettings]; it is never shown, logged or kept in UI state after save.
+ * Backup (owner request 2026-11-04): one .json of everything →
+ * ① Google Drive, automatic every night after choosing a Drive file once,
+ * ② WhatsApp (opens the chat picker), ③ e-mail (Gmail opens with the file attached).
+ * Restore: pick the .json from Drive / WhatsApp / Downloads / Gmail, or "Open with" it from WhatsApp.
  */
-class BackupSettingsViewModel(
-    private val settingsProvider: () -> BackupSettings,
-    private val uploader: BackupUploader,
-) : ViewModel() {
-    private val _ui = MutableStateFlow(BackupSettingsUi())
-    val ui: StateFlow<BackupSettingsUi> = _ui.asStateFlow()
-
-    init {
-        viewModelScope.launch {
-            val (url, has) = withContext(Dispatchers.IO) {
-                val s = settingsProvider()
-                s.endpointUrl.takeIf { it != BackupSettings.DEFAULT_URL }.orEmpty() to s.hasApiKey()
-            }
-            _ui.update { it.copy(url = url, hasKey = has, loaded = true) }
-        }
-    }
-
-    fun onUrl(v: String) = _ui.update { it.copy(url = v, urlError = null, saved = false, ping = null) }
-    fun onKey(v: String) = _ui.update { it.copy(keyInput = v, keyError = null, saved = false, ping = null) }
-
-    fun save() {
-        val u = _ui.value
-        viewModelScope.launch {
-            val (urlErr, keyErr, has) = withContext(Dispatchers.IO) {
-                val s = settingsProvider()
-                val ue = BackupSettings.validateEndpoint(u.url.trim())
-                val ke = if (u.keyInput.isBlank()) null else BackupSettings.validateKey(u.keyInput.trim())
-                if (ue == null && ke == null) {
-                    s.setEndpoint(u.url)
-                    if (u.keyInput.isNotBlank()) s.setApiKey(u.keyInput)
-                }
-                Triple(ue, ke, s.hasApiKey())
-            }
-            _ui.update {
-                it.copy(
-                    urlError = urlErr,
-                    keyError = keyErr,
-                    hasKey = has,
-                    saved = urlErr == null && keyErr == null,
-                    keyInput = if (urlErr == null && keyErr == null) "" else it.keyInput,
-                )
-            }
-            if (urlErr == null && keyErr == null && has) ping()
-        }
-    }
-
-    fun ping() {
-        _ui.update { it.copy(ping = PingResult.Running) }
-        viewModelScope.launch {
-            val r = withContext(Dispatchers.IO) {
-                val s = settingsProvider()
-                val url = s.endpointHttpUrl() ?: return@withContext PingResult.Failed(BackupFailure.WRONG_URL)
-                val key = s.apiKey() ?: return@withContext PingResult.Failed(BackupFailure.NOT_CONFIGURED)
-                when (val o = uploader.ping(url, key, s.installId)) {
-                    is BackupUploader.Outcome.NetworkError -> PingResult.Failed(BackupFailure.NETWORK)
-                    is BackupUploader.Outcome.Http -> o.response.failure?.let { PingResult.Failed(it) } ?: PingResult.Ok
-                }
-            }
-            _ui.update { it.copy(ping = r) }
-        }
-    }
-
-    companion object {
-        fun create(context: android.content.Context) = BackupSettingsViewModel(
-            settingsProvider = { BackupGraph.deps(context).settings },
-            uploader = BackupGraph.deps(context).uploader,
-        )
-    }
-}
-
 @Composable
 fun BackupSettingsRoute(onBack: () -> Unit) {
-    val vm: BackupSettingsViewModel = screenViewModel { deps, _ -> BackupSettingsViewModel.create(deps.appContext) }
-    BackupSettingsScreen(vm, onBack)
-}
+    val ctx = LocalContext.current
+    val deps = remember { BackupGraph.deps(ctx) }
+    val status by remember { runCatching { deps.status.status }.getOrElse { flowOf(BackupStatus()) } }
+        .collectAsStateWithLifecycle(BackupStatus())
+    val scope = rememberCoroutineScope()
+    val cs = MaterialTheme.colorScheme
 
-@Composable
-fun BackupSettingsScreen(vm: BackupSettingsViewModel, onBack: () -> Unit) {
-    val u by vm.ui.collectAsStateWithLifecycle()
+    var driveSet by remember { mutableStateOf(deps.prefs.driveConfigured) }
+    var driveLabel by remember { mutableStateOf(deps.prefs.driveLabel) }
+    var email by remember { mutableStateOf(deps.prefs.email) }
+    var busy by remember { mutableStateOf(false) }
+    var message by remember { mutableStateOf<String?>(null) }
+    var restoreUri by remember { mutableStateOf<Uri?>(null) }
+    var restoreInfo by remember { mutableStateOf<JsonBackup.Summary?>(null) }
+    var restoreBad by remember { mutableStateOf(false) }
+
+    val msgDriveOk = stringResource(R.string.v2_bk_drive_saved)
+    val msgDriveFail = stringResource(R.string.v2_bk_err_drive)
+    val msgFail = stringResource(R.string.bk_err_local)
+    val msgNoApp = stringResource(R.string.v2_bk_no_app)
+
+    // A file opened with "Open with" from WhatsApp / Gmail.
+    val inbox by RestoreInbox.uri.collectAsStateWithLifecycle()
+    LaunchedEffect(inbox) {
+        inbox?.let { restoreUri = it; RestoreInbox.uri.value = null }
+    }
+    LaunchedEffect(restoreUri) {
+        val u = restoreUri ?: return@LaunchedEffect
+        restoreInfo = withContext(Dispatchers.IO) {
+            runCatching { ctx.contentResolver.openInputStream(u)?.use { JsonBackup.inspect(it) } }.getOrNull()
+        }
+        restoreBad = restoreInfo == null
+    }
+
+    /** Fresh file, then [then] with it. */
+    fun withFreshFile(then: suspend (File) -> Unit) {
+        if (busy) return
+        busy = true
+        scope.launch {
+            val f = runCatching { withContext(Dispatchers.IO) { deps.makeBackupFile() } }.getOrNull()
+            if (f == null) message = msgFail else then(f)
+            busy = false
+        }
+    }
+
+    val pickDrive = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument(JsonBackup.MIME)) { uri ->
+        if (uri == null) return@rememberLauncherForActivityResult
+        runCatching {
+            ctx.contentResolver.takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+        }
+        deps.prefs.driveUri = uri
+        deps.prefs.driveLabel = uri.authority?.let(::providerLabel)
+        driveSet = true
+        driveLabel = deps.prefs.driveLabel
+        // First copy right away, so the user sees it work.
+        withFreshFile { f ->
+            val ok = withContext(Dispatchers.IO) { BackupShare.writeToDrive(ctx, uri, f) }
+            if (ok) deps.status.recordSuccess(f.length(), "drive")
+            message = if (ok) msgDriveOk else msgDriveFail
+        }
+    }
+    val pickRestore = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+        if (uri != null) restoreUri = uri
+    }
+
     StScrollBody {
-        VkTopHeader(title = stringResource(R.string.st_backup_title), subtitle = stringResource(R.string.st_backup_sub), onBack = onBack)
+        VkTopHeader(title = stringResource(R.string.st_backup_title), onBack = onBack)
         StBodyColumn {
-            VkSectionTitle(stringResource(R.string.st_backup_configure))
+            // ---- status ----
+            val state = status.stateAt(System.currentTimeMillis())
+            VkCard(Modifier.fillMaxWidth().testTag("backup_status")) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    VkIconImage(VkIcon.BACKUP, size = 44.dp)
+                    Spacer(Modifier.width(12.dp))
+                    Column(Modifier.weight(1f)) {
+                        Text(stringResource(R.string.v2_bk_last), style = MaterialTheme.typography.titleMedium, maxLines = 1)
+                        Text(
+                            status.lastSuccessAt?.let { lastText(ctx, it) } ?: stringResource(R.string.st_backup_never),
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = cs.onSurfaceVariant,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                        )
+                    }
+                    val (bg, fg) = when (state) {
+                        BackupState.OK -> cs.primaryContainer to cs.onPrimaryContainer
+                        BackupState.FAILED -> cs.errorContainer to cs.onErrorContainer
+                        BackupState.STALE, BackupState.NEVER -> cs.surfaceContainer to cs.onSurface
+                    }
+                    VkBadge(stringResource(state.pillRes), bg, fg)
+                }
+                if (state == BackupState.FAILED) status.lastFailure?.let { StError(stringResource(it.messageRes)) }
+                if (busy) Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) { CircularProgressIndicator() }
+                message?.let { StNote(it) }
+            }
+
+            // ---- 1. Google Drive (automatic) ----
+            VkSectionTitle(stringResource(R.string.v2_bk_drive_title))
+            VkCard(Modifier.fillMaxWidth()) {
+                StNote(stringResource(if (driveSet) R.string.v2_bk_drive_on else R.string.v2_bk_drive_how))
+                if (driveSet) {
+                    driveLabel?.let { Text(it, style = MaterialTheme.typography.bodyMedium, color = cs.onSurfaceVariant) }
+                    VkPrimaryButton(stringResource(R.string.v2_bk_drive_now), {
+                        val uri = deps.prefs.driveUri ?: return@VkPrimaryButton
+                        withFreshFile { f ->
+                            val ok = withContext(Dispatchers.IO) { BackupShare.writeToDrive(ctx, uri, f) }
+                            if (ok) deps.status.recordSuccess(f.length(), "drive") else deps.status.recordFailure(com.vraj.khetihisab.backup.BackupFailure.DRIVE)
+                            message = if (ok) msgDriveOk else msgDriveFail
+                        }
+                    }, Modifier.fillMaxWidth().testTag("backup_drive_now"), enabled = !busy)
+                    VkOutlinedButton(stringResource(R.string.v2_bk_drive_change), { pickDrive.launch(JsonBackup.fileName(deps.clock())) }, Modifier.fillMaxWidth())
+                } else {
+                    VkPrimaryButton(stringResource(R.string.v2_bk_drive_pick), { pickDrive.launch("VrajKheti-backup.json") }, Modifier.fillMaxWidth().testTag("backup_drive_pick"))
+                }
+            }
+
+            // ---- 2. WhatsApp ----
+            VkSectionTitle(stringResource(R.string.v2_bk_wa_title))
+            VkCard(Modifier.fillMaxWidth()) {
+                StNote(stringResource(R.string.v2_bk_wa_how))
+                VkTonalButton(stringResource(R.string.v2_bk_wa_send), {
+                    withFreshFile { f ->
+                        if (BackupShare.whatsApp(ctx, f)) deps.status.recordSuccess(f.length(), "whatsapp") else message = msgNoApp
+                    }
+                }, Modifier.fillMaxWidth().testTag("backup_whatsapp"), enabled = !busy)
+            }
+
+            // ---- 3. E-mail ----
+            VkSectionTitle(stringResource(R.string.v2_bk_mail_title))
             VkCard(Modifier.fillMaxWidth()) {
                 StTextField(
-                    value = u.url,
-                    onValueChange = vm::onUrl,
-                    label = stringResource(R.string.st_bk_endpoint),
-                    placeholder = stringResource(R.string.st_bk_endpoint_hint),
-                    keyboard = KeyboardOptions(keyboardType = KeyboardType.Uri),
-                    isError = u.urlError != null,
-                    supporting = u.urlError?.let { stringResource(urlErrorRes(it)) },
+                    email,
+                    { email = it; deps.prefs.email = it },
+                    stringResource(R.string.v2_bk_mail_to),
+                    keyboard = KeyboardOptions(keyboardType = KeyboardType.Email),
+                    placeholder = "name@gmail.com",
                 )
-                StTextField(
-                    value = u.keyInput,
-                    onValueChange = vm::onKey,
-                    label = stringResource(R.string.st_bk_key),
-                    placeholder = stringResource(if (u.hasKey) R.string.st_bk_key_set else R.string.st_bk_key_hint),
-                    keyboard = KeyboardOptions(keyboardType = KeyboardType.Password),
-                    password = true,
-                    isError = u.keyError != null,
-                    supporting = u.keyError?.let { stringResource(keyErrorRes(it)) },
-                )
-                StNote(stringResource(R.string.st_bk_key_note))
-                VkPrimaryButton(stringResource(R.string.st_save), vm::save, Modifier.fillMaxWidth(), enabled = u.loaded)
-                VkTonalButton(stringResource(R.string.st_bk_test), vm::ping, Modifier.fillMaxWidth(), enabled = u.hasKey && u.ping != PingResult.Running)
-                if (u.saved) StNote(stringResource(R.string.st_saved))
-                when (val p = u.ping) {
-                    PingResult.Running -> StNote(stringResource(R.string.st_bk_testing))
-                    PingResult.Ok -> StNote(stringResource(R.string.st_bk_test_ok))
-                    is PingResult.Failed -> StError(stringResource(p.failure.messageRes))
-                    null -> Unit
-                }
+                VkTonalButton(stringResource(R.string.v2_bk_mail_send), {
+                    withFreshFile { f ->
+                        if (BackupShare.email(ctx, f, email)) deps.status.recordSuccess(f.length(), "email") else message = msgNoApp
+                    }
+                }, Modifier.fillMaxWidth().testTag("backup_email"), enabled = !busy)
+            }
+
+            // ---- restore ----
+            VkSectionTitle(stringResource(R.string.v2_bk_restore_title))
+            VkCard(Modifier.fillMaxWidth(), tone = VkTone.Primary) {
+                StNote(stringResource(R.string.v2_bk_restore_how))
+                VkOutlinedButton(stringResource(R.string.v2_bk_restore_pick), { pickRestore.launch(arrayOf("application/json", "application/octet-stream", "text/plain", "*/*")) }, Modifier.fillMaxWidth().testTag("backup_restore"))
+            }
+            StNote(stringResource(R.string.v2_bk_privacy))
+        }
+    }
+
+    if (restoreUri != null && (restoreInfo != null || restoreBad)) {
+        val info = restoreInfo
+        if (info == null) {
+            StDialog(
+                title = stringResource(R.string.v2_bk_restore_bad_title),
+                confirmLabel = stringResource(R.string.st_close),
+                onConfirm = { restoreUri = null; restoreBad = false },
+                dismissLabel = stringResource(R.string.st_cancel),
+                onDismiss = { restoreUri = null; restoreBad = false },
+            ) { Text(stringResource(R.string.v2_bk_restore_bad_body)) }
+        } else {
+            StDialog(
+                title = stringResource(R.string.v2_bk_restore_q),
+                confirmLabel = stringResource(R.string.v2_bk_restore_yes),
+                onConfirm = {
+                    val u = restoreUri ?: return@StDialog
+                    restoreInfo = null
+                    busy = true
+                    scope.launch {
+                        val r = withContext(Dispatchers.IO) { doRestore(ctx, u) }
+                        busy = false
+                        restoreUri = null
+                        if (r is JsonBackup.RestoreResult.Ok) {
+                            message = ctx.getString(R.string.v2_bk_restored)
+                            kotlinx.coroutines.delay(900)
+                            RestoreInbox.restartApp(ctx)
+                        } else {
+                            message = ctx.getString(
+                                if (r is JsonBackup.RestoreResult.TooNew) R.string.v2_bk_restore_too_new else R.string.v2_bk_restore_bad_body,
+                            )
+                        }
+                    }
+                },
+                dismissLabel = stringResource(R.string.st_cancel),
+                onDismiss = { restoreUri = null; restoreInfo = null },
+            ) {
+                Text(stringResource(R.string.v2_bk_restore_info, lastText(ctx, info.createdAt), info.entries.toInt(), info.photoCount))
+                StError(stringResource(R.string.v2_bk_restore_warn))
             }
         }
     }
 }
 
-private fun urlErrorRes(p: BackupSettings.EndpointProblem): Int = when (p) {
-    BackupSettings.EndpointProblem.INVALID -> R.string.st_bk_url_invalid
-    BackupSettings.EndpointProblem.NOT_HTTPS -> R.string.st_bk_url_https
-    BackupSettings.EndpointProblem.PLACEHOLDER -> R.string.st_bk_url_placeholder
+private fun doRestore(ctx: Context, uri: Uri): JsonBackup.RestoreResult {
+    val db = AppDatabase.get(ctx).openHelper.writableDatabase
+    return ctx.contentResolver.openInputStream(uri)?.use { JsonBackup.restore(db, AppDatabase.VERSION, ctx.filesDir, it) }
+        ?: JsonBackup.RestoreResult.Broken("open")
 }
 
-private fun keyErrorRes(p: BackupSettings.KeyProblem): Int = when (p) {
-    BackupSettings.KeyProblem.TOO_SHORT -> R.string.st_bk_key_short
-    BackupSettings.KeyProblem.INVALID_CHARS -> R.string.st_bk_key_chars
+private fun lastText(ctx: Context, millis: Long): String {
+    val today = LocalDate.now(SettingsFormat.IST)
+    return SettingsFormat.backupWhen(millis, today, ctx.getString(R.string.st_today), ctx.getString(R.string.st_tomorrow))
+}
+
+private fun providerLabel(authority: String): String = when {
+    authority.contains("google.android.apps.docs") -> "Google Drive"
+    authority.contains("downloads") || authority.contains("externalstorage") -> "ફોનમાં"
+    else -> authority
 }

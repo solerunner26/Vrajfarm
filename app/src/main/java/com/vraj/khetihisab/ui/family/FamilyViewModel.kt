@@ -47,7 +47,10 @@ class RepoFamilySource(private val repos: DataRepositories, private val template
     override fun categoryNames(): Flow<Map<Long, String>> = repos.master.allCategories().map { l -> l.associate { it.id to it.name } }
     override fun owner() = repos.profiles.owner()
     override fun template() = templates.familyTemplate()
-    override suspend fun savePhone(familyId: Long, phone: String) = repos.master.updateFamilyPhone(familyId, phone)
+    override suspend fun savePhone(familyId: Long, phone: String) {
+        val code = repos.master.familyById(familyId)?.code ?: return
+        repos.profiles.updateBhagiyaPhone(code, phone)
+    }
     override suspend fun delete(id: Long) = repos.ledger.softDelete(id)
 }
 
@@ -62,6 +65,8 @@ data class FamilyUiState(
     val rows: List<FamilyRowUi> = emptyList(),
     /** Exactly the text handed to WhatsApp (doc 08 acceptance: byte for byte). */
     val receipt: String = "",
+    /** Tab labels: family code → ભાગિયા name (mirrored from the profile). */
+    val names: Map<String, String> = emptyMap(),
 ) {
     val phone: String? get() = family?.whatsappPhone?.takeIf { it.isNotBlank() }
     val displayName: String get() = family?.displayName.orEmpty()
@@ -136,8 +141,9 @@ class FamilyViewModel(
     val state: StateFlow<FamilyUiState> = combine(selection, source.families(), ::Pair)
         .flatMapLatest { (sel, families) ->
             val fam = FamilyLogic.pick(families, sel.code)
+            val names = families.associate { it.code to it.displayName }
             if (fam == null) {
-                flowOf(FamilyUiState(sel.code, sel.month))
+                flowOf(FamilyUiState(sel.code, sel.month, names = names))
             } else {
                 combine(
                     source.monthTotal(fam.id, sel.month),
@@ -154,6 +160,7 @@ class FamilyViewModel(
                         yearTotal = y,
                         rows = FamilyLogic.rows(entries, cats, fallbackTitle),
                         receipt = FamilyLogic.receipt(fam, sel.month, m, y, entries, cats, owner, source.template()),
+                        names = names,
                     )
                 }
             }

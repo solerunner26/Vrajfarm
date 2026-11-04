@@ -179,7 +179,7 @@ fun EntryContent(
         ) {
             item {
                 VkTopHeader(
-                    title = stringResource(R.string.scr_entry_title),
+                    title = stringResource(if (form.editId != null) R.string.v2_entry_edit_title else R.string.scr_entry_title),
                     onBack = onBack,
                     actions = {
                         val micLabel = stringResource(R.string.scr_voice_note)
@@ -249,8 +249,13 @@ fun EntryContent(
             item { VkSectionTitle(stringResource(R.string.scr_tap3), Modifier.padding(horizontal = 16.dp)) }
             item {
                 Column(Modifier.padding(horizontal = 16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    // Plain words instead of "ચૂકવેલ / ઉધાર": the labels follow આવક / ખર્ચ (owner feedback).
+                    val income = form.txnType == com.vraj.khetihisab.data.entity.TxnType.INCOME
                     VkSegmented(
-                        options = listOf(false to stringResource(R.string.scr_paid), true to stringResource(R.string.scr_pending)),
+                        options = listOf(
+                            false to stringResource(if (income) R.string.v2_pay_got else R.string.v2_pay_gave),
+                            true to stringResource(if (income) R.string.v2_pay_will_get else R.string.v2_pay_will_give),
+                        ),
                         selected = form.pending,
                         onSelect = { onEvent(EntryEvent.SetPending(it)) },
                         errorSelected = form.pending,
@@ -259,10 +264,25 @@ fun EntryContent(
                         OutlinedTextField(
                             value = form.counterparty,
                             onValueChange = { onEvent(EntryEvent.SetCounterparty(it)) },
-                            label = { Text(stringResource(R.string.scr_counterparty), maxLines = 1) },
+                            label = { Text(stringResource(if (income) R.string.v2_cp_from else R.string.v2_cp_to), maxLines = 1) },
                             singleLine = true,
+                            isError = form.needsName,
+                            supportingText = if (form.needsName) {
+                                { Text(stringResource(R.string.v2_cp_required)) }
+                            } else {
+                                null
+                            },
                             modifier = Modifier.fillMaxWidth(),
                         )
+                        val who = form.counterparty.trim().ifEmpty { stringResource(R.string.v2_cp_someone) }
+                        val amt = ScreensFormat.signedRupees(form.amountPaise)
+                        VkCard(Modifier.fillMaxWidth(), tone = VkTone.Error) {
+                            Text(
+                                stringResource(if (income) R.string.v2_udhaar_sentence_get else R.string.v2_udhaar_sentence_give, who, amt),
+                                style = MaterialTheme.typography.titleMedium,
+                            )
+                            Text(stringResource(R.string.v2_udhaar_how_settle), style = MaterialTheme.typography.bodyMedium)
+                        }
                     }
                 }
             }

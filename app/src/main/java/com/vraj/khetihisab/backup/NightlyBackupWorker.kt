@@ -20,14 +20,11 @@ class NightlyBackupWorker(appContext: Context, params: WorkerParameters) : Corou
     override suspend fun doWork(): Result {
         val deps = BackupGraph.deps(applicationContext)
         val trigger = BackupTrigger.from(inputData.getString(BackupTrigger.KEY))
-        return when (val o = deps.runner().run(trigger, runAttemptCount)) {
-            is BackupRunner.Outcome.Success -> Result.success(
-                workDataOf(OUT_STORED to o.stored, OUT_BYTES to o.bytes),
-            )
+        return when (val o = deps.runner().run(trigger)) {
+            is BackupRunner.Outcome.Success -> Result.success(workDataOf(OUT_BYTES to o.file.length()))
             BackupRunner.Outcome.Skipped -> Result.success()
-            is BackupRunner.Outcome.Retry -> Result.retry()
+            // Periodic safety-net work must not end in FAILED (that would cancel the periodic chain on some versions).
             is BackupRunner.Outcome.Failed ->
-                // Periodic safety-net work must not end in FAILED (that would cancel the periodic chain on some versions).
                 if (trigger == BackupTrigger.SAFETY) Result.success() else Result.failure(workDataOf(OUT_ERROR to o.failure.code))
         }
     }
@@ -43,7 +40,6 @@ class NightlyBackupWorker(appContext: Context, params: WorkerParameters) : Corou
     }
 
     companion object {
-        const val OUT_STORED = "stored"
         const val OUT_BYTES = "bytes"
         const val OUT_ERROR = "error"
     }

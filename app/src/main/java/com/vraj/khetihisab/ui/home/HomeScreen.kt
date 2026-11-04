@@ -50,6 +50,13 @@ import com.vraj.khetihisab.R
 import com.vraj.khetihisab.data.model.LoanWithAsset
 import com.vraj.khetihisab.data.model.Totals
 import com.vraj.khetihisab.panchang.SpecialDay
+import com.vraj.khetihisab.ui.components.VkEyeToggle
+import com.vraj.khetihisab.ui.components.VkHeroTile
+import com.vraj.khetihisab.ui.components.VkMaskedRupees
+import com.vraj.khetihisab.ui.components.VkSubTile
+import com.vraj.khetihisab.ui.components.VkTile
+import com.vraj.khetihisab.ui.components.VkTileOrnament
+import com.vraj.khetihisab.ui.components.VkTileRow
 import com.vraj.khetihisab.ui.components.VkBadge
 import com.vraj.khetihisab.ui.components.VkBottomDock
 import com.vraj.khetihisab.ui.components.VkCard
@@ -105,12 +112,17 @@ fun HomeScreen(
 ) {
     var sheet by rememberSaveable { mutableStateOf(HomeSheet.NONE) }
     var billPath by remember { mutableStateOf<String?>(null) }
+    // Eye toggle: null = follow the Settings switch; a tap overrides it until Home is left.
+    var reveal by rememberSaveable { mutableStateOf<Boolean?>(null) }
+    val shown = reveal ?: state.showNumbers
+    var actionsFor by remember { mutableStateOf<LedgerRowUi?>(null) }
     val pad = Modifier.padding(horizontal = 16.dp)
 
-    Box(modifier.fillMaxSize().background(MaterialTheme.colorScheme.surface)) {
+    // Dock sits BELOW the list (not over it), so no tile or row is ever hidden under the buttons.
+    Column(modifier.fillMaxSize().background(MaterialTheme.colorScheme.surface)) {
         LazyColumn(
-            Modifier.fillMaxSize().testTag("home_list"),
-            contentPadding = PaddingValues(bottom = DockBottomPadding),
+            Modifier.weight(1f).fillMaxWidth().testTag("home_list"),
+            contentPadding = PaddingValues(bottom = 16.dp),
             verticalArrangement = Arrangement.spacedBy(14.dp),
         ) {
             item(key = "header") { HomeHeader(state, onOpen) }
@@ -134,11 +146,19 @@ fun HomeScreen(
                 }
             }
 
-            item(key = "accounts") { VkSectionTitle(stringResource(R.string.scr_home_accounts), pad) }
-            item(key = "business") { BusinessCard(state, { sheet = HomeSheet.BUSINESS }, pad) }
-            item(key = "farm") { FarmCard(state, { onOpen(HomeRoutes.FARMS) }, pad) }
-            item(key = "animal") { AnimalCard(state.animal, { sheet = HomeSheet.ANIMAL }, pad) }
-            item(key = "grid") { SectionGrid(state, onOpen, pad) }
+            item(key = "hisab") {
+                HisabHero(
+                    state = state,
+                    shown = shown,
+                    onToggle = { reveal = !shown },
+                    onBusiness = { sheet = HomeSheet.BUSINESS },
+                    onFarms = { onOpen(HomeRoutes.FARMS) },
+                    onAnimal = { sheet = HomeSheet.ANIMAL },
+                    onPersonal = { onOpen(HomeRoutes.PERSONAL) },
+                    modifier = pad,
+                )
+            }
+            item(key = "grid") { SectionTiles(state, onOpen, pad) }
 
             item(key = "recent_title") {
                 VkSectionTitle(
@@ -148,13 +168,12 @@ fun HomeScreen(
                     onAction = { onOpen(HomeRoutes.FARMS) },
                 )
             }
-            item(key = "recent") { RecentCard(state.recent, { billPath = it }, pad) }
+            item(key = "recent") { RecentCard(state.recent, { billPath = it }, { actionsFor = it }, pad) }
         }
 
         VkBottomDock(
             onExpense = { onOpen(HomeRoutes.entry(HomeRoutes.KIND_EXPENSE)) },
             onIncome = { onOpen(HomeRoutes.entry(HomeRoutes.KIND_INCOME)) },
-            modifier = Modifier.align(Alignment.BottomCenter),
         )
     }
 
@@ -165,6 +184,7 @@ fun HomeScreen(
         HomeSheet.NONE -> Unit
     }
     billPath?.let { BillViewer(it) { billPath = null } }
+    actionsFor?.let { r -> EntryActionsSheet(r, onEdit = { onOpen(HomeRoutes.editEntry(r.id)) }, onDismiss = { actionsFor = null }) }
 }
 
 // ---------------------------------------------------------------- header + panchang
@@ -285,7 +305,7 @@ private fun UpcomingCard(today: LocalDate, upcoming: List<SpecialDay>, onClick: 
 @Composable
 private fun UdhaarCard(state: HomeUiState, onSettle: () -> Unit, modifier: Modifier) {
     val cs = MaterialTheme.colorScheme
-    VkCard(modifier.fillMaxWidth().testTag("home_udhaar"), tone = VkTone.Error) {
+    VkCard(modifier.fillMaxWidth().testTag("home_udhaar"), tone = VkTone.Error, onClick = onSettle) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             VkIconImage(VkIcon.BILL, size = 40.dp)
             Spacer(Modifier.width(12.dp))
@@ -392,84 +412,104 @@ internal fun ThreeStats(t: Totals) {
     }
 }
 
+/**
+ * "હિસાબ" hero tile (owner layout 2026-11-04): કુલ નફો-નુકસાન, ખેતર, પશુપાલન, અંગત as sub-tiles.
+ * Amounts start hidden as XXXXX.XX; the eye shows them (Home only, not the rest of the app).
+ */
 @Composable
-private fun BusinessCard(state: HomeUiState, onClick: () -> Unit, modifier: Modifier) {
-    VkCard(modifier.fillMaxWidth().testTag("home_business"), onClick = onClick) {
-        CardTitleRow(
-            VkIcon.REPORT,
-            stringResource(R.string.hm_business_title),
-            stringResource(R.string.hm_chip_more, stringResource(R.string.hm_year_chip, SeasonRange.cropYearLabel(state.business.cropYear))),
-        )
-        ThreeStats(state.business.totals)
-        Text(
-            stringResource(R.string.hm_business_caption),
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
-    }
-}
-
-@Composable
-private fun FarmCard(state: HomeUiState, onClick: () -> Unit, modifier: Modifier) {
-    VkCard(modifier.fillMaxWidth().testTag("home_farms"), onClick = onClick) {
-        CardTitleRow(VkIcon.FARM, stringResource(R.string.scr_sec_farms), stringResource(R.string.hm_chip_more, periodLabel(state.farmPeriod)))
-        ThreeStats(state.farm)
-    }
-}
-
-@Composable
-private fun AnimalCard(animal: Totals, onClick: () -> Unit, modifier: Modifier) {
+private fun HisabHero(
+    state: HomeUiState,
+    shown: Boolean,
+    onToggle: () -> Unit,
+    onBusiness: () -> Unit,
+    onFarms: () -> Unit,
+    onAnimal: () -> Unit,
+    onPersonal: () -> Unit,
+    modifier: Modifier,
+) {
     val cs = MaterialTheme.colorScheme
-    VkCard(modifier.fillMaxWidth().testTag("home_animal"), onClick = onClick) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            VkIconImage(VkIcon.ANIMAL, size = 40.dp)
-            Spacer(Modifier.width(12.dp))
-            Column(Modifier.weight(1f)) {
-                Text(stringResource(R.string.hm_animal_title), style = MaterialTheme.typography.titleLarge.copy(fontSize = 22.sp), maxLines = 1, overflow = TextOverflow.Ellipsis)
-                Text(
-                    stringResource(R.string.hm_animal_meta, ScreensFormat.signedRupees(animal.income), ScreensFormat.signedRupees(animal.expense)),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = cs.onSurfaceVariant,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
+    @Composable
+    fun money(paise: Long, tag: String) = VkMaskedRupees(
+        paise,
+        revealed = shown,
+        color = if (paise < 0) cs.error else cs.primary,
+        style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.ExtraBold, fontSize = 26.sp),
+        testTag = tag,
+    )
+    VkHeroTile(
+        icon = VkIcon.REPORT,
+        title = stringResource(R.string.v2_hisab),
+        subtitle = stringResource(if (shown) R.string.v2_hisab_sub_shown else R.string.v2_hisab_sub_hidden),
+        modifier = modifier.fillMaxWidth().testTag("home_hisab"),
+        trailing = {
+            VkEyeToggle(
+                revealed = shown,
+                onToggle = onToggle,
+                showLabel = stringResource(R.string.v2_eye_show),
+                hideLabel = stringResource(R.string.v2_eye_hide),
+            )
+        },
+    ) {
+        VkTileRow {
+            VkSubTile(VkIcon.REPORT, stringResource(R.string.v2_kul_nafo), onBusiness, Modifier.weight(1f).fillMaxHeight(), testTag = "home_business") {
+                money(state.business.totals.net, "home_business_amount")
+                Text(stringResource(R.string.hm_year_chip, SeasonRange.cropYearLabel(state.business.cropYear)), style = MaterialTheme.typography.bodySmall, color = cs.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            }
+            VkSubTile(VkIcon.FARM, stringResource(R.string.v2_khetar_hisab), onFarms, Modifier.weight(1f).fillMaxHeight(), testTag = "home_farms") {
+                money(state.farm.net, "home_farms_amount")
+                Text(periodLabel(state.farmPeriod), style = MaterialTheme.typography.bodySmall, color = cs.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
             }
         }
-        Text(
-            stringResource(R.string.hm_month_net, ScreensFormat.signedRupees(animal.net)),
-            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.ExtraBold),
-            color = if (animal.net < 0) cs.error else cs.primary,
-            maxLines = 1,
-            softWrap = false,
-        )
+        VkTileRow {
+            VkSubTile(VkIcon.ANIMAL, stringResource(R.string.v2_pashupalan_hisab), onAnimal, Modifier.weight(1f).fillMaxHeight(), testTag = "home_animal") {
+                money(state.animal.net, "home_animal_amount")
+                Text(stringResource(R.string.v2_this_month), style = MaterialTheme.typography.bodySmall, color = cs.onSurfaceVariant, maxLines = 1)
+            }
+            VkSubTile(VkIcon.PERSONAL, stringResource(R.string.v2_angat_hisab), onPersonal, Modifier.weight(1f).fillMaxHeight(), testTag = "home_personal_hisab") {
+                money(state.personalNetMonth, "home_personal_amount")
+                Text(stringResource(R.string.v2_this_month), style = MaterialTheme.typography.bodySmall, color = cs.onSurfaceVariant, maxLines = 1)
+            }
+        }
     }
 }
 
+/** [ભાગિયા ઉપાડ] [અંગત / ઘર] / [સામાન્ય ખર્ચ] [ખરીદી, મિલકત] — the same tile as Settings. */
 @Composable
-private fun SectionGrid(state: HomeUiState, onOpen: (String) -> Unit, modifier: Modifier) {
+private fun SectionTiles(state: HomeUiState, onOpen: (String) -> Unit, modifier: Modifier) {
     Column(modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        Row(Modifier.fillMaxWidth().height(IntrinsicSize.Min), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            GridCard(VkIcon.FAMILY, stringResource(R.string.scr_sec_family), stringResource(R.string.scr_this_month_amt, ScreensFormat.signedRupees(state.familyMonth))) { onOpen(HomeRoutes.FAMILY) }
-            GridCard(VkIcon.PERSONAL, stringResource(R.string.scr_sec_personal), stringResource(R.string.scr_expense_amt, ScreensFormat.signedRupees(state.personalExpenseMonth))) { onOpen(HomeRoutes.PERSONAL) }
+        VkTileRow {
+            VkTile(
+                VkIcon.FAMILY, stringResource(R.string.scr_sec_family), { onOpen(HomeRoutes.FAMILY) },
+                Modifier.weight(1f).fillMaxHeight(),
+                subtitle = stringResource(R.string.scr_this_month_amt, ScreensFormat.signedRupees(state.familyMonth)),
+                ornament = VkTileOrnament.FIELD, index = 1, testTag = "home_tile_family",
+            )
+            VkTile(
+                VkIcon.PERSONAL, stringResource(R.string.scr_sec_personal), { onOpen(HomeRoutes.PERSONAL) },
+                Modifier.weight(1f).fillMaxHeight(),
+                subtitle = stringResource(R.string.scr_expense_amt, ScreensFormat.signedRupees(state.personalExpenseMonth)),
+                ornament = VkTileOrnament.RANGOLI, index = 2, testTag = "home_tile_personal",
+            )
         }
-        Row(Modifier.fillMaxWidth().height(IntrinsicSize.Min), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            GridCard(VkIcon.UTILITY, stringResource(R.string.scr_sec_general), stringResource(R.string.scr_this_month_amt, ScreensFormat.signedRupees(state.generalMonth))) { onOpen(HomeRoutes.SETTINGS) }
-            GridCard(VkIcon.SHOPPING, stringResource(R.string.scr_sec_shop), stringResource(R.string.scr_shop_meta, state.shoppingPending, state.assetsLent)) { onOpen(HomeRoutes.SHOPPING) }
+        VkTileRow {
+            VkTile(
+                VkIcon.UTILITY, stringResource(R.string.scr_sec_general), { onOpen(HomeRoutes.GENERAL) },
+                Modifier.weight(1f).fillMaxHeight(),
+                subtitle = stringResource(R.string.scr_this_month_amt, ScreensFormat.signedRupees(state.generalMonth)),
+                ornament = VkTileOrnament.SUN, index = 3, testTag = "home_tile_general",
+            )
+            VkTile(
+                VkIcon.SHOPPING, stringResource(R.string.scr_sec_shop), { onOpen(HomeRoutes.SHOPPING) },
+                Modifier.weight(1f).fillMaxHeight(),
+                subtitle = stringResource(R.string.scr_shop_meta, state.shoppingPending, state.assetsLent),
+                ornament = VkTileOrnament.LEAF, index = 4, testTag = "home_tile_shop",
+            )
         }
     }
 }
 
 @Composable
-private fun RowScope.GridCard(icon: VkIcon, title: String, meta: String, onClick: () -> Unit) {
-    VkCard(Modifier.weight(1f).fillMaxHeight(), onClick = onClick) {
-        VkIconImage(icon, size = 40.dp)
-        Text(title, style = MaterialTheme.typography.titleMedium, maxLines = 1, overflow = TextOverflow.Ellipsis)
-        Text(meta, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
-    }
-}
-
-@Composable
-private fun RecentCard(rows: List<LedgerRowUi>, onViewBill: (String) -> Unit, modifier: Modifier) {
+private fun RecentCard(rows: List<LedgerRowUi>, onViewBill: (String) -> Unit, onRow: (LedgerRowUi) -> Unit, modifier: Modifier) {
     VkCard(modifier.fillMaxWidth(), contentPadding = 0.dp) {
         if (rows.isEmpty()) {
             Text(
@@ -490,6 +530,7 @@ private fun RecentCard(rows: List<LedgerRowUi>, onViewBill: (String) -> Unit, mo
                 billPath = r.billPath,
                 onViewBill = onViewBill,
                 pendingBadge = r.pending,
+                onClick = { onRow(r) },
             )
         }
     }

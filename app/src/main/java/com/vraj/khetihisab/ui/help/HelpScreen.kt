@@ -61,12 +61,16 @@ internal data class Faq(val icon: VkIcon, val q: Int, val a: Int)
 
 internal val HelpFaqs = listOf(
     Faq(VkIcon.INCOME, R.string.st_faq_q1, R.string.st_faq_a1),
+    Faq(VkIcon.BILL, R.string.st_faq_q8, R.string.st_faq_a8),
+    Faq(VkIcon.EXPENSE, R.string.st_faq_q9, R.string.st_faq_a9),
+    Faq(VkIcon.FAMILY, R.string.st_faq_q11, R.string.st_faq_a11),
     Faq(VkIcon.CALCULATOR, R.string.st_faq_q2, R.string.st_faq_a2),
     Faq(VkIcon.MOON, R.string.st_faq_q5, R.string.st_faq_a5),
     Faq(VkIcon.CAMERA, R.string.st_faq_q3, R.string.st_faq_a3),
     Faq(VkIcon.MESSAGE, R.string.st_faq_q4, R.string.st_faq_a4),
     Faq(VkIcon.BACKUP, R.string.st_faq_q6, R.string.st_faq_a6),
     Faq(VkIcon.LOCK, R.string.st_faq_q7, R.string.st_faq_a7),
+    Faq(VkIcon.SETTINGS, R.string.st_faq_q10, R.string.st_faq_a10),
 )
 
 @Composable

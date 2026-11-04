@@ -147,9 +147,6 @@ fun VkRangoliDots(modifier: Modifier = Modifier, size: Dp = 24.dp) {
 
 @Composable
 fun VkMoonPhase(illumination: Float, waxing: Boolean, modifier: Modifier = Modifier, size: Dp = 48.dp) {
-    val cs = MaterialTheme.colorScheme
-    val v = remember(illumination, waxing, cs.surfaceContainer, cs.primary, cs.tertiary) {
-        VkDecor.moonPhase(illumination, waxing, cs.surfaceContainer, cs.primary, cs.tertiary)
-    }
-    Image(v, contentDescription = null, modifier = modifier.size(size))
+    // Realistic embossed moon (owner request 2026-11-04); the flat vector [VkDecor.moonPhase] stays for widgets.
+    VkMoon3D(illumination, waxing, modifier, size)
 }

@@ -49,6 +49,21 @@ class EntryViewModel(private val deps: ScreensDeps, private val handle: SavedSta
 
     private var saved = false
 
+    /** The bill already stored on the row being edited; never deleted unless the edit is saved. */
+    private var originalBill: String? = null
+
+    init {
+        val edit = _form.value.editId
+        if (edit != null && handle.get<Bundle>(KEY_FORM) == null) {
+            viewModelScope.launch {
+                val t = ledger.byId(edit) ?: return@launch
+                val cats = master.allCategories().first()
+                originalBill = t.billPhotoPath
+                set(formOf(t, cats.firstOrNull { it.id == t.categoryId }?.name == CROP_SALE))
+            }
+        }
+    }
+
     @OptIn(ExperimentalCoroutinesApi::class)
     val lists: StateFlow<EntryLists> = combine(
         master.farms(),
@@ -76,7 +91,7 @@ class EntryViewModel(private val deps: ScreensDeps, private val handle: SavedSta
             _confirm.value = e
             return
         }
-        if (e is EntryEvent.SetBill && cur.billPath != null && cur.billPath != e.path) BillPhotoHelper.discard(cur.billPath)
+        if (e is EntryEvent.SetBill && cur.billPath != null && cur.billPath != e.path && cur.billPath != originalBill) BillPhotoHelper.discard(cur.billPath)
         set(next)
     }
 
@@ -125,6 +140,16 @@ class EntryViewModel(private val deps: ScreensDeps, private val handle: SavedSta
                 createdAt = now,
                 updatedAt = now,
             )
+            val editId = f.editId
+            if (editId != null) {
+                val old = ledger.byId(editId)
+                if (old != null) {
+                    if (old.billPhotoPath != null && old.billPhotoPath != f.billPath) BillPhotoHelper.discard(old.billPhotoPath)
+                    ledger.update(t.copy(id = old.id, createdAt = old.createdAt, cycleId = cycleId ?: old.cycleId))
+                    _savedId.value = old.id
+                    return@launch
+                }
+            }
             _savedId.value = ledger.insert(t)
         }
     }
@@ -136,7 +161,8 @@ class EntryViewModel(private val deps: ScreensDeps, private val handle: SavedSta
 
     override fun onCleared() {
         // A bill captured for an entry that was never saved is not kept.
-        if (!saved) BillPhotoHelper.discard(_form.value.billPath)
+        val bill = _form.value.billPath
+        if (!saved && bill != originalBill) BillPhotoHelper.discard(bill)
     }
 
     private fun restoreOrInitial(): EntryForm {
@@ -145,7 +171,11 @@ class EntryViewModel(private val deps: ScreensDeps, private val handle: SavedSta
         val section = handle.get<String>(ARG_SECTION)?.let { s -> AccountSection.entries.firstOrNull { it.name == s.uppercase() } }
         val farm = handle.get<Long>(ARG_FARM)?.takeIf { it > 0 }
         val family = handle.get<Long>(ARG_FAMILY)?.takeIf { it > 0 }
+        val date = handle.get<Long>(ARG_DATE)?.takeIf { it != Long.MIN_VALUE }?.let { runCatching { LocalDate.ofEpochDay(it) }.getOrNull() }
+        val edit = handle.get<Long>(ARG_EDIT)?.takeIf { it > 0 }
         return EntryForm(
+            editId = edit,
+            date = date ?: com.vraj.khetihisab.ui.home.ScreensFormat.today(),
             kind = kind,
             section = section ?: when {
                 farm != null -> AccountSection.FARM
@@ -162,6 +192,34 @@ class EntryViewModel(private val deps: ScreensDeps, private val handle: SavedSta
         const val ARG_SECTION = "section"
         const val ARG_FARM = "farm"
         const val ARG_FAMILY = "family"
+        const val ARG_DATE = "date"
+        const val ARG_EDIT = "edit"
+
+        /** An existing row back into the 3-tap form (Entry edit route). */
+        fun formOf(t: TransactionEntity, cropSale: Boolean): EntryForm {
+            val apmc = t.mann != null && t.ratePerMannPaise != null
+            return EntryForm(
+                kind = if (t.type == TxnType.INCOME) EntryKind.INCOME else EntryKind.EXPENSE,
+                section = t.section,
+                farmId = t.farmId,
+                familyId = t.familyId,
+                categoryId = t.categoryId,
+                categoryIsCropSale = cropSale,
+                amountText = if (apmc) "" else paiseText(t.amountPaise),
+                apmcSwitch = apmc && !cropSale,
+                mannText = if (apmc) AmountInput.format(t.mann ?: 0.0) else "",
+                kgText = if (apmc) AmountInput.format(t.extraKg ?: 0.0) else "",
+                rateText = if (apmc) paiseText(t.ratePerMannPaise ?: 0L) else "",
+                pending = t.payStatus != com.vraj.khetihisab.data.entity.PayStatus.PAID,
+                counterparty = t.counterparty.orEmpty(),
+                voiceNote = t.voiceNote ?: t.note,
+                billPath = t.billPhotoPath,
+                date = t.date,
+                editId = t.id,
+            )
+        }
+
+        fun paiseText(p: Long): String = if (p % 100 == 0L) (p / 100).toString() else "%d.%02d".format(p / 100, p % 100)
         private const val KEY_FORM = "entry_form"
         const val CROP_SALE = "પાક વેચાણ"
 
@@ -183,6 +241,7 @@ class EntryViewModel(private val deps: ScreensDeps, private val handle: SavedSta
             putString("voice", voiceNote)
             putString("bill", billPath)
             putLong("date", date.toEpochDay())
+            putLong("edit", editId ?: -1)
         }
 
         fun fromBundle(b: Bundle): EntryForm = EntryForm(
@@ -203,6 +262,7 @@ class EntryViewModel(private val deps: ScreensDeps, private val handle: SavedSta
             voiceNote = b.getString("voice"),
             billPath = b.getString("bill"),
             date = LocalDate.ofEpochDay(b.getLong("date", LocalDate.now().toEpochDay())),
+            editId = b.getLong("edit", -1).takeIf { it > 0 },
         )
     }
 }

@@ -5,7 +5,9 @@ import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Update
 import com.vraj.khetihisab.data.entity.TransactionEntity
+import com.vraj.khetihisab.data.entity.AccountSection
 import com.vraj.khetihisab.data.model.CategoryTotal
+import com.vraj.khetihisab.data.model.DayTotal
 import com.vraj.khetihisab.data.model.FarmPnlRow
 import com.vraj.khetihisab.data.model.MonthTotal
 import com.vraj.khetihisab.data.model.SectionTotals
@@ -117,6 +119,40 @@ interface TxnDao {
       AND type='EXPENSE' AND date BETWEEN :from AND :to""",
     )
     fun generalExpense(from: LocalDate, to: LocalDate): Flow<Long>
+
+    // ---------------- any one section (Samanya / Personal screens, calendar) ----------------
+
+    /** Totals of one section. For GENERAL this is never a farm P&L; PERSONAL stays isolated by the caller. */
+    @Query(
+        """SELECT COALESCE(SUM(CASE WHEN type='INCOME' THEN amountPaise END),0) income,
+      COALESCE(SUM(CASE WHEN type IN ('EXPENSE','ADVANCE') THEN amountPaise END),0) expense
+    FROM txn WHERE isDeleted=0 AND section=:section AND date BETWEEN :from AND :to""",
+    )
+    fun sectionTotals(section: AccountSection, from: LocalDate, to: LocalDate): Flow<Totals>
+
+    @Query(
+        """SELECT c.name, SUM(t.amountPaise) total FROM txn t JOIN category_master c ON c.id=t.categoryId
+    WHERE t.isDeleted=0 AND t.section=:section AND t.type IN ('EXPENSE','ADVANCE') AND t.date BETWEEN :from AND :to
+    GROUP BY c.id ORDER BY total DESC""",
+    )
+    fun sectionByCategory(section: AccountSection, from: LocalDate, to: LocalDate): Flow<List<CategoryTotal>>
+
+    @Query(
+        """SELECT COALESCE(SUM(CASE WHEN payStatus='PENDING_PAYABLE' THEN amountPaise END),0) payable,
+      COALESCE(SUM(CASE WHEN payStatus='PENDING_RECEIVABLE' THEN amountPaise END),0) receivable,
+      COUNT(CASE WHEN payStatus!='PAID' THEN 1 END) count
+    FROM txn WHERE isDeleted=0 AND section=:section""",
+    )
+    fun sectionUdhaar(section: AccountSection): Flow<UdhaarSummary>
+
+    /** Per-day income / outgoing (expense + ઉપાડ) for the Panchang calendar colours. All sections. */
+    @Query(
+        """SELECT date,
+      COALESCE(SUM(CASE WHEN type='INCOME' THEN amountPaise END),0) income,
+      COALESCE(SUM(CASE WHEN type IN ('EXPENSE','ADVANCE') THEN amountPaise END),0) expense
+    FROM txn WHERE isDeleted=0 AND date BETWEEN :from AND :to GROUP BY date""",
+    )
+    fun dailyTotals(from: LocalDate, to: LocalDate): Flow<List<DayTotal>>
 
     // ---------------- PERSONAL (doc 09) ----------------
 

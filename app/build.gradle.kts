@@ -1,10 +1,31 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import java.util.Properties
 
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.ksp)
+}
+
+// ---- Automatic versions (owner request 2026-11-04) ----
+// versionCode = number of git commits, so every release is higher than the last with no manual edit.
+// versionName = 0.2.<versionCode>. CI / tools/release.ps1 may override with -PvkVersionCode=N.
+val gitCommitCount: Int = runCatching {
+    providers.exec { commandLine("git", "rev-list", "--count", "HEAD") }.standardOutput.asText.get().trim().toInt()
+}.getOrDefault(1)
+val vkVersionCode: Int = (findProperty("vkVersionCode") as String?)?.toIntOrNull() ?: gitCommitCount
+val vkVersionName: String = "0.2.$vkVersionCode"
+
+// ---- Release signing: keystore lives OUTSIDE the repo; keystore.properties is git-ignored. ----
+// Losing this keystore means phones can no longer update in place — keep a copy safe (see HANDOVER).
+// Looked up in ~/.vrajkheti/keystore.properties first (outside OneDrive, never synced or committed).
+val keystoreProps = Properties().apply {
+    val f = listOf(
+        File(System.getProperty("user.home"), ".vrajkheti/keystore.properties"),
+        rootProject.file("keystore.properties"),
+    ).firstOrNull { it.exists() }
+    f?.inputStream()?.use { load(it) }
 }
 
 android {
@@ -15,10 +36,21 @@ android {
         applicationId = "com.vraj.khetihisab"
         minSdk = 29
         targetSdk = 35
-        versionCode = 1
-        versionName = "0.1.0"
+        versionCode = vkVersionCode
+        versionName = vkVersionName
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables { useSupportLibrary = false } // minSdk 29: native VectorDrawable incl. gradients
+    }
+
+    signingConfigs {
+        if (keystoreProps.getProperty("storeFile") != null) {
+            create("release") {
+                storeFile = file(keystoreProps.getProperty("storeFile"))
+                storePassword = keystoreProps.getProperty("storePassword")
+                keyAlias = keystoreProps.getProperty("keyAlias")
+                keyPassword = keystoreProps.getProperty("keyPassword")
+            }
+        }
     }
 
     buildTypes {
@@ -28,6 +60,7 @@ android {
         }
         release {
             buildConfigField("boolean", "ALLOW_SCREENSHOTS", "false")
+            signingConfigs.findByName("release")?.let { signingConfig = it }
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")

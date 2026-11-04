@@ -104,6 +104,21 @@ abstract class MasterDao {
 
     @Update abstract suspend fun updateCategory(c: CategoryMasterEntity)
 
+    /** Old entries keep their amount; their type shows "—" (FK SET_NULL). */
+    @Delete abstract suspend fun deleteCategory(c: CategoryMasterEntity)
+
+    @Query("SELECT COUNT(*) FROM txn WHERE categoryId=:id AND isDeleted=0")
+    abstract suspend fun txnCountForCategory(id: Long): Int
+
+    @Delete abstract suspend fun deleteCrop(c: CropMasterEntity)
+
+    /** Crop cycles reference crops with RESTRICT: a crop used on a farm cannot be deleted. */
+    @Query("SELECT COUNT(*) FROM farm_crop_cycle WHERE cropId=:id")
+    abstract suspend fun cycleCountForCrop(id: Long): Int
+
+    @Query("SELECT COUNT(*) FROM txn WHERE farmId=:id AND isDeleted=0")
+    abstract suspend fun txnCountForFarm(id: Long): Int
+
     // ---------------- farm crop cycle ----------------
     @Insert abstract suspend fun insertCycle(c: FarmCropCycleEntity): Long
 

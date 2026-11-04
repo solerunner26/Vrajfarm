@@ -1,5 +1,14 @@
 package com.vraj.khetihisab.ui.panchang
 
+import com.vraj.khetihisab.data.model.DayTotal
+import com.vraj.khetihisab.ui.components.VkFormat
+import com.vraj.khetihisab.ui.home.EntryActionsSheet
+import com.vraj.khetihisab.ui.home.HomeRoutes
+import com.vraj.khetihisab.ui.home.LedgerRowUi
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.foundation.layout.size
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -75,17 +84,23 @@ import com.vraj.khetihisab.ui.theme.LocalVkExtra
 import java.time.LocalDate
 
 @Composable
-fun PanchangCalendarRoute(initialEpochDay: Long?, onBack: () -> Unit, onOpenReminders: (() -> Unit)? = null) {
+fun PanchangCalendarRoute(initialEpochDay: Long?, onBack: () -> Unit, onOpenReminders: (() -> Unit)? = null, onOpenEntry: ((String) -> Unit)? = null) {
     val vm: PanchangCalendarViewModel = screenViewModel(key = "panchang_calendar_$initialEpochDay") { deps, _ ->
         PanchangCalendarViewModel.create(deps, initialEpochDay)
     }
-    PanchangCalendarScreen(vm, onBack, onOpenReminders)
+    PanchangCalendarScreen(vm, onBack, onOpenReminders, onOpenEntry)
 }
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun PanchangCalendarScreen(vm: PanchangCalendarViewModel, onBack: () -> Unit, onOpenReminders: (() -> Unit)? = null) {
+fun PanchangCalendarScreen(
+    vm: PanchangCalendarViewModel,
+    onBack: () -> Unit,
+    onOpenReminders: (() -> Unit)? = null,
+    onOpenEntry: ((String) -> Unit)? = null,
+) {
     val ym by vm.month.collectAsStateWithLifecycle()
+    val money by vm.money.collectAsStateWithLifecycle()
     val cal by vm.calendar.collectAsStateWithLifecycle()
     val selected by vm.selected.collectAsStateWithLifecycle()
     val x = LocalVkExtra.current
@@ -162,7 +177,7 @@ fun PanchangCalendarScreen(vm: PanchangCalendarViewModel, onBack: () -> Unit, on
                                         if (cell == null) {
                                             Spacer(Modifier.weight(1f))
                                         } else {
-                                            DayCell(cell, isSelected = cell.date == selected, onClick = { vm.select(cell.date) }, modifier = Modifier.weight(1f))
+                                            DayCell(cell, money[cell.date], isSelected = cell.date == selected, onClick = { vm.select(cell.date) }, modifier = Modifier.weight(1f))
                                         }
                                     }
                                 }
@@ -170,11 +185,13 @@ fun PanchangCalendarScreen(vm: PanchangCalendarViewModel, onBack: () -> Unit, on
                         }
                     }
 
-                    // Legend (shape, not colour).
+                    // Legend (shape, not colour) + money colours.
                     FlowRow(horizontalArrangement = Arrangement.spacedBy(14.dp), verticalArrangement = Arrangement.spacedBy(8.dp), itemVerticalAlignment = Alignment.CenterVertically) {
+                        MoneyLegend(stringResource(R.string.v2_cal_income_day), LocalVkExtra.current.income)
+                        MoneyLegend(stringResource(R.string.v2_cal_expense_day), cs.error)
                         DayMarker.entries.forEach { m ->
                             Row(verticalAlignment = Alignment.CenterVertically) {
-                                MarkerGlyph(m, size = 12.dp)
+                                MarkerGlyph(m, size = 16.dp)
                                 Spacer(Modifier.width(6.dp))
                                 Text(markerLabel(m), style = MaterialTheme.typography.bodySmall, color = cs.onSurfaceVariant, maxLines = 1)
                             }
@@ -197,7 +214,7 @@ fun PanchangCalendarScreen(vm: PanchangCalendarViewModel, onBack: () -> Unit, on
                                         onClick = { vm.select(s.date) },
                                         trailing = {
                                             Row(horizontalArrangement = Arrangement.spacedBy(4.dp), verticalAlignment = Alignment.CenterVertically) {
-                                                PanchangCalendarModel.markersOf(s).forEach { MarkerGlyph(it, size = 12.dp) }
+                                                PanchangCalendarModel.markersOf(s).forEach { MarkerGlyph(it, size = 16.dp) }
                                             }
                                         },
                                     )
@@ -215,13 +232,18 @@ fun PanchangCalendarScreen(vm: PanchangCalendarViewModel, onBack: () -> Unit, on
 
     selected?.let { date ->
         val cell = cal?.cells?.firstOrNull { it.date == date }
-        DaySheet(date, cell, vm, onDismiss = { vm.select(null) })
+        DaySheet(date, cell, vm, onDismiss = { vm.select(null) }, onOpenEntry = onOpenEntry)
     }
 }
 
 @Composable
-private fun DayCell(cell: CalendarCell, isSelected: Boolean, onClick: () -> Unit, modifier: Modifier) {
+private fun DayCell(cell: CalendarCell, money: DayTotal?, isSelected: Boolean, onClick: () -> Unit, modifier: Modifier) {
     val cs = MaterialTheme.colorScheme
+    val incomeColor = LocalVkExtra.current.income
+    val inc = money?.income ?: 0L
+    val out = money?.expense ?: 0L
+    val hasIn = inc > 0L
+    val hasOut = out > 0L
     val shape = RoundedCornerShape(12.dp)
     val tithi = shortTithiLabel(cell.shortTithi)
     val name = cell.special?.titleGu
@@ -250,8 +272,13 @@ private fun DayCell(cell: CalendarCell, isSelected: Boolean, onClick: () -> Unit
         ) {
             Text(
                 cell.date.dayOfMonth.toString(),
-                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                color = if (isSelected) cs.onPrimaryContainer else cs.onSurface,
+                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.ExtraBold),
+                color = when {
+                    hasIn && (!hasOut || inc >= out) -> incomeColor
+                    hasOut -> cs.error
+                    isSelected -> cs.onPrimaryContainer
+                    else -> cs.onSurface
+                },
                 maxLines = 1,
             )
             Text(
@@ -263,6 +290,15 @@ private fun DayCell(cell: CalendarCell, isSelected: Boolean, onClick: () -> Unit
                 overflow = TextOverflow.Clip,
             )
         }
+        if (hasIn || hasOut) {
+            Row(
+                Modifier.align(Alignment.BottomCenter).padding(bottom = 3.dp),
+                horizontalArrangement = Arrangement.spacedBy(3.dp),
+            ) {
+                if (hasIn) Box(Modifier.size(width = 12.dp, height = 4.dp).clip(RoundedCornerShape(2.dp)).background(incomeColor))
+                if (hasOut) Box(Modifier.size(width = 12.dp, height = 4.dp).clip(RoundedCornerShape(2.dp)).background(cs.error))
+            }
+        }
         if (cell.markers.isNotEmpty()) {
             Row(
                 Modifier.align(Alignment.TopEnd).padding(top = 3.dp, end = 3.dp),
@@ -270,7 +306,7 @@ private fun DayCell(cell: CalendarCell, isSelected: Boolean, onClick: () -> Unit
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 // At most two glyphs fit in a 46dp cell; the list and sheet show the rest.
-                cell.markers.take(2).forEach { MarkerGlyph(it, size = 8.dp) }
+                cell.markers.take(2).forEach { MarkerGlyph(it, size = 11.dp) }
             }
         }
     }
@@ -278,8 +314,10 @@ private fun DayCell(cell: CalendarCell, isSelected: Boolean, onClick: () -> Unit
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
-private fun DaySheet(date: LocalDate, cell: CalendarCell?, vm: PanchangCalendarViewModel, onDismiss: () -> Unit) {
+private fun DaySheet(date: LocalDate, cell: CalendarCell?, vm: PanchangCalendarViewModel, onDismiss: () -> Unit, onOpenEntry: ((String) -> Unit)?) {
     val cs = MaterialTheme.colorScheme
+    val entries by vm.selectedEntries.collectAsStateWithLifecycle()
+    var actionsFor by remember { mutableStateOf<LedgerRowUi?>(null) }
     val sheet = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val day = cell?.day ?: remember(date) { runCatching { PanchangSource.day(date) }.getOrNull() }
     val special: SpecialDay? = cell?.special
@@ -300,7 +338,7 @@ private fun DaySheet(date: LocalDate, cell: CalendarCell?, vm: PanchangCalendarV
             }
             VkCard(Modifier.fillMaxWidth(), tone = VkTone.Panchang) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    VkMoonPhase(day.moonIllumination, day.waxing, size = 48.dp)
+                    VkMoonPhase(day.moonIllumination, day.waxing, size = 64.dp)
                     Spacer(Modifier.width(14.dp))
                     Column(Modifier.weight(1f)) {
                         Text(
@@ -326,6 +364,15 @@ private fun DaySheet(date: LocalDate, cell: CalendarCell?, vm: PanchangCalendarV
             )
             if (day.nearBoundary) StNote(stringResource(R.string.st_pa_near_boundary))
 
+            // ---- this day's money (all sections) ----
+            DayMoney(entries, onRow = { actionsFor = it })
+            if (onOpenEntry != null) {
+                Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    VkTonalButton(stringResource(R.string.v2_cal_add_income), { onOpenEntry(HomeRoutes.entry(HomeRoutes.KIND_INCOME, date = date)) }, Modifier.weight(1f))
+                    VkTonalButton(stringResource(R.string.v2_cal_add_expense), { onOpenEntry(HomeRoutes.entry(HomeRoutes.KIND_EXPENSE, date = date)) }, Modifier.weight(1f))
+                }
+            }
+
             if (special == null) {
                 StNote(stringResource(R.string.st_pa_normal_day))
             } else {
@@ -345,6 +392,66 @@ private fun DaySheet(date: LocalDate, cell: CalendarCell?, vm: PanchangCalendarV
                 VkTonalButton(stringResource(R.string.st_pa_make_reminder), { vm.makeReminder(special) }, Modifier.fillMaxWidth())
             }
             VkTextButton(stringResource(R.string.st_close), onDismiss, Modifier.fillMaxWidth())
+        }
+    }
+    actionsFor?.let { row ->
+        EntryActionsSheet(
+            row = row,
+            onEdit = { onOpenEntry?.invoke(HomeRoutes.editEntry(row.id)) },
+            onDismiss = { actionsFor = null },
+        )
+    }
+}
+
+@Composable
+private fun MoneyLegend(label: String, color: androidx.compose.ui.graphics.Color) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Box(Modifier.size(width = 14.dp, height = 6.dp).clip(RoundedCornerShape(3.dp)).background(color))
+        Spacer(Modifier.width(6.dp))
+        Text(label, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1)
+    }
+}
+
+/** "આ દિવસની એન્ટ્રી": totals in green / red, then every entry (tap → સુધારો / કાઢો). */
+@Composable
+private fun DayMoney(rows: List<LedgerRowUi>, onRow: (LedgerRowUi) -> Unit) {
+    val cs = MaterialTheme.colorScheme
+    val incomeColor = LocalVkExtra.current.income
+    Text(stringResource(R.string.v2_cal_day_entries), style = MaterialTheme.typography.titleLarge)
+    if (rows.isEmpty()) {
+        StNote(stringResource(R.string.v2_cal_no_entries))
+        return
+    }
+    val inc = rows.filter { it.isIncome }.sumOf { it.amountPaise }
+    val out = rows.filter { !it.isIncome }.sumOf { it.amountPaise }
+    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+        VkCard(Modifier.weight(1f), contentPadding = 12.dp) {
+            Text(stringResource(R.string.scr_income), style = MaterialTheme.typography.bodyMedium, color = cs.onSurfaceVariant, maxLines = 1)
+            Text("+" + VkFormat.rupees(inc), style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.ExtraBold), color = incomeColor, maxLines = 1, softWrap = false)
+        }
+        VkCard(Modifier.weight(1f), contentPadding = 12.dp) {
+            Text(stringResource(R.string.scr_expense), style = MaterialTheme.typography.bodyMedium, color = cs.onSurfaceVariant, maxLines = 1)
+            Text("\u2212" + VkFormat.rupees(out), style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.ExtraBold), color = cs.error, maxLines = 1, softWrap = false)
+        }
+    }
+    VkCard(Modifier.fillMaxWidth(), contentPadding = 0.dp) {
+        rows.forEachIndexed { i, r ->
+            if (i > 0) VkRowDivider()
+            VkListRow(
+                title = r.title,
+                meta = r.meta,
+                leadingIcon = r.icon,
+                onClick = { onRow(r) },
+                trailing = {
+                    Text(
+                        (if (r.isIncome) "+" else "\u2212") + VkFormat.rupees(r.amountPaise),
+                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.ExtraBold),
+                        color = if (r.isIncome) incomeColor else cs.error,
+                        maxLines = 1,
+                        softWrap = false,
+                    )
+                },
+            )
         }
     }
 }

@@ -12,7 +12,7 @@
     <string name="scr_view_bill">પાવતી જુઓ</string>
     <string name="scr_pending_badge">ઉધાર</string>
     <string name="scr_none_dash">—</string>
-    <string name="scr_family_x">પરિવાર %s</string>
+    <string name="scr_family_x">ભાગિયા %s</string>
     <string name="scr_season_kharif">ખરીફ %d</string>
     <string name="scr_season_rabi">રવી %d</string>
     <string name="scr_season_summer">ઉનાળુ %d</string>
@@ -31,14 +31,14 @@
     <string name="scr_home_attention">ધ્યાન આપો</string>
     <string name="scr_udhaar_title">ઉધાર બાકી</string>
     <string name="scr_udhaar_count">%d એન્ટ્રી</string>
-    <string name="scr_udhaar_payable">દેવાના બાકી</string>
-    <string name="scr_udhaar_receivable">લેવાના બાકી</string>
+    <string name="scr_udhaar_payable">મારે આપવાના</string>
+    <string name="scr_udhaar_receivable">મારે લેવાના</string>
     <string name="scr_udhaar_settle">ચૂકતે કરો</string>
     <string name="scr_loan_not_returned">%s પરત નથી</string>
     <string name="scr_more_n">વધુ %d</string>
     <string name="scr_home_accounts">હિસાબ</string>
     <string name="scr_sec_farms">૮ ખેતર હિસાબ</string>
-    <string name="scr_sec_family">પરિવાર ઉપાડ</string>
+    <string name="scr_sec_family">ભાગિયા ઉપાડ</string>
     <string name="scr_sec_general">સામાન્ય ખર્ચ</string>
     <string name="scr_sec_personal">અંગત / ઘર</string>
     <string name="scr_sec_shop">ખરીદી, મિલકત</string>
@@ -64,11 +64,11 @@
     <string name="scr_tap1">ટેપ 1 · વિભાગ</string>
     <string name="scr_sec_farm_short">ખેતર</string>
     <string name="scr_sec_animal_short">પશુપાલન</string>
-    <string name="scr_sec_family_short">પરિવાર</string>
+    <string name="scr_sec_family_short">ભાગિયા</string>
     <string name="scr_sec_general_short">સામાન્ય</string>
     <string name="scr_sec_personal_short">અંગત</string>
     <string name="scr_tap2_farm">ટેપ 2 · ખેતર અને પાક</string>
-    <string name="scr_tap2_family">ટેપ 2 · પરિવાર (ઉપાડ)</string>
+    <string name="scr_tap2_family">ટેપ 2 · ભાગિયા (ઉપાડ)</string>
     <string name="scr_tap2_category">ટેપ 2 · પ્રકાર</string>
     <string name="scr_amount">રકમ ₹</string>
     <string name="scr_apmc_title">APMC મણ ગણક</string>
@@ -119,8 +119,8 @@
 
     <!-- Family (doc 08) -->
     <string name="scr_family_title">ઉપાડ ખાતું</string>
-    <string name="scr_family_a">પરિવાર A</string>
-    <string name="scr_family_b">પરિવાર B</string>
+    <string name="scr_family_a">ભાગિયા 1</string>
+    <string name="scr_family_b">ભાગિયા 2</string>
     <string name="scr_add_number">નંબર ઉમેરો</string>
     <string name="scr_month_advance">%s ઉપાડ</string>
     <string name="scr_year_total">વર્ષ %d કુલ</string>

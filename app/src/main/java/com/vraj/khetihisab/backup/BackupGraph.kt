@@ -1,39 +1,52 @@
 package com.vraj.khetihisab.backup
 
 import android.content.Context
+import com.vraj.khetihisab.BuildConfig
 import com.vraj.khetihisab.data.AppDatabase
-import com.vraj.khetihisab.data.repo.DateRange
 import com.vraj.khetihisab.data.repo.LedgerMath
-import com.vraj.khetihisab.report.GujaratiPdfGenerator
-import com.vraj.khetihisab.report.ReportType
 import java.io.File
 import java.time.ZonedDateTime
 
-/** Everything the backup worker / controller needs. */
+/** Everything the backup worker and the Backup screen need. */
 class BackupDeps(
-    val settings: BackupSettings,
+    private val app: Context,
     val status: BackupStatusRepository,
-    val uploader: BackupUploader,
-    val snapshotter: BackupSnapshotter,
+    val prefs: BackupPrefs,
     val notifier: BackupNotifier,
     val clock: () -> ZonedDateTime = { ZonedDateTime.now(LedgerMath.IST) },
 ) {
+    /** filesDir/backup/ — shared through the FileProvider (`backup` path). Only the newest file is kept. */
+    val dir: File get() = File(app.filesDir, "backup").apply { mkdirs() }
+
+    /** Builds a fresh .json of everything and returns it. */
+    suspend fun makeBackupFile(now: ZonedDateTime = clock()): File {
+        val db = AppDatabase.get(app).openHelper.writableDatabase
+        val out = File(dir, JsonBackup.fileName(now))
+        val tmp = File(dir, out.name + ".part")
+        tmp.outputStream().use {
+            JsonBackup.export(db, AppDatabase.VERSION, BuildConfig.VERSION_NAME, app.filesDir, it, now.toInstant().toEpochMilli())
+        }
+        dir.listFiles()?.filter { it.name.endsWith(".json") }?.forEach { it.delete() }
+        if (!tmp.renameTo(out)) error("rename failed")
+        return out
+    }
+
+    fun latestFile(): File? = dir.listFiles()?.filter { it.name.endsWith(".json") }?.maxByOrNull { it.lastModified() }
+
     fun runner(): BackupRunner = BackupRunner(
-        settings = settings,
         status = status,
-        uploader = uploader,
-        snapshot = snapshotter::snapshot,
-        zipDir = snapshotter.zipDir,
+        driveUri = { prefs.driveUri },
+        makeFile = ::makeBackupFile,
+        toDrive = { uri, f -> BackupShare.writeToDrive(app, uri, f) },
         clock = clock,
-        onRecovered = notifier::notifyRecovered,
+        onReadyToSend = notifier::notifyReadyToSend,
         onFinalFailure = notifier::notifyFailed,
     )
 }
 
 /**
- * Process-wide backup dependencies. Workers and receivers are created by the system, so they cannot take
- * constructor arguments; they read [deps]. AppContainer may expose the same instance (see INTEGRATION.md).
- * Tests set [override].
+ * Process-wide backup dependencies. Workers and receivers are created by the system, so they read
+ * [deps]. Tests set [override].
  */
 object BackupGraph {
     @Volatile var override: ((Context) -> BackupDeps)? = null
@@ -46,21 +59,10 @@ object BackupGraph {
         }
     }
 
-    private fun build(app: Context): BackupDeps {
-        val db = AppDatabase.get(app)
-        val pdf = GujaratiPdfGenerator(app, db)
-        return BackupDeps(
-            settings = BackupSettings.create(app),
-            status = BackupStatusRepository(app.backupStatusDataStore),
-            uploader = BackupUploader(),
-            snapshotter = BackupSnapshotter(
-                db = db,
-                dbFile = app.getDatabasePath(AppDatabase.NAME),
-                filesDir = app.filesDir,
-                zipDir = File(app.cacheDir, "backup"),
-                dailyPdf = { day -> pdf.generate(ReportType.DAILY_LEDGER, DateRange.day(day)) },
-            ),
-            notifier = BackupNotifier(app),
-        )
-    }
+    private fun build(app: Context) = BackupDeps(
+        app = app,
+        status = BackupStatusRepository(app.backupStatusDataStore),
+        prefs = BackupPrefs.of(app),
+        notifier = BackupNotifier(app),
+    )
 }

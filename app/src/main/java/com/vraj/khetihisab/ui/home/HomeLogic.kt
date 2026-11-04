@@ -32,6 +32,10 @@ data class LedgerRowUi(
     val billPath: String?,
     val pending: Boolean,
     val payStatus: PayStatus,
+    /** True for આવક rows (pending or paid). */
+    val isIncome: Boolean = false,
+    /** ઉધાર: who pays / who gets paid. */
+    val counterparty: String? = null,
 )
 
 data class LoanCardUi(val loan: LoanWithAsset, val daysLate: Int)
@@ -161,5 +165,7 @@ object HomeLogic {
         billPath = t.billPhotoPath,
         pending = t.payStatus != PayStatus.PAID,
         payStatus = t.payStatus,
+        isIncome = t.type == com.vraj.khetihisab.data.entity.TxnType.INCOME,
+        counterparty = t.counterparty?.takeIf { it.isNotBlank() },
     )
 }

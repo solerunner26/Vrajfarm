@@ -116,7 +116,7 @@ object ReportContentBuilder {
 
     private fun refHeader(s: AccountSection) = when (s) {
         AccountSection.FARM -> L.FARM
-        AccountSection.FAMILY -> "પરિવાર"
+        AccountSection.FAMILY -> "ભાગિયા"
         else -> L.PERSON
     }
 

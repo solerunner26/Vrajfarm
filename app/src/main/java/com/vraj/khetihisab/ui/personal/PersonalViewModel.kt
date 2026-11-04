@@ -23,6 +23,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.YearMonth
 
@@ -68,6 +69,8 @@ class PersonalViewModel(
     private val othersLabel: String,
     private val sectionLabel: String,
     today: LocalDate = ScreensFormat.today(),
+    /** PERSONAL (અંગત / ઘર) or GENERAL (સામાન્ય ખર્ચ): the same one-section screen. */
+    val section: AccountSection = AccountSection.PERSONAL,
 ) : ViewModel() {
 
     private val month = MutableStateFlow(
@@ -80,18 +83,18 @@ class PersonalViewModel(
     val state: StateFlow<PersonalUiState> = month.flatMapLatest { ym ->
         val r = DateRange.month(ym)
         combine(
-            repos.ledger.personalTotals(r),
-            repos.ledger.personalByCategory(r),
+            repos.ledger.sectionTotals(section, r),
+            repos.ledger.sectionByCategory(section, r),
             repos.ledger.entries(r),
             categories,
-            repos.ledger.personalUdhaar(),
+            repos.ledger.sectionUdhaar(section),
         ) { totals, byCat, entries, cats, udhaar ->
             val names = LedgerNames(categories = cats)
             PersonalUiState(
                 month = ym,
                 totals = totals,
                 bars = PersonalLogic.bars(byCat, othersLabel),
-                rows = PersonalLogic.personalOnly(entries)
+                rows = entries.filter { it.section == section }
                     .sortedWith(compareByDescending<TransactionEntity> { it.date }.thenByDescending { it.createdAt })
                     .map { HomeLogic.row(it, names) { sectionLabel } },
                 udhaar = udhaar,
@@ -102,6 +105,10 @@ class PersonalViewModel(
     fun selectMonth(ym: YearMonth) {
         month.value = ym
         handle[KEY_MONTH] = ym.toString()
+    }
+
+    fun delete(id: Long) {
+        viewModelScope.launch { repos.ledger.softDelete(id) }
     }
 
     companion object {

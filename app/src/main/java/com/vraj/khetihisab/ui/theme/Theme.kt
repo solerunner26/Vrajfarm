@@ -11,7 +11,7 @@ import androidx.compose.runtime.remember
  * the brand, and Samsung wallpaper colours would break the single-hue look.
  */
 @Composable
-fun VkTheme(id: VkThemeId = VkThemeId.GREEN, content: @Composable () -> Unit) {
+fun VkTheme(id: VkThemeId = VkThemeId.DEFAULT, content: @Composable () -> Unit) {
     val (scheme, extra) = remember(id) { VkThemes.of(id) }
     CompositionLocalProvider(
         LocalVkExtra provides extra,
@@ -30,6 +30,6 @@ fun resolveThemeId(chosen: VkThemeId, followSystemDark: Boolean): VkThemeId =
 /** doc 02 name kept for compatibility: green theme, or night when [darkTheme]. */
 @Composable
 fun VrajTheme(darkTheme: Boolean = isSystemInDarkTheme(), content: @Composable () -> Unit) =
-    VkTheme(if (darkTheme) VkThemeId.NIGHT else VkThemeId.GREEN, content)
+    VkTheme(if (darkTheme) VkThemeId.NIGHT else VkThemeId.DEFAULT, content)
 
-val LocalVkThemeId = androidx.compose.runtime.staticCompositionLocalOf { VkThemeId.GREEN }
+val LocalVkThemeId = androidx.compose.runtime.staticCompositionLocalOf { VkThemeId.DEFAULT }

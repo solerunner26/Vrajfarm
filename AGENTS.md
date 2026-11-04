@@ -21,7 +21,8 @@ This repo is **Vraj Kheti Hisab (વ્રજ ખેતી હિસાબ)**: a
   - All user-facing text is Gujarati (Noto Sans Gujarati).
 - **WhatsApp** only opens with a pre-filled message. Never send automatically.
 - **Panchang guidance text** always says "માન્યતા પ્રમાણે" (as per belief) and is user-editable.
-- **Never commit secrets:** keystores, the backup API key, `local.properties`.
+- **Never commit secrets:** keystores, `keystore.properties`, `local.properties`.
+- **Releases:** `tools/release.ps1` only (auto version + signed APK + update.json). The release key in `%USERPROFILE%\.vrajkheti\` must never change.
 
 ## 3. Build environment (Windows)
 - **JDK:** `JAVA_HOME="C:\Program Files\Android\Android Studio\jbr"` (there is no java on PATH).

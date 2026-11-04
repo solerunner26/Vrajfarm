@@ -1,7 +1,7 @@
 # HANDOVER — live status board
 
 > Every AI or human working on this repo updates this file **before stopping** (see `AGENTS.md` §5).
-> Last updated: **2026-11-04 by Claude (Opus): cleanup + પશુપાલન (animal husbandry) section**
+> Last updated: **2026-11-04 by Claude (Opus): owner feedback round 2 (tiles, ભાગિયા, JSON backup, self-update, 3D icons) — release v0.2.x**
 
 ## Snapshot
 - **Phase:** Wave 1 done. Wave 2 code compiles, is integrated, and `assembleDebug` + `testDebugUnitTest` pass (2026-11-04). Several Wave 2 screens were never written (see task board).
@@ -84,7 +84,7 @@
 3. Should Bij alerts be Sud Bij only, or Vad Bij too?
 4. Which printed jantri is the reference for checking dates?
 5. Should the family-advance year be Jan–Dec or the Vikram Samvat year?
-6. What is the GoDaddy backup URL / domain?
+6. ~~What is the GoDaddy backup URL / domain?~~ Obsolete: GoDaddy upload removed 2026-11-04 (JSON backup to Drive / WhatsApp / e-mail instead).
 
 ## Wave 3 status (2026-11-04): this section overrides older rows in the task board
 | Area | Status | Notes |
@@ -109,6 +109,22 @@
 - The GoDaddy URL is still a placeholder (open question 6).
 
 ## Change log
+- **2026-11-04 (Claude, owner feedback round 2):** all 12 owner points + 3D request done; 170 unit + 51 instrumented tests green; release APK 7.5 MB (was 74 MB debug).
+  - **ભાગિયા (Bhagiya) = farm manager = old પરિવાર A/B — one person.** Edited only in Profiles (MANAGER_1/2). `ProfileRepository.syncBhagiya()` mirrors name + phone into the `family` rows (A↔MANAGER_1, B↔MANAGER_2), runs at app start and on every profile save. The separate "પરિવાર WhatsApp નંબર" settings screen was deleted. All copy says ભાગિયા.
+  - **Default theme = માટી (Mati)** (`VkThemeId.DEFAULT`).
+  - **Tiles everywhere** (`ui/components/VkTiles.kt`): `VkTile`, `VkHeroTile`, `VkSubTile`, staggered rise-in (`vkAppear`), springy press (`vkPressScale`), breathing icon disc, one-hue corner ornaments. Home = હિસાબ hero tile [કુલ નફો-નુકસાન, ખેતર, પશુપાલન, અંગત] + [ભાગિયા ઉપાડ][અંગત/ઘર][સામાન્ય ખર્ચ][ખરીદી, મિલકત]. Settings = 8 tiles (થીમ, સુરક્ષા, બેકઅપ, પંચાંગ સૂચના, સામાન્ય સેટિંગ, રિપોર્ટ, મદદ, એપ અપડેટ); પંચાંગ સૂચના, થીમ and સામાન્ય are their own pages (`SettingsPages.kt`).
+  - **Hidden totals on Home only:** the four હિસાબ amounts show `₹ XXXXX.XX` until the eye (`VkEyeToggle`) is tapped; revealed amounts count up. Settings › સામાન્ય › "હોમ પર રકમ હંમેશાં બતાવો" (`ThemeRepository.showHomeNumbers`).
+  - **Bug fixed: સામાન્ય ખર્ચ tile opened Settings.** New `general` route reuses the one-section screen (`PersonalRoute(section = GENERAL)`). New UI tests check every Home tile's route (`HomeScreenUiTest`).
+  - **Bug fixed: bottom dock covered the last tiles/rows** (taps hit "+ ખર્ચ"). Home, Personal/Samanya and Farm detail now put the dock below the list, not over it.
+  - **Calendar money:** day number green (`LocalVkExtra.income`) for income days, red (M3 error) for outgoing; small bars when both; day sheet lists that day's entries with totals and "+ આવક / + ખર્ચ" for that date (`TxnDao.dailyTotals`).
+  - **Edit + delete everywhere:** tap any ledger row → `EntryActionsSheet` (સુધારો / કાઢી નાખો). Entry edit route `entry?edit={id}` updates the same row (bill photo kept safe). Delete added for expense types, crops (blocked when used in a season → offer "બંધ કરો"), farms, shopping items (+ edit).
+  - **Simpler ઉધાર:** tap 3 now says આપી દીધા / હજી આપવાના (expense) or મળી ગયા / હજી લેવાના (income); a name is required for udhaar; a plain sentence shows what will be saved. Home card: મારે આપવાના / મારે લેવાના. Help has 4 new FAQs (ઉધાર, edit/delete, update, ભાગિયા).
+  - **Backup rewritten, GoDaddy removed** (`server/`, uploader, ZIP builder, settings deleted). `backup/JsonBackup.kt` = one streamed .json of all 13 tables + photos (base64). Destinations (`BackupDestinations.kt`): Google Drive via the system "Save to" picker, persisted URI, overwritten nightly at 23:45 (= sync, no Google Cloud setup); WhatsApp share; Gmail with saved address. Restore: pick the file, or "Open with" from WhatsApp/Gmail (`RestoreInbox`, content:// only) → confirm dialog with date/counts → transaction replace → app restarts. Round-trip test in `RoundTwoTest`.
+  - **Self-update from GitHub** (`update/AppUpdater.kt`, `UpdateUi.kt`): reads `releases/latest/download/update.json` once per start; one-button dialog; 4-part parallel Range download; SHA-256 check; PackageInstaller (Android asks once to allow this source, then shows its own confirm). Receiver only relaunches system confirm screens and strips URI grants (android/skills intent-security).
+  - **Automatic versions + signing:** versionCode = git commit count, versionName = `0.2.<code>`. Release key at `%USERPROFILE%\.vrajkheti\vrajkheti-release.jks` + `keystore.properties` (outside the repo and OneDrive). `tools/release.ps1` builds, writes update.json and publishes the GitHub release.
+  - **3D look:** every `VkIconImage` is embossed (drop shadow, bevel highlight, glossy sheen) in all themes; moon phases are drawn as a realistic sphere (`ui/decor/VkMoon3D.kt`: maria, craters, earthshine, limb darkening, halo), also as tiny calendar markers.
+  - Release lint found a real bug: WorkManager's expedited backup needs `SystemForegroundService` with `foregroundServiceType="dataSync"` — added to the manifest.
+  - Testing per android/skills `testing/testing-setup`: navigation tests (step 10), behaviour tests (9), font scale 1.5 (11), DAO tests for every new query (7), end-to-end on the emulator (12): entry → udhaar → edit → calendar → backup to file → delete → restore → data back, 0 crashes.
 - **2026-11-04 (Claude, device QA + fixes):**
   - **Tested on the emulator:** `Medium_Phone_API_36.1` with `-gpu host`, 1080×2400. Every screen was clicked through in the Night theme, then Home in mati/akash/kesar.
   - **Flows verified:**
@@ -183,23 +199,10 @@ Each Wave 2 agent owns only its own packages. It exposes a `NavGraphBuilder.xxxG
 
 The **lead integrator** is the only one who edits `ui/app/VkRoot.kt` (NavHost), `di/AppContainer.kt` and `AndroidManifest.xml`. If you take over mid-way, finish the integration from those INTEGRATION.md files.
 
-## NEXT TASK FOR ANY AI (updated 2026-11-04 after device QA)
-Emulator QA is done and its findings are fixed (see the change log). What is left:
-1. **Known gaps:**
-   - an Entry edit route (Family long-press can only delete)
-   - backup restore
-   - the owner's answers to open questions 1–6, including the real GoDaddy URL
-2. **Release build:**
-   - signing config with the keystore outside the repo (never commit it)
-   - `assembleRelease`
-   - R8 check: reinstall and smoke-test the release APK
-3. **Real S22 check (doc 16):**
-   - sunlight contrast
-   - biometric unlock
-   - the WhatsApp intent with WhatsApp installed
-   - camera photos for bill, borrower and profile
-   - widgets
-   - exact-alarm permission
-4. Run `php server/tests/run_tests.php` on a PHP 8 machine.
+## NEXT TASK FOR ANY AI (updated 2026-11-04 after owner feedback round 2)
+1. **Ship updates with one command:** commit, then `powershell -ExecutionPolicy Bypass -File tools\release.ps1 -Notes "..."`. Never change the release key; phones can only update in place when every APK is signed by `%USERPROFILE%\.vrajkheti\vrajkheti-release.jks`. **Back that folder up** (USB / password manager). If it is lost, every phone must uninstall and restore from a JSON backup.
+2. **First install of the release build:** the earlier `v0.1.0-beta` was debug-signed, so the owner must uninstall it once before installing v0.2.x (no JSON backup existed in that beta).
+3. **Real-phone checks (S22 / Pixel 10 Pro):** Drive picker with a signed-in Google account (does nightly overwrite keep working after reboot?), WhatsApp share of the .json, Gmail attachment, "Open with" restore from WhatsApp, the update dialog end to end (allow-source screen, system confirm), camera, biometric, widgets, exact alarms.
+4. **Nice to have:** CI release via GitHub Actions (needs the keystore as a repo secret — owner decision), JaCoCo coverage, screenshot tests (android/skills testing-setup steps 8 and 13), and the shopping icon still reads a little like a lock.
 
 > Emulator note: `swiftshader_indirect` crashes on this PC (exit 139). Use `emulator -avd Medium_Phone_API_36.1 -gpu host`. The PIN pad ignores `adb input text`, so tap its keys instead. `connectedDebugAndroidTest` uninstalls the app afterwards, so set up the PIN again.

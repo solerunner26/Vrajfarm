@@ -79,7 +79,7 @@ user-edited template from `WhatsAppTemplateStore`).
 
 - **Business P&L card** ("કુલ નફો-નુકસાન") uses the financial year Apr–Mar containing today
   (`HomeLogic.businessRange`), shown as the chip "વર્ષ 2026-27 ›". Tapping opens the breakdown sheet
-  (`businessBySection`, fixed order ખેતી, પશુપાલન, સામાન્ય ખર્ચ, મેનેજર ઉપાડ; PERSONAL never listed).
+  (`businessBySection`, fixed order ખેતી, પશુપાલન, સામાન્ય ખર્ચ, ભાગિયા ઉપાડ; PERSONAL never listed).
 - **Farm card / Farms summary** use `farmTotals` (FARM section incl. entries whose farm was deleted).
   The Home farm card period = season of the newest active crop cycle, else the full crop year.
 - **Season chips**: crop year 2026 = ખરીફ 2026 (Jun–Oct), રવી 2026 (01-11-2026 → 31-03-2027),
