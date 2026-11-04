@@ -166,3 +166,5 @@ The **lead integrator** is the only one who edits `ui/app/VkRoot.kt` (NavHost), 
    - signing config with the keystore outside the repo
    - `assembleRelease`
    - R8 check
+
+> Emulator note (2026-11-04): `Medium_Phone_API_36.1` with `-gpu swiftshader_indirect` crashed (exit 139, segfault) on this PC. Try another AVD (`community_api29`), `-gpu host`, or a USB-connected Galaxy S22 with USB debugging on.
