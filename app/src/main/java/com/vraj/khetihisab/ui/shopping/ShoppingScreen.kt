@@ -72,6 +72,7 @@ import com.vraj.khetihisab.ui.components.VkFormat
 import com.vraj.khetihisab.ui.components.VkHeaderIconButton
 import com.vraj.khetihisab.ui.components.VkOutlinedButton
 import com.vraj.khetihisab.ui.components.VkPrimaryButton
+import com.vraj.khetihisab.ui.components.VkTextButton
 import com.vraj.khetihisab.ui.components.VkRowDivider
 import com.vraj.khetihisab.ui.components.VkSegmented
 import com.vraj.khetihisab.ui.components.VkTonalButton
@@ -83,6 +84,7 @@ import com.vraj.khetihisab.ui.theme.VkIconImage
 /** ShoppingScreen (doc 11, artboard 11). */
 @Composable
 fun ShoppingScreen(vm: ShoppingViewModel, onBack: () -> Unit, onOpenAssets: () -> Unit) {
+    var editing by remember { mutableStateOf<ShopRow?>(null) }
     val st by vm.state.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val snackbar = remember { SnackbarHostState() }
@@ -160,7 +162,7 @@ fun ShoppingScreen(vm: ShoppingViewModel, onBack: () -> Unit, onOpenAssets: () -
                             VkCard(contentPadding = 0.dp) {
                                 g.rows.forEachIndexed { i, row ->
                                     if (i > 0) VkRowDivider()
-                                    ShopItemRow(row, st.tab) { vm.toggle(row) }
+                                    ShopItemRow(row, st.tab, onEdit = { editing = row }) { vm.toggle(row) }
                                 }
                             }
                         }
@@ -184,6 +186,14 @@ fun ShoppingScreen(vm: ShoppingViewModel, onBack: () -> Unit, onOpenAssets: () -
         AsDatePickerDialog(st.draft.date, onDismiss = { pickDraftDate = false }, onPicked = vm::onDraftDate)
     }
     st.convert?.let { ConvertSheet(it, vm) }
+    editing?.let { r ->
+        ShopEditDialog(
+            row = r,
+            onDismiss = { editing = null },
+            onSave = { n, p -> vm.saveEdit(r.item, n, p); editing = null },
+            onDelete = { vm.delete(r.id); editing = null },
+        )
+    }
 }
 
 @OptIn(ExperimentalLayoutApi::class)
@@ -253,7 +263,7 @@ internal fun CheckRow(label: String, checked: Boolean, onChange: (Boolean) -> Un
 
 /** ≥ 64dp row with an M3 checkbox (css .vk-row + .vk-check). Ticked = strike-through in onSurfaceVariant. */
 @Composable
-private fun ShopItemRow(row: ShopRow, tab: ShopTab, onToggle: () -> Unit) {
+private fun ShopItemRow(row: ShopRow, tab: ShopTab, onEdit: () -> Unit, onToggle: () -> Unit) {
     val cs = MaterialTheme.colorScheme
     val meta = when {
         row.farmName != null -> row.farmName
@@ -294,7 +304,42 @@ private fun ShopItemRow(row: ShopRow, tab: ShopTab, onToggle: () -> Unit) {
                 modifier = Modifier.wrapContentWidth(),
             )
         }
+        Spacer(Modifier.width(4.dp))
+        VkTextButton(stringResource(R.string.v2_edit), onEdit)
     }
+}
+
+/** સુધારો / કાઢી નાખો for one shopping item. */
+@Composable
+private fun ShopEditDialog(row: ShopRow, onDismiss: () -> Unit, onSave: (String, String) -> Unit, onDelete: () -> Unit) {
+    var name by remember(row.id) { mutableStateOf(row.name) }
+    var price by remember(row.id) { mutableStateOf(row.pricePaise?.let(MoneyInput::fromPaise).orEmpty()) }
+    var confirm by remember { mutableStateOf(false) }
+    androidx.compose.material3.AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(stringResource(R.string.v2_edit), style = MaterialTheme.typography.headlineSmall) },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                AsTextField(value = name, onValueChange = { name = it }, label = stringResource(R.string.as_add_item_hint))
+                AsTextField(
+                    value = price,
+                    onValueChange = { v -> price = v.filter { it.isDigit() || it == '.' } },
+                    label = stringResource(R.string.as_est_price),
+                    keyboard = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                )
+                if (confirm) {
+                    Text(stringResource(R.string.v2_delete_q, row.name), color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodyLarge)
+                }
+                com.vraj.khetihisab.ui.components.VkOutlinedButton(
+                    stringResource(if (confirm) R.string.v2_yes_delete else R.string.scr_delete),
+                    { if (confirm) onDelete() else confirm = true },
+                    Modifier.fillMaxWidth(),
+                )
+            }
+        },
+        confirmButton = { VkPrimaryButton(stringResource(R.string.scr_save), { onSave(name, price) }, enabled = name.isNotBlank()) },
+        dismissButton = { VkTextButton(stringResource(R.string.scr_cancel), onDismiss) },
+    )
 }
 
 /** "મિલકતમાં ઉમેરવું છે?" sheet (canvas 11). */

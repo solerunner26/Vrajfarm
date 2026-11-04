@@ -33,7 +33,7 @@
     <string name="st_theme_note">આખી એપ, વિજેટ અને આઇકન બદલાશે.</string>
     <string name="st_theme_follow">ફોનનો ડાર્ક મોડ અનુસરો</string>
     <string name="st_general">સામાન્ય</string>
-    <string name="st_set_profiles">માલિક અને મેનેજર</string>
+    <string name="st_set_profiles">માલિક અને ભાગિયા</string>
     <string name="st_set_farms">ખેતર, વીઘા અને પાક</string>
     <string name="st_set_crops">પાક યાદી</string>
     <string name="st_set_family">પરિવાર WhatsApp નંબર</string>
@@ -44,7 +44,7 @@
     <string name="st_reports">PDF રિપોર્ટ</string>
 
     <!-- Backup card + settings (doc 15) -->
-    <string name="st_backup_title">રાત્રિ બેકઅપ</string>
+    <string name="st_backup_title">બેકઅપ</string>
     <string name="st_backup_sub">GoDaddy + ઇમેઇલ · 365 દિવસ</string>
     <string name="st_backup_last">છેલ્લો બેકઅપ</string>
     <string name="st_backup_next">આગલો</string>
@@ -147,15 +147,15 @@
     <string name="st_vigha_value">%s વીઘા</string>
     <string name="st_vigha_not_set">વીઘા સેટ કરો</string>
     <string name="st_vigha_invalid">0 થી 500 વીઘા લખો</string>
-    <string name="st_manager">મેનેજર</string>
+    <string name="st_manager">ભાગિયા</string>
     <string name="st_manager_none">કોઈ નહીં</string>
-    <string name="st_manager_1">મેનેજર 1</string>
-    <string name="st_manager_2">મેનેજર 2</string>
+    <string name="st_manager_1">ભાગિયા 1</string>
+    <string name="st_manager_2">ભાગિયા 2</string>
     <string name="st_active_crop">ચાલુ પાક અને સીઝન</string>
     <string name="st_season_kharif">ખરીફ</string>
     <string name="st_season_rabi">રવી</string>
     <string name="st_season_summer">ઉનાળુ</string>
-    <string name="st_family_x">પરિવાર %s</string>
+    <string name="st_family_x">ભાગિયા %s</string>
     <string name="st_whatsapp_number">WhatsApp નંબર</string>
     <string name="st_family_note">આ નંબર પર મહિનાનો ઉપાડ WhatsApp થી મોકલી શકાય છે. મેસેજ ફક્ત ખુલે છે, આપમેળે જતો નથી.</string>
     <string name="st_new_crop">નવો પાક</string>
@@ -165,7 +165,7 @@
     <string name="st_category_note">વપરાયેલો પ્રકાર કાઢી શકાતો નથી — બંધ કરો, જૂની એન્ટ્રી એમ જ રહેશે.</string>
     <string name="st_sec_farm">ખેતી</string>
     <string name="st_sec_animal">પશુપાલન</string>
-    <string name="st_sec_family">પરિવાર</string>
+    <string name="st_sec_family">ભાગિયા</string>
     <string name="st_sec_general">સામાન્ય</string>
     <string name="st_sec_personal">અંગત</string>
     <string name="st_txn_income">આવક</string>
@@ -189,7 +189,7 @@
     <!-- WhatsApp templates (doc 12) -->
     <string name="st_tpl_note">WhatsApp ફક્ત તૈયાર મેસેજ સાથે ખુલે છે, મોકલો તમે જ દબાવો. { } વાળા શબ્દો આપમેળે ભરાય છે.</string>
     <string name="st_tpl_loan">ઉછીની મિલકતની યાદ</string>
-    <string name="st_tpl_family">પરિવાર ઉપાડનો હિસાબ</string>
+    <string name="st_tpl_family">ભાગિયા ઉપાડનો હિસાબ</string>
     <string name="st_tpl_message">મેસેજ</string>
     <string name="st_tpl_placeholders">ચલ: %s</string>
     <string name="st_tpl_reset">મૂળ મેસેજ પાછો લાવો</string>
@@ -221,12 +221,12 @@
     <!-- Profiles (doc 14) -->
     <string name="st_profile_title">પ્રોફાઇલ</string>
     <string name="st_role_owner">માલિક</string>
-    <string name="st_role_manager">ફાર્મ મેનેજર %d</string>
+    <string name="st_role_manager">ભાગિયા %d</string>
     <string name="st_owner_initial">ગિ</string>
     <string name="st_manager_initial_1">૧</string>
     <string name="st_manager_initial_2">૨</string>
     <string name="st_edit_profile">પ્રોફાઇલ સુધારો</string>
-    <string name="st_managers">ફાર્મ મેનેજર</string>
+    <string name="st_managers">ભાગિયા</string>
     <string name="st_responsibility">જવાબદારી:</string>
     <string name="st_no_farms">કોઈ ખેતર નથી</string>
     <string name="st_whatsapp">WhatsApp</string>
@@ -234,7 +234,7 @@
     <string name="st_add_name">નામ ઉમેરો</string>
     <string name="st_need_number">પહેલાં નંબર ઉમેરો</string>
     <string name="st_assign_farms">જવાબદારીનાં ખેતર</string>
-    <string name="st_assign_note">એક ખેતર એક જ મેનેજરનું રહે છે; અહીં પસંદ કરવાથી બીજા મેનેજર પાસેથી હટી જશે.</string>
+    <string name="st_assign_note">એક ખેતર એક જ ભાગિયાનું રહે છે; અહીં પસંદ કરવાથી બીજા ભાગિયા પાસેથી હટી જશે.</string>
     <string name="st_change_photo">%s નો ફોટો બદલો</string>
     <string name="st_photo_sheet_title">%s — ફોટો</string>
     <string name="st_photo_camera">કેમેરાથી ફોટો પાડો</string>
@@ -262,9 +262,27 @@
     <string name="st_faq_q5">અમાસ, પૂનમ, અગિયારસ, બીજની સૂચના કેમ આવે છે?</string>
     <string name="st_faq_a5">પંચાંગ પ્રમાણે ખાસ દિવસોએ આગલી સાંજે અને તે દિવસે સૂચના આવે છે. સલાહ માન્યતા પ્રમાણે છે અને સેટિંગ્સમાં બદલી શકાય છે.</string>
     <string name="st_faq_q6">મારો ડેટા સુરક્ષિત છે?</string>
-    <string name="st_faq_a6">બધો ડેટા ફોનમાં જ રહે છે. દરરોજ રાત્રે 11:45 વાગ્યે તમારા પોતાના સર્વર પર બેકઅપ જાય છે.</string>
+    <string name="st_faq_a6">બધો ડેટા ફોનમાં જ રહે છે. સેટિંગ › બેકઅપ માં એક વાર Google Drive પસંદ કરો, પછી દરરોજ રાત્રે 11:45 એ બેકઅપ આપોઆપ Drive માં જાય. WhatsApp કે ઈમેલથી પણ બેકઅપ મોકલી શકાય. નવા ફોનમાં \"બેકઅપ પાછો લાવો\" દબાવી ફાઇલ પસંદ કરો.</string>
     <string name="st_faq_q7">PIN ભૂલી જાઉં તો?</string>
     <string name="st_faq_a7">એપનો ડેટા સાફ કરી, બેકઅપમાંથી પાછો લાવવો પડે. PIN કોઈ સાથે શેર ન કરો.</string>
+    <!-- 2026-11-04: ઉધાર બાકી explained in plain words (owner: "user may get confused"). -->
+    <string name="st_faq_q8">\"ઉધાર બાકી\" ક્યારે વાપરવું?</string>
+    <string name="st_faq_a8">જ્યારે પૈસા હજી હાથમાં આવ્યા કે ગયા નથી ત્યારે.
+
+• ખર્ચ: દુકાનેથી ખાતર ઉધાર લીધું, પૈસા પછી આપવાના → \"હજી આપવાના\" પસંદ કરો અને દુકાનનું નામ લખો.
+• આવક: વેપારીને કપાસ વેચ્યો, પૈસા પછી મળશે → \"હજી લેવાના\" પસંદ કરો અને વેપારીનું નામ લખો.
+
+પૈસા રોકડા આપી કે લઈ લીધા હોય તો \"આપી દીધા\" / \"મળી ગયા\" જ રાખો.
+
+હોમ પર \"ઉધાર બાકી\" કાર્ડમાં \"મારે આપવાના\" અને \"મારે લેવાના\" કુલ દેખાય છે. પૈસા ચૂકવાય ત્યારે કાર્ડ દબાવો અને તે એન્ટ્રી સામે \"ચૂકતે\" દબાવો. નફો-નુકસાન એન્ટ્રીની તારીખે જ ગણાય છે; \"ચૂકતે\" ફક્ત બાકીની યાદીમાંથી કાઢે છે.
+
+ભૂલ થાય તો એન્ટ્રી પર ટેપ કરી \"સુધારો\" દબાવો.</string>
+    <string name="st_faq_q9">એન્ટ્રી સુધારવી કે કાઢવી કેવી રીતે?</string>
+    <string name="st_faq_a9">કોઈ પણ યાદીમાં (હોમ, ખેતર, ભાગિયા, અંગત, સામાન્ય, કેલેન્ડર) એન્ટ્રી પર ટેપ કરો → \"સુધારો\" કે \"કાઢી નાખો\".</string>
+    <string name="st_faq_q10">એપ અપડેટ કેવી રીતે થાય?</string>
+    <string name="st_faq_a10">નવું અપડેટ આવે ત્યારે એપ ખોલતાં જ પૂછશે. \"હમણાં અપડેટ કરો\" દબાવો. પહેલી વાર ફોન \"આ સ્રોતથી મંજૂરી\" માંગે તે ચાલુ કરો. જાતે તપાસવા: સેટિંગ › એપ અપડેટ.</string>
+    <string name="st_faq_q11">ભાગિયા એટલે કોણ?</string>
+    <string name="st_faq_a11">ખેતર સંભાળનાર ભાગિયા (ફાર્મ મેનેજર). નામ અને નંબર સેટિંગ › સામાન્ય સેટિંગ › માલિક અને ભાગિયા માં એક જ જગ્યાએ બદલો. તેમનો ઉપાડ હોમ પર \"ભાગિયા ઉપાડ\" માં દેખાય છે.</string>
     <string name="st_expanded">ખુલ્લું</string>
     <string name="st_collapsed">બંધ</string>
     <string name="st_owner_name_default">ગિરવાનસિંહ વાળા</string>

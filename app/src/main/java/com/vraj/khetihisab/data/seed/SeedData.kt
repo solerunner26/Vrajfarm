@@ -29,8 +29,8 @@ object SeedData {
     }
 
     val families: List<FamilySeed> = listOf(
-        FamilySeed("A", "પરિવાર A"),
-        FamilySeed("B", "પરિવાર B"),
+        FamilySeed("A", "ભાગિયા 1"),
+        FamilySeed("B", "ભાગિયા 2"),
     )
 
     val profiles: List<ProfileSeed> = listOf(

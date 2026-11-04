@@ -150,11 +150,19 @@ fun TxnListRow(
     modifier: Modifier = Modifier,
     pendingBadge: Boolean = false,
     onLongClick: (() -> Unit)? = null,
+    /** Tap → સુધારો / કાઢી નાખો sheet ([EntryActionsSheet]). */
+    onClick: (() -> Unit)? = null,
 ) {
     Column(
         modifier
             .fillMaxWidth()
-            .then(if (onLongClick != null) Modifier.combinedClickable(onClick = {}, onLongClick = onLongClick) else Modifier),
+            .then(
+                if (onLongClick != null || onClick != null) {
+                    Modifier.combinedClickable(onClick = { onClick?.invoke() }, onLongClick = onLongClick ?: onClick)
+                } else {
+                    Modifier
+                },
+            ),
     ) {
         VkListRow(
             title = title,

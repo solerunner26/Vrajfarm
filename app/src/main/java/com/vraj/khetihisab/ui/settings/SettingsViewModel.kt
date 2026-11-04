@@ -31,12 +31,14 @@ import kotlinx.coroutines.withContext
 
 /** Everything the main Settings screen shows (artboard 15). */
 data class SettingsUiState(
-    val theme: ThemePrefs = ThemePrefs(VkThemeId.GREEN, false),
+    val theme: ThemePrefs = ThemePrefs(VkThemeId.DEFAULT, false),
     val prefs: Map<PanchangAlertType, PanchangAlertPrefEntity> = emptyMap(),
     val alert: PanchangAlertSettings = PanchangAlertSettings(),
     val backup: BackupStatus = BackupStatus(),
     val backupConfigured: Boolean = false,
     val biometricEnabled: Boolean = false,
+    /** "હોમ પર રકમ હંમેશાં બતાવો". */
+    val showHomeNumbers: Boolean = false,
 ) {
     fun enabled(type: PanchangAlertType): Boolean = prefs[type]?.enabled ?: true
 }
@@ -66,8 +68,9 @@ class SettingsViewModel(
         backupStatus,
         bio,
         configured,
-    ) { (t, p, a), b, bioOn, conf ->
-        SettingsUiState(theme = t, prefs = p, alert = a, backup = b, backupConfigured = conf, biometricEnabled = bioOn)
+        themes.showHomeNumbers,
+    ) { (t, p, a), b, bioOn, conf, nums ->
+        SettingsUiState(theme = t, prefs = p, alert = a, backup = b, backupConfigured = conf, biometricEnabled = bioOn, showHomeNumbers = nums)
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), SettingsUiState())
 
     init {
@@ -88,6 +91,8 @@ class SettingsViewModel(
     fun setTheme(id: VkThemeId) = viewModelScope.launch { themes.setTheme(id) }
 
     fun setFollowSystem(on: Boolean) = viewModelScope.launch { themes.setFollowSystemDark(on) }
+
+    fun setShowHomeNumbers(on: Boolean) = viewModelScope.launch { themes.setShowHomeNumbers(on) }
 
     fun setTypeEnabled(type: PanchangAlertType, on: Boolean) = viewModelScope.launch {
         panchangPrefs.setEnabled(type, on)
@@ -121,7 +126,7 @@ class SettingsViewModel(
                 panchangPrefs = deps.repos.panchang,
                 alertStore = NotifyGraph.settings(ctx),
                 backupStatus = runCatching { BackupGraph.deps(ctx).status.status }.getOrElse { flowOf(BackupStatus()) },
-                backupConfigured = { BackupGraph.deps(ctx).settings.isConfigured() },
+                backupConfigured = { BackupGraph.deps(ctx).prefs.driveConfigured },
                 backupNowAction = deps.onBackupNow ?: { BackupScheduler(ctx).enqueueBackup(BackupTrigger.MANUAL) },
                 biometricGet = { deps.pinStore.biometricEnabled },
                 biometricSet = { deps.pinStore.biometricEnabled = it },

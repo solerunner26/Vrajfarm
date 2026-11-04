@@ -1,5 +1,7 @@
 package com.vraj.khetihisab.ui.settings
 
+import kotlinx.coroutines.launch
+
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -27,7 +29,6 @@ import com.vraj.khetihisab.R
 import com.vraj.khetihisab.data.entity.AccountSection
 import com.vraj.khetihisab.data.entity.CategoryMasterEntity
 import com.vraj.khetihisab.data.entity.CropMasterEntity
-import com.vraj.khetihisab.data.entity.FamilyEntity
 import com.vraj.khetihisab.data.entity.FarmEntity
 import com.vraj.khetihisab.data.entity.ProfileRole
 import com.vraj.khetihisab.data.entity.Season
@@ -109,6 +110,7 @@ private fun errorText(e: MasterError): String = stringResource(
         MasterError.VIGHA -> R.string.st_vigha_invalid
         MasterError.PHONE -> R.string.st_err_phone
         MasterError.DUPLICATE -> R.string.st_err_duplicate
+        MasterError.IN_USE -> R.string.v2_err_in_use
     },
 )
 
@@ -123,6 +125,8 @@ fun FarmsSettingsRoute(onBack: () -> Unit) {
     val crops by vm.crops.collectAsStateWithLifecycle()
     var editing by remember { mutableStateOf<FarmEntity?>(null) }
     var adding by rememberSaveable { mutableStateOf(false) }
+    var deletingFarm by remember { mutableStateOf<Pair<FarmEntity, Int>?>(null) }
+    val scope = androidx.compose.runtime.rememberCoroutineScope()
 
     StScrollBody {
         VkTopHeader(title = stringResource(R.string.st_set_farms), onBack = onBack)
@@ -157,8 +161,21 @@ fun FarmsSettingsRoute(onBack: () -> Unit) {
             initialSeason = cycle?.season ?: Season.KHARIF,
             initialYear = cycle?.year ?: vm.currentYear(),
             onDismiss = { editing = null; adding = false },
+            onDelete = target?.let { f ->
+                {
+                    editing = null
+                    scope.launch { deletingFarm = f to vm.farmUsage(f) }
+                }
+            },
             onSave = { edit -> vm.saveFarm(edit).also { if (it == null) { editing = null; adding = false } } },
         )
+    }
+    deletingFarm?.let { (f, used) ->
+        DeleteConfirm(
+            f.name,
+            if (used > 0) stringResource(R.string.v2_delete_farm_used, used) else stringResource(R.string.v2_delete_cat_unused),
+            { deletingFarm = null },
+        ) { vm.deleteFarm(f); deletingFarm = null }
     }
 }
 
@@ -171,6 +188,7 @@ private fun FarmEditDialog(
     initialSeason: String,
     initialYear: Int,
     onDismiss: () -> Unit,
+    onDelete: (() -> Unit)? = null,
     onSave: (FarmEdit) -> MasterError?,
 ) {
     var name by rememberSaveable(farm?.id) { mutableStateOf(farm?.name.orEmpty()) }
@@ -219,41 +237,9 @@ private fun FarmEditDialog(
         )
         StTextField(year, { v -> year = v.filter(Char::isDigit).take(4) }, stringResource(R.string.st_year), keyboard = KeyboardOptions(keyboardType = KeyboardType.Number))
         error?.let { StError(errorText(it)) }
-    }
-}
-
-// ------------------------------------------------------------------ family
-
-@Composable
-fun FamilySettingsRoute(onBack: () -> Unit) {
-    val vm = masterViewModel()
-    MasterEvents(vm)
-    val families by vm.families.collectAsStateWithLifecycle()
-    StScrollBody {
-        VkTopHeader(title = stringResource(R.string.st_set_family), onBack = onBack)
-        StBodyColumn {
-            families.forEach { f -> FamilyCard(f, onSave = { n, p -> vm.saveFamily(f, n, p) }) }
-            StNote(stringResource(R.string.st_family_note))
+        if (onDelete != null) {
+            com.vraj.khetihisab.ui.components.VkOutlinedButton(stringResource(R.string.scr_delete), onDelete, Modifier.fillMaxWidth())
         }
-    }
-}
-
-@Composable
-private fun FamilyCard(f: FamilyEntity, onSave: (String, String) -> MasterError?) {
-    var name by rememberSaveable(f.id, f.updatedAt) { mutableStateOf(f.displayName) }
-    var phone by rememberSaveable(f.id, f.updatedAt) { mutableStateOf(f.whatsappPhone.orEmpty()) }
-    var error by remember { mutableStateOf<MasterError?>(null) }
-    VkCard(Modifier.fillMaxWidth()) {
-        VkSectionTitle(stringResource(R.string.st_family_x, f.code))
-        StTextField(name, { name = it; error = null }, stringResource(R.string.st_display_name), isError = error == MasterError.NAME)
-        StTextField(
-            phone, { phone = it; error = null }, stringResource(R.string.st_whatsapp_number),
-            keyboard = KeyboardOptions(keyboardType = KeyboardType.Phone),
-            isError = error == MasterError.PHONE,
-            placeholder = "+91",
-        )
-        error?.let { StError(errorText(it)) }
-        VkTonalButton(stringResource(R.string.st_save), { error = onSave(name, phone) }, Modifier.fillMaxWidth())
     }
 }
 
@@ -265,6 +251,9 @@ fun CropsSettingsRoute(onBack: () -> Unit) {
     MasterEvents(vm)
     val crops by vm.crops.collectAsStateWithLifecycle()
     var renaming by remember { mutableStateOf<CropMasterEntity?>(null) }
+    var deletingCrop by remember { mutableStateOf<CropMasterEntity?>(null) }
+    var cropBlocked by remember { mutableStateOf<CropMasterEntity?>(null) }
+    val scope = androidx.compose.runtime.rememberCoroutineScope()
     var adding by rememberSaveable { mutableStateOf(false) }
     val on = stringResource(R.string.st_on)
     val off = stringResource(R.string.st_off)
@@ -293,12 +282,33 @@ fun CropsSettingsRoute(onBack: () -> Unit) {
         NameDialog(stringResource(R.string.st_new_crop), "", onDismiss = { adding = false }) { n -> vm.addCrop(n).also { if (it == null) adding = false } }
     }
     renaming?.let { c ->
-        NameDialog(stringResource(R.string.st_rename), c.name, onDismiss = { renaming = null }) { n -> vm.renameCrop(c, n).also { if (it == null) renaming = null } }
+        NameDialog(
+            stringResource(R.string.st_rename), c.name, onDismiss = { renaming = null },
+            onDelete = {
+                renaming = null
+                scope.launch {
+                    val used = vm.cropUsage(c)
+                    if (used > 0) cropBlocked = c else deletingCrop = c
+                }
+            },
+        ) { n -> vm.renameCrop(c, n).also { if (it == null) renaming = null } }
+    }
+    deletingCrop?.let { c ->
+        DeleteConfirm(c.name, stringResource(R.string.v2_delete_crop_body), { deletingCrop = null }) { vm.deleteCrop(c); deletingCrop = null }
+    }
+    cropBlocked?.let { c ->
+        StDialog(
+            title = c.name,
+            confirmLabel = stringResource(R.string.v2_switch_off),
+            onConfirm = { vm.setCropActive(c, false); cropBlocked = null },
+            dismissLabel = stringResource(R.string.st_cancel),
+            onDismiss = { cropBlocked = null },
+        ) { Text(stringResource(R.string.v2_crop_in_use), style = MaterialTheme.typography.bodyLarge) }
     }
 }
 
 @Composable
-private fun NameDialog(title: String, initial: String, onDismiss: () -> Unit, onSave: (String) -> MasterError?) {
+private fun NameDialog(title: String, initial: String, onDismiss: () -> Unit, onDelete: (() -> Unit)? = null, onSave: (String) -> MasterError?) {
     var name by rememberSaveable { mutableStateOf(initial) }
     var error by remember { mutableStateOf<MasterError?>(null) }
     StDialog(
@@ -310,7 +320,22 @@ private fun NameDialog(title: String, initial: String, onDismiss: () -> Unit, on
     ) {
         StTextField(name, { name = it; error = null }, stringResource(R.string.st_display_name), isError = error != null)
         error?.let { StError(errorText(it)) }
+        if (onDelete != null) {
+            com.vraj.khetihisab.ui.components.VkOutlinedButton(stringResource(R.string.scr_delete), onDelete, Modifier.fillMaxWidth())
+        }
     }
+}
+
+/** "કાઢી નાખશો?" with what happens to old entries. */
+@Composable
+private fun DeleteConfirm(name: String, body: String, onDismiss: () -> Unit, onConfirm: () -> Unit) {
+    StDialog(
+        title = stringResource(R.string.v2_delete_q, name),
+        confirmLabel = stringResource(R.string.scr_delete),
+        onConfirm = onConfirm,
+        dismissLabel = stringResource(R.string.st_cancel),
+        onDismiss = onDismiss,
+    ) { Text(body, style = MaterialTheme.typography.bodyLarge) }
 }
 
 // ------------------------------------------------------------------ categories
@@ -323,6 +348,8 @@ fun CategoriesSettingsRoute(onBack: () -> Unit) {
     val all by vm.categories.collectAsStateWithLifecycle()
     var section by rememberSaveable { mutableStateOf(AccountSection.FARM) }
     var renaming by remember { mutableStateOf<CategoryMasterEntity?>(null) }
+    var deletingCat by remember { mutableStateOf<Pair<CategoryMasterEntity, Int>?>(null) }
+    val scope = androidx.compose.runtime.rememberCoroutineScope()
     var addingType by rememberSaveable { mutableStateOf<TxnType?>(null) }
     val on = stringResource(R.string.st_on)
     val off = stringResource(R.string.st_off)
@@ -362,6 +389,19 @@ fun CategoriesSettingsRoute(onBack: () -> Unit) {
         }
     }
     renaming?.let { c ->
-        NameDialog(stringResource(R.string.st_rename), c.name, onDismiss = { renaming = null }) { n -> vm.renameCategory(c, n).also { if (it == null) renaming = null } }
+        NameDialog(
+            stringResource(R.string.st_rename), c.name, onDismiss = { renaming = null },
+            onDelete = {
+                renaming = null
+                scope.launch { deletingCat = c to vm.categoryUsage(c) }
+            },
+        ) { n -> vm.renameCategory(c, n).also { if (it == null) renaming = null } }
+    }
+    deletingCat?.let { (c, used) ->
+        DeleteConfirm(
+            c.name,
+            if (used > 0) stringResource(R.string.v2_delete_cat_used, used) else stringResource(R.string.v2_delete_cat_unused),
+            { deletingCat = null },
+        ) { vm.deleteCategory(c); deletingCat = null }
     }
 }

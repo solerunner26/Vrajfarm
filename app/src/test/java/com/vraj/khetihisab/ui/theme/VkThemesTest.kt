@@ -60,8 +60,8 @@ class VkThemesTest {
     @Test
     fun themeId_storageRoundTrip() {
         VkThemeId.entries.forEach { assertEquals(it, VkThemeId.fromKey(it.storageKey)) }
-        assertEquals(VkThemeId.GREEN, VkThemeId.fromKey(null))
-        assertEquals(VkThemeId.GREEN, VkThemeId.fromKey("unknown"))
+        assertEquals(VkThemeId.MATI, VkThemeId.fromKey(null))
+        assertEquals(VkThemeId.MATI, VkThemeId.fromKey("unknown"))
     }
 
     @Test

@@ -154,7 +154,7 @@ class BackupScheduler(
         fun oneTimeRequest(trigger: BackupTrigger): OneTimeWorkRequest =
             OneTimeWorkRequestBuilder<NightlyBackupWorker>()
                 .setConstraints(Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build())
-                .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, BackupErrorPolicy.BACKOFF_MINUTES, TimeUnit.MINUTES)
+                .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 10L, TimeUnit.MINUTES)
                 .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
                 .setInputData(workDataOf(BackupTrigger.KEY to trigger.name))
                 .addTag(TAG)

@@ -33,7 +33,11 @@ class MainActivity : FragmentActivity() {
     override fun onNewIntent(intent: android.content.Intent) {
         super.onNewIntent(intent)
         setIntent(intent)
-        if (intent.data != null) pendingDeepLink.value = intent
+        if (com.vraj.khetihisab.backup.RestoreInbox.accept(intent)) {
+            pendingDeepLink.value = android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse(com.vraj.khetihisab.backup.BackupNotifier.BACKUP_DEEP_LINK))
+        } else if (intent.data != null) {
+            pendingDeepLink.value = intent
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -43,6 +47,11 @@ class MainActivity : FragmentActivity() {
         if (!BuildConfig.ALLOW_SCREENSHOTS) {
             window.setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE)
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) setRecentsScreenshotEnabled(false)
+        }
+
+        // A backup .json opened from WhatsApp / Gmail: show the restore question once unlocked.
+        if (savedInstanceState == null && com.vraj.khetihisab.backup.RestoreInbox.accept(intent)) {
+            pendingDeepLink.value = android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse(com.vraj.khetihisab.backup.BackupNotifier.BACKUP_DEEP_LINK))
         }
 
         val container = (application as VrajApp).container

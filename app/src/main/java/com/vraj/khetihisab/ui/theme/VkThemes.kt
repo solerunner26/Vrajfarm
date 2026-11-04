@@ -14,7 +14,10 @@ enum class VkThemeId(val storageKey: String) {
     GREEN("green"), MATI("mati"), AKASH("akash"), KESAR("kesar"), NIGHT("night");
 
     companion object {
-        fun fromKey(key: String?): VkThemeId = entries.firstOrNull { it.storageKey == key } ?: GREEN
+        fun fromKey(key: String?): VkThemeId = entries.firstOrNull { it.storageKey == key } ?: DEFAULT
+
+        /** Default for a fresh install (owner request 2026-11-04): માટી. */
+        val DEFAULT: VkThemeId get() = MATI
     }
 }
 
@@ -38,6 +41,8 @@ data class VkExtraColors(
     val scrim: Color,
     val shadow: Color,
     val isDark: Boolean,
+    /** Income green (calendar days with આવક). Red for outgoing is always the M3 `error` role. */
+    val income: Color = Color(0xFF2E7D5B),
 ) {
     /** Brand gradient, 135° (top-left → bottom-right). */
     val brandBrush: Brush
@@ -106,5 +111,6 @@ object VkThemes {
         panchangBorder = p.tcBd, panchangOrnament = p.tOrn,
         leaf1 = p.leaf1, leaf2 = p.leaf2, divider = p.div, dock = p.dock, key = p.key,
         scrim = p.scrim, shadow = p.shadow, isDark = p.isDark,
+        income = if (p.isDark) Color(0xFF7FD1A8) else Color(0xFF2E7D5B),
     )
 }

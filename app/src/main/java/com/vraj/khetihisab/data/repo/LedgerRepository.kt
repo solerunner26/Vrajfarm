@@ -2,7 +2,9 @@ package com.vraj.khetihisab.data.repo
 
 import com.vraj.khetihisab.data.dao.TxnDao
 import com.vraj.khetihisab.data.entity.TransactionEntity
+import com.vraj.khetihisab.data.entity.AccountSection
 import com.vraj.khetihisab.data.model.CategoryTotal
+import com.vraj.khetihisab.data.model.DayTotal
 import com.vraj.khetihisab.data.model.FarmPnlRow
 import com.vraj.khetihisab.data.model.MonthTotal
 import com.vraj.khetihisab.data.model.Totals
@@ -88,6 +90,12 @@ class LedgerRepository(
 
     // ---- general ----
     fun generalExpense(range: DateRange): Flow<Long> = dao.generalExpense(range.from, range.to)
+
+    // ---- one section (Samanya / Personal screens) + calendar ----
+    fun sectionTotals(section: AccountSection, range: DateRange): Flow<Totals> = dao.sectionTotals(section, range.from, range.to)
+    fun sectionByCategory(section: AccountSection, range: DateRange): Flow<List<CategoryTotal>> = dao.sectionByCategory(section, range.from, range.to)
+    fun sectionUdhaar(section: AccountSection): Flow<UdhaarSummary> = dao.sectionUdhaar(section)
+    fun dailyTotals(range: DateRange): Flow<List<DayTotal>> = dao.dailyTotals(range.from, range.to)
 
     // ---- personal (doc 09) ----
     fun personalTotals(range: DateRange): Flow<Totals> = dao.personalTotals(range.from, range.to)

@@ -15,6 +15,10 @@ interface ShoppingStore {
     suspend fun add(tab: ShopTab, name: String, forDate: LocalDate, farmId: Long?, estPricePaise: Long?, isPhysicalTool: Boolean): Long
     suspend fun setBought(id: Long, bought: Boolean)
     suspend fun convertToAsset(itemId: Long, name: String, pricePaise: Long?, purchaseDate: LocalDate?): Long
+    /** સુધારો (name / price). Default no-op keeps test fakes simple. */
+    suspend fun update(item: ShoppingItemEntity) {}
+    /** કાઢી નાખો (soft delete). */
+    suspend fun delete(id: Long) {}
 }
 
 class RepoShoppingStore(
@@ -28,4 +32,6 @@ class RepoShoppingStore(
     override suspend fun setBought(id: Long, bought: Boolean) = shopping.setBought(id, bought)
     override suspend fun convertToAsset(itemId: Long, name: String, pricePaise: Long?, purchaseDate: LocalDate?) =
         shopping.convertToAsset(itemId, name, pricePaise, purchaseDate)
+    override suspend fun update(item: ShoppingItemEntity) = shopping.update(item)
+    override suspend fun delete(id: Long) = shopping.softDelete(id)
 }

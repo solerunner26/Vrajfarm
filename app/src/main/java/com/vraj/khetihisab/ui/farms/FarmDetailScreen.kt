@@ -54,13 +54,13 @@ import com.vraj.khetihisab.ui.theme.VkIcon
 import com.vraj.khetihisab.ui.theme.VkIconImage
 
 @Composable
-fun FarmDetailRoute(farmId: Long, choice: PeriodChoice, onBack: () -> Unit, onAddEntry: (farmId: Long) -> Unit) {
+fun FarmDetailRoute(farmId: Long, choice: PeriodChoice, onBack: () -> Unit, onAddEntry: (farmId: Long) -> Unit, onEditEntry: (Long) -> Unit = {}) {
     val ctx = LocalContext.current
     val vm: FarmDetailViewModel = viewModel(key = "farm_$farmId-${choice.period}-${choice.cropYear}") {
         FarmDetailViewModel(ScreensDepsProvider.get(ctx).repos, farmId, choice)
     }
     val state by vm.state.collectAsStateWithLifecycle()
-    FarmDetailScreen(state, onBack, { onAddEntry(farmId) }, vm::changeCrop)
+    FarmDetailScreen(state, onBack, { onAddEntry(farmId) }, vm::changeCrop, onEditEntry)
 }
 
 @OptIn(ExperimentalLayoutApi::class)
@@ -70,16 +70,18 @@ fun FarmDetailScreen(
     onBack: () -> Unit,
     onAddEntry: () -> Unit,
     onChangeCrop: (Long) -> Unit,
+    onEditEntry: (Long) -> Unit = {},
 ) {
     val cs = MaterialTheme.colorScheme
     val pad = Modifier.padding(horizontal = 16.dp)
     var bill by remember { mutableStateOf<String?>(null) }
+    var actionsFor by remember { mutableStateOf<com.vraj.khetihisab.ui.home.LedgerRowUi?>(null) }
     var picking by rememberSaveable { mutableStateOf(false) }
 
-    Box(Modifier.fillMaxSize().background(cs.surface)) {
+    Column(Modifier.fillMaxSize().background(cs.surface)) {
         LazyColumn(
-            Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(bottom = DockBottomPadding),
+            Modifier.weight(1f).fillMaxWidth(),
+            contentPadding = PaddingValues(bottom = 16.dp),
             verticalArrangement = Arrangement.spacedBy(14.dp),
         ) {
             item(key = "header") {
@@ -140,12 +142,15 @@ fun FarmDetailScreen(
                             billPath = t.billPhotoPath,
                             onViewBill = { bill = it },
                             pendingBadge = t.payStatus != com.vraj.khetihisab.data.entity.PayStatus.PAID,
+                            onClick = {
+                                actionsFor = HomeLogic.row(t, com.vraj.khetihisab.ui.home.LedgerNames(categories = state.categories)) { state.name }
+                            },
                         )
                     }
                 }
             }
         }
-        Box(Modifier.align(Alignment.BottomCenter).fillMaxWidth().background(cs.surfaceContainer).navigationBarsPadding().padding(16.dp)) {
+        Box(Modifier.fillMaxWidth().background(cs.surfaceContainer).navigationBarsPadding().padding(16.dp)) {
             VkPrimaryButton(stringResource(R.string.scr_entry_for_farm), onAddEntry, Modifier.fillMaxWidth())
         }
     }
@@ -172,6 +177,9 @@ fun FarmDetailScreen(
             },
             confirmButton = { VkTextButton(stringResource(R.string.scr_cancel), { picking = false }) },
         )
+    }
+    actionsFor?.let { r ->
+        com.vraj.khetihisab.ui.home.EntryActionsSheet(r, onEdit = { onEditEntry(r.id) }, onDismiss = { actionsFor = null })
     }
     bill?.let { BillViewer(it) { bill = null } }
 }

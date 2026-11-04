@@ -16,7 +16,7 @@ class SeedDataTest {
     }
 
     @Test fun familiesAAndB() {
-        assertEquals(listOf("A" to "પરિવાર A", "B" to "પરિવાર B"), SeedData.families.map { it.code to it.displayName })
+        assertEquals(listOf("A" to "ભાગિયા 1", "B" to "ભાગિયા 2"), SeedData.families.map { it.code to it.displayName })
     }
 
     @Test fun ownerAndTwoBlankManagers() {

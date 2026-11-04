@@ -12,6 +12,11 @@
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
     <uses-permission android:name="android.permission.USE_BIOMETRIC" />
     <uses-permission android:name="android.permission.INTERNET" />
+    <!-- Self-update from GitHub Releases (2026-11-04): hands the downloaded APK to PackageInstaller. -->
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
+    <!-- Expedited backup work runs as a dataSync foreground service on API < 31 (WorkManager). -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <!-- Optional: contact picker for family / borrower numbers (docs 08, 11). -->
     <uses-permission android:name="android.permission.READ_CONTACTS" />
@@ -47,6 +52,13 @@
                 <category android:name="android.intent.category.DEFAULT" />
                 <data android:scheme="vraj" />
             </intent-filter>
+            <!-- Tap a VrajKheti-backup-*.json in WhatsApp / Gmail / Files → "Open with" this app → restore. -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:scheme="content" />
+                <data android:mimeType="application/json" />
+            </intent-filter>
         </activity>
 
         <provider
@@ -58,6 +70,11 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/file_paths" />
         </provider>
+        <receiver android:name=".update.UpdateInstallReceiver" android:exported="false" />
+        <service
+            android:name="androidx.work.impl.foreground.SystemForegroundService"
+            android:foregroundServiceType="dataSync"
+            tools:node="merge" />
         <!-- ===== Wave 2 integration (lead) ===== -->
         <!-- Reminders + Panchang alarms (doc 13 / 10): explicit intents only, not exported. -->
         <receiver android:name=".notify.ReminderReceiver" android:exported="false" />

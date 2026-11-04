@@ -13,6 +13,6 @@ class DataRepositories(
     val shopping = ShoppingRepository(db, clock, listener)
     val assets = AssetRepository(db, clock, listener)
     val reminders = ReminderRepository(db.reminderDao(), clock, listener)
-    val profiles = ProfileRepository(db.profileDao(), clock, listener)
+    val profiles = ProfileRepository(db.profileDao(), clock, listener, db.masterDao())
     val panchang = PanchangPrefRepository(db.panchangDao(), clock)
 }

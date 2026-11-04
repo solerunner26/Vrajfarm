@@ -54,6 +54,8 @@ class VrajApp : Application() {
         NotificationChannels.createAll(this)
         appScope.launch {
             runCatching {
+                // ભાગિયા = farm manager: keep the ledger's family rows in step with the profiles.
+                c.repos.profiles.syncBhagiya()
                 AlarmRescheduler.rescheduleEverything(this@VrajApp)
                 c.backupScheduler.ensureScheduled()
             }.onFailure { Log.w(TAG, "start-up scheduling failed", it) }

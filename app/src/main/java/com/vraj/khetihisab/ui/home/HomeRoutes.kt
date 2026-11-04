@@ -34,13 +34,20 @@ object HomeRoutes {
      * EntryViewModel (ARG_SECTION / ARG_FARM / ARG_FAMILY) once VkRoot declares them (INTEGRATION.md §2).
      * Until then they are ignored and Entry opens with only the kind set.
      */
-    fun entry(kind: String, section: AccountSection? = null, farmId: Long? = null, familyId: Long? = null): String {
+    fun entry(kind: String, section: AccountSection? = null, farmId: Long? = null, familyId: Long? = null, date: java.time.LocalDate? = null): String {
         val sb = StringBuilder("entry?kind=").append(kind)
+        if (date != null) sb.append("&date=").append(date.toEpochDay())
         if (section != null) sb.append("&section=").append(section.name)
         if (farmId != null) sb.append("&farm=").append(farmId)
         if (familyId != null) sb.append("&family=").append(familyId)
         return sb.toString()
     }
+
+    /** Opens Entry pre-filled with an existing row; saving updates that row (no duplicate). */
+    fun editEntry(id: Long) = "entry?edit=$id"
+
+    /** સામાન્ય ખર્ચ screen (same one-section screen as Personal). */
+    const val GENERAL = "general"
 
     const val KIND_EXPENSE = "expense"
     const val KIND_INCOME = "income"

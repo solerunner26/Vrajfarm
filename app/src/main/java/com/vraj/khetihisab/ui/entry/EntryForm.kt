@@ -36,6 +36,8 @@ data class EntryForm(
     val date: LocalDate = ScreensFormat.today(),
     /** One-shot: "20 કિલો = 1 મણ ઉમેર્યું" snackbar. */
     val kgNormalized: Boolean = false,
+    /** Editing an existing row (સુધારો): saving updates it instead of adding a new one. */
+    val editId: Long? = null,
 ) {
     val apmcMode: Boolean
         get() = apmcSwitch || (section == AccountSection.FARM && kind == EntryKind.INCOME && categoryIsCropSale)
@@ -73,7 +75,10 @@ data class EntryForm(
             null -> false
         }
 
-    val canSave: Boolean get() = section != null && targetChosen && amountPaise > 0
+    /** ઉધાર needs a name, so "who owes whom" is never lost (owner feedback: keep udhaar simple). */
+    val needsName: Boolean get() = pending && counterparty.isBlank()
+
+    val canSave: Boolean get() = section != null && targetChosen && amountPaise > 0 && !needsName
 }
 
 sealed interface EntryEvent {

@@ -5,7 +5,6 @@ import androidx.lifecycle.viewModelScope
 import com.vraj.khetihisab.data.entity.AccountSection
 import com.vraj.khetihisab.data.entity.CategoryMasterEntity
 import com.vraj.khetihisab.data.entity.CropMasterEntity
-import com.vraj.khetihisab.data.entity.FamilyEntity
 import com.vraj.khetihisab.data.entity.FarmCropCycleEntity
 import com.vraj.khetihisab.data.entity.FarmEntity
 import com.vraj.khetihisab.data.entity.ProfileRole
@@ -35,7 +34,7 @@ data class FarmEdit(
     val year: Int,
 )
 
-enum class MasterError { NAME, VIGHA, PHONE, DUPLICATE }
+enum class MasterError { NAME, VIGHA, PHONE, DUPLICATE, IN_USE }
 
 /** One-shot UI messages. */
 sealed interface MasterEvent {
@@ -58,7 +57,6 @@ class MasterSettingsViewModel(
 
     val farms: StateFlow<List<FarmEntity>> = master.farms().state(emptyList())
     val activeCycles: StateFlow<List<CycleWithCrop>> = master.activeCycles().state(emptyList())
-    val families: StateFlow<List<FamilyEntity>> = master.families().state(emptyList())
     val crops: StateFlow<List<CropMasterEntity>> = master.allCrops().state(emptyList())
     val categories: StateFlow<List<CategoryMasterEntity>> = master.allCategories().state(emptyList())
 
@@ -103,20 +101,6 @@ class MasterSettingsViewModel(
         return null
     }
 
-    // ---- family ----
-
-    fun saveFamily(f: FamilyEntity, displayName: String, phone: String): MasterError? {
-        val name = displayName.trim()
-        if (name.isEmpty()) return MasterError.NAME
-        val p = phone.trim()
-        if (p.isNotEmpty() && PhoneNormalizer.toE164NoPlus(p) == null) return MasterError.PHONE
-        viewModelScope.launch {
-            master.updateFamily(f.copy(displayName = name, whatsappPhone = p.ifEmpty { null }))
-            _events.emit(MasterEvent.Saved)
-        }
-        return null
-    }
-
     // ---- crops ----
 
     fun addCrop(name: String): MasterError? {
@@ -143,6 +127,31 @@ class MasterSettingsViewModel(
     }
 
     fun setCropActive(c: CropMasterEntity, on: Boolean) = viewModelScope.launch { master.updateCrop(c.copy(isActive = on)) }
+
+    /** How many farm seasons use this crop (> 0 → cannot delete, only switch off). */
+    suspend fun cropUsage(c: CropMasterEntity): Int = master.cycleCountForCrop(c.id)
+
+    fun deleteCrop(c: CropMasterEntity) = viewModelScope.launch {
+        runCatching { master.deleteCrop(c) }
+            .onSuccess { _events.emit(MasterEvent.Saved) }
+            .onFailure { _events.emit(MasterEvent.Error(MasterError.IN_USE)) }
+    }
+
+    suspend fun categoryUsage(c: CategoryMasterEntity): Int = master.txnCountForCategory(c.id)
+
+    fun deleteCategory(c: CategoryMasterEntity) = viewModelScope.launch {
+        runCatching { master.deleteCategory(c) }
+            .onSuccess { _events.emit(MasterEvent.Saved) }
+            .onFailure { _events.emit(MasterEvent.Error(MasterError.IN_USE)) }
+    }
+
+    suspend fun farmUsage(f: com.vraj.khetihisab.data.entity.FarmEntity): Int = master.txnCountForFarm(f.id)
+
+    fun deleteFarm(f: com.vraj.khetihisab.data.entity.FarmEntity) = viewModelScope.launch {
+        runCatching { master.deleteFarm(f) }
+            .onSuccess { _events.emit(MasterEvent.Saved) }
+            .onFailure { _events.emit(MasterEvent.Error(MasterError.IN_USE)) }
+    }
 
     // ---- categories ----
 

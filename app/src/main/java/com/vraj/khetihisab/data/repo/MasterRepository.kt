@@ -88,6 +88,17 @@ class MasterRepository(
     fun allCategories(): Flow<List<CategoryMasterEntity>> = dao.allCategories()
     suspend fun addCategory(c: CategoryMasterEntity): Long = dao.insertCategory(c)
     suspend fun updateCategory(c: CategoryMasterEntity) = dao.updateCategory(c)
+    suspend fun txnCountForCategory(id: Long): Int = dao.txnCountForCategory(id)
+    suspend fun deleteCategory(c: CategoryMasterEntity) {
+        dao.deleteCategory(c)
+        listener.onDataChanged()
+    }
+    suspend fun cycleCountForCrop(id: Long): Int = dao.cycleCountForCrop(id)
+    suspend fun deleteCrop(c: CropMasterEntity) {
+        dao.deleteCrop(c)
+        listener.onDataChanged()
+    }
+    suspend fun txnCountForFarm(id: Long): Int = dao.txnCountForFarm(id)
 
     // ---- crop cycles ----
     fun cyclesFor(farmId: Long): Flow<List<FarmCropCycleEntity>> = dao.cyclesFor(farmId)

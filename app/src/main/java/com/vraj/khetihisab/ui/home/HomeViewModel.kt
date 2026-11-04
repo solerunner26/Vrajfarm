@@ -48,6 +48,9 @@ data class HomeUiState(
     val familyMonth: Long = 0,
     val generalMonth: Long = 0,
     val personalExpenseMonth: Long = 0,
+    val personalNetMonth: Long = 0,
+    /** Settings › સામાન્ય › "હોમ પર રકમ હંમેશાં બતાવો". Off → Hisab amounts start as XXXXX.XX. */
+    val showNumbers: Boolean = false,
     val shoppingPending: Int = 0,
     val assetsLent: Int = 0,
     val recent: List<LedgerRowUi> = emptyList(),
@@ -70,12 +73,13 @@ private data class MoneyPart(
     val animalCategories: List<CategoryTotal>,
 )
 
-private data class MonthPart(val family: Long, val general: Long, val personal: Long, val shop: Int, val lent: Int)
+private data class MonthPart(val family: Long, val general: Long, val personal: Long, val personalNet: Long, val shop: Int, val lent: Int)
 
 private data class HeaderPart(
     val owner: PersonProfileEntity?,
     val backup: BackupUiStatus,
     val upcoming: List<SpecialDay>,
+    val showNumbers: Boolean = false,
 )
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -131,10 +135,10 @@ class HomeViewModel(private val deps: ScreensDeps) : ViewModel() {
     private val monthPart: Flow<MonthPart> = combine(
         ledger.businessBySection(month).map { rows -> rows.filter { it.section == AccountSection.FAMILY }.sumOf { it.expensePaise } },
         ledger.generalExpense(month),
-        ledger.personalTotals(month).map { it.expense },
+        ledger.personalTotals(month),
         repos.shopping.activeCount(),
         repos.assets.activeLoanCount(),
-    ) { fam, gen, per, shop, lent -> MonthPart(fam, gen, per, shop, lent) }
+    ) { fam, gen, per, shop, lent -> MonthPart(fam, gen, per.expense, per.net, shop, lent) }
 
     private val header: Flow<HeaderPart> = combine(
         repos.profiles.owner(),
@@ -142,7 +146,8 @@ class HomeViewModel(private val deps: ScreensDeps) : ViewModel() {
         repos.panchang.allCustomFestivals().map { custom ->
             HomeLogic.upcoming(today) { d -> PanchangSource.special(d, custom) }
         },
-    ) { owner, backup, upcoming -> HeaderPart(owner, backup, upcoming) }
+        deps.themeRepository.showHomeNumbers,
+    ) { owner, backup, upcoming, show -> HeaderPart(owner, backup, upcoming, show) }
 
     private val recent: Flow<List<LedgerRowUi>> =
         combine(ledger.recent(HomeLogic.MAX_RECENT), names) { list, n -> list.map { HomeLogic.row(it, n, sectionLabel) } }
@@ -169,6 +174,8 @@ class HomeViewModel(private val deps: ScreensDeps) : ViewModel() {
             familyMonth = mp.family,
             generalMonth = mp.general,
             personalExpenseMonth = mp.personal,
+            personalNetMonth = mp.personalNet,
+            showNumbers = h.showNumbers,
             shoppingPending = mp.shop,
             assetsLent = mp.lent,
             recent = r,

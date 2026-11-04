@@ -50,7 +50,7 @@ object ReportFormat {
     fun section(s: AccountSection): String = when (s) {
         AccountSection.FARM -> "ખેતી"
         AccountSection.ANIMAL -> "પશુપાલન"
-        AccountSection.FAMILY -> "પરિવાર"
+        AccountSection.FAMILY -> "ભાગિયા"
         AccountSection.GENERAL -> "સામાન્ય"
         AccountSection.PERSONAL -> "અંગત"
     }
@@ -127,7 +127,7 @@ object ReportLabels {
     const val INCOME_BY_CATEGORY = "આવક પ્રકાર પ્રમાણે"
     const val EXPENSE_BY_CATEGORY = "ખર્ચ પ્રકાર પ્રમાણે"
     const val YEAR_TOTAL = "વર્ષ %d કુલ"
-    const val FAMILY_FALLBACK = "પરિવાર %s"
+    const val FAMILY_FALLBACK = "ભાગિયા %s"
     const val APMC = "%s મણ × %s"
     const val ADVANCE = "ઉપાડ"
 }

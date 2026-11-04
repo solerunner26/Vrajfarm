@@ -29,6 +29,13 @@ class ThemeRepository(private val dataStore: DataStore<Preferences>) {
         dataStore.edit { it[KEY_THEME] = id.storageKey }
     }
 
+    /** "હોમ પર રકમ હંમેશાં બતાવો": off by default, so the Home totals start hidden (XXXXX.XX). */
+    val showHomeNumbers: Flow<Boolean> = dataStore.data.map { it[KEY_HOME_NUMBERS] ?: false }
+
+    suspend fun setShowHomeNumbers(on: Boolean) {
+        dataStore.edit { it[KEY_HOME_NUMBERS] = on }
+    }
+
     suspend fun setFollowSystemDark(enabled: Boolean) {
         dataStore.edit { it[KEY_FOLLOW_SYSTEM] = enabled }
     }
@@ -38,5 +45,6 @@ class ThemeRepository(private val dataStore: DataStore<Preferences>) {
         const val THEME_KEY_NAME = "vk_theme"
         val KEY_THEME = stringPreferencesKey(THEME_KEY_NAME)
         val KEY_FOLLOW_SYSTEM = booleanPreferencesKey("vk_theme_follow_system")
+        val KEY_HOME_NUMBERS = booleanPreferencesKey("vk_home_show_numbers")
     }
 }

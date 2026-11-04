@@ -7,6 +7,9 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.blur
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -149,12 +152,78 @@ object VkLogo {
     }
 }
 
-/** Draws an ic_vk icon in the current theme's palette. Decorative by default; never tinted. */
+/**
+ * Draws an ic_vk icon in the current theme's palette, **3D embossed** (owner request 2026-11-04:
+ * "3D embossed, impactful, elegant, eye-catchy"). The two-tone artwork itself is never recoloured;
+ * three light layers give it depth, the same way in all five themes:
+ *  1. a soft drop shadow (down-right, blurred on Android 12+),
+ *  2. a bright bevel edge peeking out top-left,
+ *  3. a glossy sheen (light top-left → shade bottom-right) clipped to the artwork, plus a specular spot.
+ */
 @Composable
 fun VkIconImage(icon: VkIcon, modifier: Modifier = Modifier, size: Dp = 40.dp, contentDescription: String? = null) {
     val palette = LocalVkIcons.current
+    val dark = LocalVkExtra.current.isDark
     val vector = remember(icon, palette) { VkIcons.vector(icon, palette) }
-    Image(imageVector = vector, contentDescription = contentDescription, modifier = modifier.size(size))
+    androidx.compose.foundation.layout.Box(modifier.size(size)) {
+        val fill = Modifier.matchParentSize()
+        // 1. Drop shadow.
+        Image(
+            imageVector = vector,
+            contentDescription = null,
+            colorFilter = androidx.compose.ui.graphics.ColorFilter.tint(Color.Black),
+            modifier = fill
+                .graphicsLayer {
+                    translationX = size.toPx() * 0.035f
+                    translationY = size.toPx() * 0.06f
+                    alpha = if (dark) 0.45f else 0.26f
+                }
+                .then(if (android.os.Build.VERSION.SDK_INT >= 31) Modifier.blur(size * 0.045f) else Modifier),
+        )
+        // 2. Bevel highlight edge.
+        Image(
+            imageVector = vector,
+            contentDescription = null,
+            colorFilter = androidx.compose.ui.graphics.ColorFilter.tint(Color.White),
+            modifier = fill.graphicsLayer {
+                translationX = -size.toPx() * 0.018f
+                translationY = -size.toPx() * 0.022f
+                alpha = if (dark) 0.22f else 0.75f
+            },
+        )
+        // 3. The icon with its sheen.
+        Image(
+            imageVector = vector,
+            contentDescription = contentDescription,
+            modifier = fill
+                .graphicsLayer { compositingStrategy = androidx.compose.ui.graphics.CompositingStrategy.Offscreen }
+                .drawWithContent {
+                    drawContent()
+                    val w = this.size.width
+                    val h = this.size.height
+                    drawRect(
+                        Brush.linearGradient(
+                            0f to Color.White.copy(alpha = if (dark) 0.16f else 0.34f),
+                            0.45f to Color.Transparent,
+                            1f to Color.Black.copy(alpha = if (dark) 0.30f else 0.22f),
+                            start = Offset.Zero,
+                            end = Offset(w, h),
+                        ),
+                        blendMode = androidx.compose.ui.graphics.BlendMode.SrcAtop,
+                    )
+                    drawCircle(
+                        Brush.radialGradient(
+                            listOf(Color.White.copy(alpha = if (dark) 0.14f else 0.30f), Color.Transparent),
+                            center = Offset(w * 0.30f, h * 0.22f),
+                            radius = w * 0.42f,
+                        ),
+                        radius = w * 0.42f,
+                        center = Offset(w * 0.30f, h * 0.22f),
+                        blendMode = androidx.compose.ui.graphics.BlendMode.SrcAtop,
+                    )
+                },
+        )
+    }
 }
 
 @Composable

@@ -48,7 +48,7 @@ import kotlinx.coroutines.launch
 
 object VkRoutes {
     const val HOME = "home"
-    const val ENTRY = "entry?kind={kind}&section={section}&farm={farm}&family={family}"
+    const val ENTRY = "entry?kind={kind}&section={section}&farm={farm}&family={family}&date={date}&edit={edit}"
     const val SHOPPING = "shopping"
     const val ASSETS = "assets?remind={remind}"
     const val LEND = "lend?assetId={assetId}"
@@ -118,6 +118,8 @@ fun VkRoot(
                 navArgument("section") { type = NavType.StringType; nullable = true; defaultValue = null },
                 navArgument("farm") { type = NavType.LongType; defaultValue = -1L },
                 navArgument("family") { type = NavType.LongType; defaultValue = -1L },
+                navArgument("date") { type = NavType.LongType; defaultValue = Long.MIN_VALUE },
+                navArgument("edit") { type = NavType.LongType; defaultValue = -1L },
             ),
         ) {
             EntryScreen(onBack = { nav.popBackStack() }, onSaved = { nav.popBackStack() })
@@ -159,5 +161,7 @@ fun VkRoot(
             .windowInsetsTopHeight(WindowInsets.statusBars)
             .background(LocalVkExtra.current.brandBrush),
     )
+    // "નવું અપડેટ" dialog — checks GitHub once per app start.
+    com.vraj.khetihisab.update.UpdateHost()
     }
 }

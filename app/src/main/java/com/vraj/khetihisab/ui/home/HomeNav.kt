@@ -60,12 +60,14 @@ fun NavGraphBuilder.homeGraph(
             choice = PeriodChoice(period, year),
             onBack = back,
             onAddEntry = { id -> open(HomeRoutes.entry(HomeRoutes.KIND_EXPENSE, AccountSection.FARM, farmId = id)) },
+            onEditEntry = { id -> open(HomeRoutes.editEntry(id)) },
         )
     }
 
     composable(HomeRoutes.FAMILY) {
         FamilyRoute(
             onBack = back,
+            onEditEntry = { id -> open(HomeRoutes.editEntry(id)) },
             onAddAdvance = { familyId -> open(HomeRoutes.entry(HomeRoutes.KIND_EXPENSE, AccountSection.FAMILY, familyId = familyId)) },
         )
     }
@@ -75,6 +77,18 @@ fun NavGraphBuilder.homeGraph(
             onBack = back,
             onExpense = { open(HomeRoutes.entry(HomeRoutes.KIND_EXPENSE, AccountSection.PERSONAL)) },
             onIncome = { open(HomeRoutes.entry(HomeRoutes.KIND_INCOME, AccountSection.PERSONAL)) },
+            onEditEntry = { id -> open(HomeRoutes.editEntry(id)) },
+        )
+    }
+
+    // સામાન્ય ખર્ચ: its own screen (the Home tile used to open Settings by mistake).
+    composable(HomeRoutes.GENERAL) {
+        PersonalRoute(
+            onBack = back,
+            onExpense = { open(HomeRoutes.entry(HomeRoutes.KIND_EXPENSE, AccountSection.GENERAL)) },
+            onIncome = { open(HomeRoutes.entry(HomeRoutes.KIND_INCOME, AccountSection.GENERAL)) },
+            onEditEntry = { id -> open(HomeRoutes.editEntry(id)) },
+            section = AccountSection.GENERAL,
         )
     }
 }

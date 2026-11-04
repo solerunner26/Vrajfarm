@@ -1,6 +1,10 @@
 package com.vraj.khetihisab.ui.home
 
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.DeviceConfigurationOverride
+import androidx.compose.ui.test.FontScale
+import androidx.compose.ui.test.assertCountEquals
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
@@ -77,9 +81,68 @@ class HomeScreenUiTest {
         assertTrue(routes.contains(HomeRoutes.FARMS))
     }
 
-    @Test fun businessCardShowsTotals() {
+    // ---- Kul Nafo-Nukshan hidden on Home (owner request 2026-11-04) ----
+
+    @Test fun totalsHiddenByDefault() {
         show(state(), mutableListOf())
         rule.onNodeWithTag("home_list").performScrollToNode(hasTestTag("home_business"))
+        rule.onAllNodesWithText(com.vraj.khetihisab.ui.components.VK_MASK).assertCountEquals(4)
+        rule.onAllNodesWithText("₹40,530").assertCountEquals(0)
+    }
+
+    @Test fun eyeRevealsAndHidesTotals() {
+        show(state(), mutableListOf())
+        rule.onNodeWithTag("home_list").performScrollToNode(hasTestTag("home_business"))
+        rule.onNodeWithTag("eye_toggle").performClick()
+        rule.waitForIdle()
         rule.onNodeWithText("₹40,530").assertIsDisplayed()
+        rule.onNodeWithTag("eye_toggle").performClick()
+        rule.waitForIdle()
+        rule.onAllNodesWithText("₹40,530").assertCountEquals(0)
+    }
+
+    @Test fun showNumbersSettingRevealsWithoutTap() {
+        show(state().copy(showNumbers = true), mutableListOf())
+        rule.onNodeWithTag("home_list").performScrollToNode(hasTestTag("home_business"))
+        rule.waitForIdle()
+        rule.onNodeWithText("₹40,530").assertIsDisplayed()
+    }
+
+    // ---- every Home tile opens its own screen (Samanya once opened Settings) ----
+
+    private fun tileOpens(tag: String, route: String) {
+        val routes = mutableListOf<String>()
+        show(state(), routes)
+        rule.onNodeWithTag("home_list").performScrollToNode(hasTestTag(tag))
+        rule.onNodeWithTag(tag).performClick()
+        assertEquals(route, routes.lastOrNull())
+    }
+
+    @Test fun samanyaTileOpensGeneralNotSettings() = tileOpens("home_tile_general", HomeRoutes.GENERAL)
+    @Test fun bhagiyaTileOpensAdvances() = tileOpens("home_tile_family", HomeRoutes.FAMILY)
+    @Test fun angatTileOpensPersonal() = tileOpens("home_tile_personal", HomeRoutes.PERSONAL)
+    @Test fun kharidiTileOpensShopping() = tileOpens("home_tile_shop", HomeRoutes.SHOPPING)
+    @Test fun angatHisabSubTileOpensPersonal() = tileOpens("home_personal_hisab", HomeRoutes.PERSONAL)
+
+    @Test fun noTileOpensSettingsExceptTheGear() {
+        val routes = mutableListOf<String>()
+        show(state(), routes)
+        listOf("home_tile_family", "home_tile_personal", "home_tile_general", "home_tile_shop", "home_farms", "home_personal_hisab").forEach { tag ->
+            rule.onNodeWithTag("home_list").performScrollToNode(hasTestTag(tag))
+            rule.onNodeWithTag(tag).performClick()
+        }
+        assertTrue("tiles must not open Settings: $routes", routes.none { it == HomeRoutes.SETTINGS })
+    }
+
+    // ---- android/skills testing-setup step 11: large font must still lay out ----
+
+    @Test fun tilesSurviveFontScale150() {
+        rule.setContent {
+            DeviceConfigurationOverride(DeviceConfigurationOverride.FontScale(1.5f)) {
+                VkTheme(VkThemeId.MATI) { HomeScreen(state(), onOpen = {}, onSettle = {}, onLoanWhatsApp = {}) }
+            }
+        }
+        rule.onNodeWithTag("home_list").performScrollToNode(hasTestTag("home_tile_general"))
+        rule.onNodeWithTag("home_tile_general").assertIsDisplayed()
     }
 }

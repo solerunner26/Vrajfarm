@@ -23,7 +23,7 @@ enum class ReportType(
     DAILY_LEDGER("daily", R.string.rep_daily, "દૈનિક હિસાબ", true),
     FARM_PNL("farm_pnl", R.string.rep_farm_pnl, "ખેતરવાર નફો-નુકસાન", true),
     VIGHA_SCORECARD("vigha", R.string.rep_vigha, "વીઘા સ્કોરકાર્ડ", true),
-    FAMILY_ADVANCES("family", R.string.rep_family, "પરિવાર A/B ઉપાડ", true),
+    FAMILY_ADVANCES("family", R.string.rep_family, "ભાગિયા ઉપાડ", true),
     PERSONAL("personal", R.string.rep_personal, "અંગત હિસાબ", true),
     PENDING_UDHAAR("udhaar", R.string.rep_udhaar, "ઉધાર બાકી", false),
     ASSETS_LOANS("assets", R.string.rep_assets, "મિલકત અને ઉછીનું", false),

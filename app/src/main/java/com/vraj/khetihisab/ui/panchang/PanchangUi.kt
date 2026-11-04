@@ -96,6 +96,10 @@ fun MarkerGlyph(marker: DayMarker, modifier: Modifier = Modifier, size: Dp = 10.
                 softWrap = false,
             )
         }
+        // Moon markers are tiny real moons (owner request 2026-11-04): full, new, thin waxing crescent.
+        DayMarker.POONAM -> com.vraj.khetihisab.ui.decor.VkMoon3D(1f, true, modifier, size, detailed = false)
+        DayMarker.AMAS -> com.vraj.khetihisab.ui.decor.VkMoon3D(0f, true, modifier, size, detailed = false)
+        DayMarker.BIJ -> com.vraj.khetihisab.ui.decor.VkMoon3D(0.32f, true, modifier, size, detailed = false)
         else -> Canvas(modifier.size(size)) {
             val r = this.size.minDimension / 2f
             val c = Offset(this.size.width / 2f, this.size.height / 2f)

@@ -329,7 +329,7 @@ class AppDaoTest {
         assertEquals(List(4) { ProfileRole.MANAGER_1 } + List(4) { ProfileRole.MANAGER_2 }, farms.map { it.managerRole })
 
         val families = d.masterDao().families().first()
-        assertEquals(listOf("પરિવાર A", "પરિવાર B"), families.map { it.displayName })
+        assertEquals(listOf("ભાગિયા 1", "ભાગિયા 2"), families.map { it.displayName })
         assertTrue(families.all { it.whatsappPhone == null })
 
         val profiles = d.profileDao().all().first()

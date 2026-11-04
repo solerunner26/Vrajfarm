@@ -82,3 +82,10 @@ data class CycleWithCrop(
     @Relation(parentColumn = "cropId", entityColumn = "id")
     val crop: CropMasterEntity,
 )
+
+/** One calendar day's money: income (green) and outgoing = expense + ઉપાડ (red). */
+data class DayTotal(
+    val date: java.time.LocalDate,
+    val income: Long,
+    val expense: Long,
+)

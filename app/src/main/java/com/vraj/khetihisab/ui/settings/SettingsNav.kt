@@ -15,10 +15,12 @@ import com.vraj.khetihisab.ui.reports.ReportsRoute
 /** Routes owned by the settings group (see INTEGRATION.md). */
 object SettingsRoutes {
     const val SETTINGS = "settings"
+    const val THEME = "settings/theme"
+    const val PANCHANG_ALERTS = "settings/panchang-alerts"
+    const val GENERAL = "settings/general"
     const val PANCHANG = "settings/panchang"
     const val BACKUP = "settings/backup"
     const val FARMS = "settings/farms"
-    const val FAMILY = "settings/family"
     const val CROPS = "settings/crops"
     const val CATEGORIES = "settings/categories"
     const val SECURITY = "settings/security"
@@ -58,9 +60,13 @@ fun NavGraphBuilder.settingsGraph(
         SettingsRoute(SettingsActions(onBack = back, onOpen = open))
     }
     composable(SettingsRoutes.PANCHANG) { PanchangGuidanceRoute(onBack = back) }
-    composable(SettingsRoutes.BACKUP) { BackupSettingsRoute(onBack = back) }
+    composable(SettingsRoutes.THEME) { ThemeSettingsRoute(onBack = back) }
+    composable(SettingsRoutes.PANCHANG_ALERTS) { PanchangAlertsRoute(onBack = back, onOpen = open) }
+    composable(SettingsRoutes.GENERAL) { GeneralSettingsRoute(onBack = back, onOpen = open) }
+    composable(SettingsRoutes.BACKUP, deepLinks = listOf(navDeepLink { uriPattern = com.vraj.khetihisab.backup.BackupNotifier.BACKUP_DEEP_LINK })) {
+        BackupSettingsRoute(onBack = back)
+    }
     composable(SettingsRoutes.FARMS) { FarmsSettingsRoute(onBack = back) }
-    composable(SettingsRoutes.FAMILY) { FamilySettingsRoute(onBack = back) }
     composable(SettingsRoutes.CROPS) { CropsSettingsRoute(onBack = back) }
     composable(SettingsRoutes.CATEGORIES) { CategoriesSettingsRoute(onBack = back) }
     composable(SettingsRoutes.SECURITY) { SecuritySettingsRoute(onBack = back) }
@@ -84,6 +90,6 @@ fun NavGraphBuilder.settingsGraph(
         ),
     ) { entry ->
         val day = entry.arguments?.getLong(SettingsRoutes.ARG_EPOCH_DAY)?.takeIf { it != SettingsRoutes.NO_DAY }
-        PanchangCalendarRoute(initialEpochDay = day, onBack = back, onOpenReminders = onOpenReminders)
+        PanchangCalendarRoute(initialEpochDay = day, onBack = back, onOpenReminders = onOpenReminders, onOpenEntry = open)
     }
 }
