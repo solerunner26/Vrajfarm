@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Wave 3A screens: Home (doc 05), Farms (07), Family (08), Personal (09).
+  New keys only, all prefixed hm_. Shared copy that already exists in strings_screens.xml (scr_*) is reused.
+-->
+<resources>
+    <!-- Home header + Panchang -->
+    <string name="hm_date_weekday">%1$s · %2$s</string>
+    <string name="hm_tithi_vs">%1$s · %2$s</string>
+    <string name="hm_open_calendar">પંચાંગ કેલેન્ડર જુઓ ›</string>
+    <string name="hm_no_upcoming">આગામી દિવસોમાં કોઈ ખાસ તિથિ નથી</string>
+    <string name="hm_rel_date">%1$s · %2$s</string>
+    <string name="hm_cd_settings">સેટિંગ્સ</string>
+
+    <!-- Home alerts -->
+    <string name="hm_reminder_high">HIGH</string>
+    <string name="hm_loan_wa_cd">WhatsApp થી યાદ અપાવો</string>
+    <string name="hm_loan_with">%s પાસે</string>
+    <string name="hm_settle_sheet_title">ઉધાર બાકી એન્ટ્રી</string>
+    <string name="hm_settle_one">ચૂકતે</string>
+    <string name="hm_payable_short">દેવાના</string>
+    <string name="hm_receivable_short">લેવાના</string>
+    <string name="hm_nothing_pending">કોઈ ઉધાર બાકી નથી</string>
+
+    <!-- Home business P&L (કુલ નફો-નુકસાન) -->
+    <string name="hm_business_title">કુલ નફો-નુકસાન</string>
+    <string name="hm_business_caption">ખેતી + પશુપાલન + સામાન્ય + મેનેજર ઉપાડ · અંગત સિવાય</string>
+    <string name="hm_business_sheet_title">વિભાગ પ્રમાણે નફો-નુકસાન</string>
+    <string name="hm_year_chip">વર્ષ %s</string>
+    <string name="hm_total">કુલ</string>
+    <string name="hm_part_farm">ખેતી</string>
+    <string name="hm_part_animal">પશુપાલન</string>
+    <string name="hm_part_general">સામાન્ય ખર્ચ</string>
+    <string name="hm_part_family">મેનેજર ઉપાડ</string>
+    <string name="hm_part_personal">અંગત</string>
+
+    <!-- Home animal husbandry (પશુપાલન) -->
+    <string name="hm_animal_title">પશુપાલન</string>
+    <string name="hm_animal_meta">દૂધ %1$s · ખર્ચ %2$s</string>
+    <string name="hm_month_net">આ મહિને ચોખ્ખું %s</string>
+    <string name="hm_animal_sheet_title">પશુપાલન ખર્ચ · %s</string>
+    <string name="hm_chip_more">%s ›</string>
+
+    <!-- Farms (doc 07) -->
+    <string name="hm_crop_year">પાક વર્ષ %s</string>
+    <string name="hm_prev_year">પાછલું વર્ષ</string>
+    <string name="hm_next_year">આગલું વર્ષ</string>
+    <string name="hm_crop_vigha">%1$s · %2$s</string>
+    <string name="hm_change_crop_title">નવો પાક પસંદ કરો</string>
+    <string name="hm_crop_changed">પાક બદલાયો</string>
+    <string name="hm_no_crops">પાક યાદી ખાલી છે</string>
+
+    <!-- Family (doc 08) -->
+    <string name="hm_phone_invalid">10 અંકનો મોબાઇલ નંબર લખો</string>
+    <string name="hm_save_send">સાચવો અને મોકલો</string>
+
+    <!-- Personal (doc 09) -->
+    <string name="hm_personal_payable">અંગત દેવાના</string>
+    <string name="hm_personal_receivable">અંગત લેવાના</string>
+</resources>

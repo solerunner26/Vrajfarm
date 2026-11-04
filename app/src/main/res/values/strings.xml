@@ -84,16 +84,4 @@
     <string name="photo_add">ફોટો</string>
 
     <!-- Placeholder Home (Wave 1; replaced by doc 05) -->
-    <string name="home_greeting">રામ રામ, ગીરવાનસિંહ</string>
-    <string name="home_sections">વિભાગો</string>
-    <string name="home_section_farm">ખેતી</string>
-    <string name="home_section_family">પરિવાર</string>
-    <string name="home_section_personal">અંગત</string>
-    <string name="home_section_shopping">ખરીદી</string>
-    <string name="home_section_assets">સાધનો</string>
-    <string name="home_section_reminder">રિમાઇન્ડર</string>
-    <string name="home_this_month">આ મહિને</string>
-    <string name="home_recent">તાજેતરની એન્ટ્રી</string>
-    <string name="home_all">બધું જુઓ</string>
-    <string name="home_wave1_note">આ હોમ સ્ક્રીન કામચલાઉ છે.</string>
 </resources>

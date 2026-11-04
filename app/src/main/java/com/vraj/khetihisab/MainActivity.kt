@@ -23,6 +23,19 @@ import kotlinx.coroutines.runBlocking
 /** FragmentActivity because BiometricPrompt needs one (doc 04 §4). */
 class MainActivity : FragmentActivity() {
 
+    /**
+     * Deep links that arrive while the activity is already running (launchMode singleTop:
+     * notification / widget taps such as vraj://reminders). VkRoot hands them to the NavController
+     * once the app is unlocked. Cold-start links are read by NavHost from the launch intent itself.
+     */
+    private val pendingDeepLink = kotlinx.coroutines.flow.MutableStateFlow<android.content.Intent?>(null)
+
+    override fun onNewIntent(intent: android.content.Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        if (intent.data != null) pendingDeepLink.value = intent
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -48,6 +61,8 @@ class MainActivity : FragmentActivity() {
                     container = container,
                     activity = this,
                     themePrefs = prefs,
+                    pendingDeepLink = pendingDeepLink,
+                    onDeepLinkHandled = { pendingDeepLink.value = null },
                 )
             }
         }

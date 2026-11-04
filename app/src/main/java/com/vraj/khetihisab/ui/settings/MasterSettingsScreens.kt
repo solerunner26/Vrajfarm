@@ -1,0 +1,367 @@
+package com.vraj.khetihisab.ui.settings
+
+import android.widget.Toast
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Switch
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.vraj.khetihisab.R
+import com.vraj.khetihisab.data.entity.AccountSection
+import com.vraj.khetihisab.data.entity.CategoryMasterEntity
+import com.vraj.khetihisab.data.entity.CropMasterEntity
+import com.vraj.khetihisab.data.entity.FamilyEntity
+import com.vraj.khetihisab.data.entity.FarmEntity
+import com.vraj.khetihisab.data.entity.ProfileRole
+import com.vraj.khetihisab.data.entity.Season
+import com.vraj.khetihisab.data.entity.TxnType
+import com.vraj.khetihisab.ui.components.VkCard
+import com.vraj.khetihisab.ui.components.VkChip
+import com.vraj.khetihisab.ui.components.VkListRow
+import com.vraj.khetihisab.ui.components.VkRowDivider
+import com.vraj.khetihisab.ui.components.VkSectionTitle
+import com.vraj.khetihisab.ui.components.VkSegmented
+import com.vraj.khetihisab.ui.components.VkTonalButton
+import com.vraj.khetihisab.ui.components.VkTopHeader
+import com.vraj.khetihisab.ui.home.screenViewModel
+import com.vraj.khetihisab.ui.theme.VkIcon
+
+@Composable
+private fun masterViewModel(): MasterSettingsViewModel =
+    screenViewModel { deps, _ -> MasterSettingsViewModel(deps.repos.master) }
+
+/** Shows "સાચવ્યું" / duplicate errors raised after a write. */
+@Composable
+private fun MasterEvents(vm: MasterSettingsViewModel) {
+    val ctx = LocalContext.current
+    val saved = stringResource(R.string.st_saved)
+    val dup = stringResource(R.string.st_err_duplicate)
+    LaunchedEffect(vm) {
+        vm.events.collect { e ->
+            val msg = when (e) {
+                MasterEvent.Saved -> saved
+                is MasterEvent.Error -> dup
+            }
+            Toast.makeText(ctx, msg, Toast.LENGTH_SHORT).show()
+        }
+    }
+}
+
+@Composable
+internal fun sectionLabel(s: AccountSection): String = stringResource(
+    when (s) {
+        AccountSection.FARM -> R.string.st_sec_farm
+        AccountSection.ANIMAL -> R.string.st_sec_animal
+        AccountSection.FAMILY -> R.string.st_sec_family
+        AccountSection.GENERAL -> R.string.st_sec_general
+        AccountSection.PERSONAL -> R.string.st_sec_personal
+    },
+)
+
+@Composable
+private fun typeLabel(t: TxnType): String = stringResource(
+    when (t) {
+        TxnType.INCOME -> R.string.st_txn_income
+        TxnType.EXPENSE -> R.string.st_txn_expense
+        TxnType.ADVANCE -> R.string.st_txn_advance
+    },
+)
+
+@Composable
+private fun seasonLabel(s: String): String = stringResource(
+    when (s) {
+        Season.RABI -> R.string.st_season_rabi
+        Season.SUMMER -> R.string.st_season_summer
+        else -> R.string.st_season_kharif
+    },
+)
+
+@Composable
+private fun managerLabel(r: ProfileRole?): String = stringResource(
+    when (r) {
+        ProfileRole.MANAGER_1 -> R.string.st_manager_1
+        ProfileRole.MANAGER_2 -> R.string.st_manager_2
+        else -> R.string.st_manager_none
+    },
+)
+
+@Composable
+private fun errorText(e: MasterError): String = stringResource(
+    when (e) {
+        MasterError.NAME -> R.string.st_err_name
+        MasterError.VIGHA -> R.string.st_vigha_invalid
+        MasterError.PHONE -> R.string.st_err_phone
+        MasterError.DUPLICATE -> R.string.st_err_duplicate
+    },
+)
+
+// ------------------------------------------------------------------ farms
+
+@Composable
+fun FarmsSettingsRoute(onBack: () -> Unit) {
+    val vm = masterViewModel()
+    MasterEvents(vm)
+    val farms by vm.farms.collectAsStateWithLifecycle()
+    val cycles by vm.activeCycles.collectAsStateWithLifecycle()
+    val crops by vm.crops.collectAsStateWithLifecycle()
+    var editing by remember { mutableStateOf<FarmEntity?>(null) }
+    var adding by rememberSaveable { mutableStateOf(false) }
+
+    StScrollBody {
+        VkTopHeader(title = stringResource(R.string.st_set_farms), onBack = onBack)
+        StBodyColumn {
+            VkCard(Modifier.fillMaxWidth(), contentPadding = 0.dp) {
+                Column {
+                    farms.forEachIndexed { i, f ->
+                        val crop = cycles.firstOrNull { it.cycle.farmId == f.id }?.crop?.name
+                        val vigha = if (f.areaInVigha > 0) stringResource(R.string.st_vigha_value, SettingsFormat.vighaText(f.areaInVigha)) else stringResource(R.string.st_vigha_not_set)
+                        VkListRow(
+                            title = f.name,
+                            meta = listOfNotNull(vigha, f.managerRole?.let { managerLabel(it) }, crop).joinToString(" · "),
+                            leadingIcon = VkIcon.FARM,
+                            showChevron = true,
+                            onClick = { editing = f },
+                        )
+                        if (i < farms.lastIndex) VkRowDivider()
+                    }
+                }
+            }
+            VkTonalButton(stringResource(R.string.st_add_farm), { adding = true }, Modifier.fillMaxWidth())
+        }
+    }
+
+    val target = editing
+    if (target != null || adding) {
+        val cycle = target?.let { f -> cycles.firstOrNull { it.cycle.farmId == f.id }?.cycle }
+        FarmEditDialog(
+            farm = target,
+            crops = crops.filter { it.isActive },
+            initialCropId = cycle?.cropId,
+            initialSeason = cycle?.season ?: Season.KHARIF,
+            initialYear = cycle?.year ?: vm.currentYear(),
+            onDismiss = { editing = null; adding = false },
+            onSave = { edit -> vm.saveFarm(edit).also { if (it == null) { editing = null; adding = false } } },
+        )
+    }
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun FarmEditDialog(
+    farm: FarmEntity?,
+    crops: List<CropMasterEntity>,
+    initialCropId: Long?,
+    initialSeason: String,
+    initialYear: Int,
+    onDismiss: () -> Unit,
+    onSave: (FarmEdit) -> MasterError?,
+) {
+    var name by rememberSaveable(farm?.id) { mutableStateOf(farm?.name.orEmpty()) }
+    var vigha by rememberSaveable(farm?.id) { mutableStateOf(farm?.areaInVigha?.takeIf { it > 0 }?.let(SettingsFormat::vighaText).orEmpty()) }
+    var manager by rememberSaveable(farm?.id) { mutableStateOf(farm?.managerRole) }
+    var cropId by rememberSaveable(farm?.id) { mutableStateOf(initialCropId) }
+    var season by rememberSaveable(farm?.id) { mutableStateOf(initialSeason) }
+    var year by rememberSaveable(farm?.id) { mutableStateOf(initialYear.toString()) }
+    var error by remember { mutableStateOf<MasterError?>(null) }
+
+    StDialog(
+        title = farm?.name ?: stringResource(R.string.st_add_farm),
+        confirmLabel = stringResource(R.string.st_save),
+        onConfirm = {
+            error = onSave(FarmEdit(farm?.id, name, vigha, manager, cropId, season, year.toIntOrNull() ?: initialYear))
+        },
+        dismissLabel = stringResource(R.string.st_cancel),
+        onDismiss = onDismiss,
+    ) {
+        StTextField(name, { name = it; error = null }, stringResource(R.string.st_farm_name), isError = error == MasterError.NAME)
+        StTextField(
+            vigha, { v -> vigha = v.filter { it.isDigit() || it == '.' }; error = null },
+            stringResource(R.string.st_vigha),
+            keyboard = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+            isError = error == MasterError.VIGHA,
+            supporting = stringResource(R.string.st_vigha_invalid),
+        )
+        Text(stringResource(R.string.st_manager), style = MaterialTheme.typography.labelLarge)
+        VkSegmented(
+            options = listOf<Pair<ProfileRole?, String>>(
+                null to stringResource(R.string.st_manager_none),
+                ProfileRole.MANAGER_1 to stringResource(R.string.st_manager_1),
+                ProfileRole.MANAGER_2 to stringResource(R.string.st_manager_2),
+            ),
+            selected = manager,
+            onSelect = { manager = it },
+        )
+        Text(stringResource(R.string.st_active_crop), style = MaterialTheme.typography.labelLarge)
+        FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+            crops.forEach { c -> VkChip(c.name, selected = cropId == c.id, onClick = { cropId = c.id }) }
+        }
+        VkSegmented(
+            options = listOf(Season.KHARIF, Season.RABI, Season.SUMMER).map { it to seasonLabel(it) },
+            selected = season,
+            onSelect = { season = it },
+        )
+        StTextField(year, { v -> year = v.filter(Char::isDigit).take(4) }, stringResource(R.string.st_year), keyboard = KeyboardOptions(keyboardType = KeyboardType.Number))
+        error?.let { StError(errorText(it)) }
+    }
+}
+
+// ------------------------------------------------------------------ family
+
+@Composable
+fun FamilySettingsRoute(onBack: () -> Unit) {
+    val vm = masterViewModel()
+    MasterEvents(vm)
+    val families by vm.families.collectAsStateWithLifecycle()
+    StScrollBody {
+        VkTopHeader(title = stringResource(R.string.st_set_family), onBack = onBack)
+        StBodyColumn {
+            families.forEach { f -> FamilyCard(f, onSave = { n, p -> vm.saveFamily(f, n, p) }) }
+            StNote(stringResource(R.string.st_family_note))
+        }
+    }
+}
+
+@Composable
+private fun FamilyCard(f: FamilyEntity, onSave: (String, String) -> MasterError?) {
+    var name by rememberSaveable(f.id, f.updatedAt) { mutableStateOf(f.displayName) }
+    var phone by rememberSaveable(f.id, f.updatedAt) { mutableStateOf(f.whatsappPhone.orEmpty()) }
+    var error by remember { mutableStateOf<MasterError?>(null) }
+    VkCard(Modifier.fillMaxWidth()) {
+        VkSectionTitle(stringResource(R.string.st_family_x, f.code))
+        StTextField(name, { name = it; error = null }, stringResource(R.string.st_display_name), isError = error == MasterError.NAME)
+        StTextField(
+            phone, { phone = it; error = null }, stringResource(R.string.st_whatsapp_number),
+            keyboard = KeyboardOptions(keyboardType = KeyboardType.Phone),
+            isError = error == MasterError.PHONE,
+            placeholder = "+91",
+        )
+        error?.let { StError(errorText(it)) }
+        VkTonalButton(stringResource(R.string.st_save), { error = onSave(name, phone) }, Modifier.fillMaxWidth())
+    }
+}
+
+// ------------------------------------------------------------------ crops
+
+@Composable
+fun CropsSettingsRoute(onBack: () -> Unit) {
+    val vm = masterViewModel()
+    MasterEvents(vm)
+    val crops by vm.crops.collectAsStateWithLifecycle()
+    var renaming by remember { mutableStateOf<CropMasterEntity?>(null) }
+    var adding by rememberSaveable { mutableStateOf(false) }
+    val on = stringResource(R.string.st_on)
+    val off = stringResource(R.string.st_off)
+
+    StScrollBody {
+        VkTopHeader(title = stringResource(R.string.st_set_crops), onBack = onBack)
+        StBodyColumn {
+            VkCard(Modifier.fillMaxWidth(), contentPadding = 0.dp) {
+                Column {
+                    crops.forEachIndexed { i, c ->
+                        VkListRow(
+                            title = c.name,
+                            meta = if (c.isActive) on else off,
+                            onClick = { renaming = c },
+                            trailing = { Switch(checked = c.isActive, onCheckedChange = { vm.setCropActive(c, it) }) },
+                        )
+                        if (i < crops.lastIndex) VkRowDivider()
+                    }
+                }
+            }
+            StNote(stringResource(R.string.st_rename_hint))
+            VkTonalButton(stringResource(R.string.st_new_crop), { adding = true }, Modifier.fillMaxWidth())
+        }
+    }
+    if (adding) {
+        NameDialog(stringResource(R.string.st_new_crop), "", onDismiss = { adding = false }) { n -> vm.addCrop(n).also { if (it == null) adding = false } }
+    }
+    renaming?.let { c ->
+        NameDialog(stringResource(R.string.st_rename), c.name, onDismiss = { renaming = null }) { n -> vm.renameCrop(c, n).also { if (it == null) renaming = null } }
+    }
+}
+
+@Composable
+private fun NameDialog(title: String, initial: String, onDismiss: () -> Unit, onSave: (String) -> MasterError?) {
+    var name by rememberSaveable { mutableStateOf(initial) }
+    var error by remember { mutableStateOf<MasterError?>(null) }
+    StDialog(
+        title = title,
+        confirmLabel = stringResource(R.string.st_save),
+        onConfirm = { error = onSave(name) },
+        dismissLabel = stringResource(R.string.st_cancel),
+        onDismiss = onDismiss,
+    ) {
+        StTextField(name, { name = it; error = null }, stringResource(R.string.st_display_name), isError = error != null)
+        error?.let { StError(errorText(it)) }
+    }
+}
+
+// ------------------------------------------------------------------ categories
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+fun CategoriesSettingsRoute(onBack: () -> Unit) {
+    val vm = masterViewModel()
+    MasterEvents(vm)
+    val all by vm.categories.collectAsStateWithLifecycle()
+    var section by rememberSaveable { mutableStateOf(AccountSection.FARM) }
+    var renaming by remember { mutableStateOf<CategoryMasterEntity?>(null) }
+    var addingType by rememberSaveable { mutableStateOf<TxnType?>(null) }
+    val on = stringResource(R.string.st_on)
+    val off = stringResource(R.string.st_off)
+    val grouped = remember(all, section) { MasterSettingsViewModel.groupCategories(all, section) }
+
+    StScrollBody {
+        VkTopHeader(title = stringResource(R.string.st_set_categories), onBack = onBack)
+        StBodyColumn {
+            FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                MasterSettingsViewModel.SECTIONS.forEach { s -> VkChip(sectionLabel(s), selected = s == section, onClick = { section = s }) }
+            }
+            grouped.forEach { (type, list) ->
+                VkSectionTitle("${sectionLabel(section)} · ${typeLabel(type)}")
+                if (list.isNotEmpty()) {
+                    VkCard(Modifier.fillMaxWidth(), contentPadding = 0.dp) {
+                        Column {
+                            list.forEachIndexed { i, c ->
+                                VkListRow(
+                                    title = c.name,
+                                    meta = if (c.isActive) on else off,
+                                    onClick = { renaming = c },
+                                    trailing = { Switch(checked = c.isActive, onCheckedChange = { vm.setCategoryActive(c, it) }) },
+                                )
+                                if (i < list.lastIndex) VkRowDivider()
+                            }
+                        }
+                    }
+                }
+                VkTonalButton(stringResource(R.string.st_new_category), { addingType = type }, Modifier.fillMaxWidth())
+            }
+            StNote(stringResource(R.string.st_category_note))
+        }
+    }
+    addingType?.let { t ->
+        NameDialog("${stringResource(R.string.st_new_category)} · ${typeLabel(t)}", "", onDismiss = { addingType = null }) { n ->
+            vm.addCategory(section, t, n).also { if (it == null) addingType = null }
+        }
+    }
+    renaming?.let { c ->
+        NameDialog(stringResource(R.string.st_rename), c.name, onDismiss = { renaming = null }) { n -> vm.renameCategory(c, n).also { if (it == null) renaming = null } }
+    }
+}

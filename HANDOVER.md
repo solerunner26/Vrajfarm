@@ -86,6 +86,20 @@
 5. Should the family-advance year be Jan–Dec or the Vikram Samvat year?
 6. What is the GoDaddy backup URL / domain?
 
+## Wave 3 status (2026-11-04): this section overrides older rows in the task board
+| Area | Status | Notes |
+|---|---|---|
+| Home (05), including the business P&L and પશુપાલન cards | **DONE, wired (start screen)** | `ui/home/HomeNav.kt` `homeGraph`. The placeholder Home was deleted. |
+| Farms + farm detail (07) | **DONE, wired** | routes `farms`, `farm/{farmId}?period=&year=` |
+| Family A/B (08) | **DONE, wired** | Year = Jan–Dec (open question 5). Editing an entry needs an Entry edit route (TODO). |
+| Personal (09) | **DONE, wired** | route `personal` |
+| Reminders (13) | **DONE, wired** | route `reminders`, deep link `vraj://reminders`. Notification, widget and screen all use `ReminderActions.markDone`. |
+| Entry presets | **DONE** | `entry?kind=&section=&farm=&family=` |
+| Warm deep links | **DONE** | `MainActivity.onNewIntent`, then `VkRoot` `handleDeepLink`, after unlock |
+| Settings / Reports / Profiles / Help / Panchang calendar (04, 10, 14, 15) | **IN PROGRESS (Claude Wave 3B)** | Owns `ui/{settings,reports,profiles,help,panchang}`. Will expose `settingsGraph` (`ui/settings/INTEGRATION.md`). |
+
+Unit tests: 141 run, 0 failed (Wave 3C run). Nothing has been run on a device yet.
+
 ## Change log
 - **2026-11-04 (Claude, cleanup + animal husbandry):**
   - **Removed:**

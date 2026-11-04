@@ -43,6 +43,15 @@
     <string name="rem_ok">બરાબર</string>
     <string name="rem_title_required">શું કરવાનું છે તે લખો</string>
     <string name="rem_past_warning">આ સમય વીતી ગયો છે · સૂચના નહીં આવે</string>
+    <string name="rem_done_snack">આર્કાઇવમાં મૂક્યું · %s</string>
+    <string name="rem_undo">પાછું લાવો</string>
+    <string name="rem_saved">રિમાઇન્ડર સાચવ્યું</string>
+    <string name="rem_deleted">રિમાઇન્ડર કાઢી નાખ્યું</string>
+    <string name="rem_reopened">ફરી ચાલુ કર્યું</string>
+    <string name="rem_camera_denied">ફોટો માટે કેમેરા પરવાનગી આપો</string>
+    <string name="rem_photo_busy">ફોટો તૈયાર થાય છે…</string>
+    <string name="rem_pick_date">તારીખ પસંદ કરો</string>
+    <string name="rem_pick_time">સમય પસંદ કરો</string>
 
     <!-- Notification channels -->
     <string name="ch_reminders">રિમાઇન્ડર</string>

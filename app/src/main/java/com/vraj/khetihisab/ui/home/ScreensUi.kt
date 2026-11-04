@@ -1,5 +1,7 @@
 package com.vraj.khetihisab.ui.home
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -22,10 +24,8 @@ import androidx.compose.material3.AssistChipDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -242,11 +242,8 @@ fun ConfirmDialog(
     )
 }
 
-/** Navigates only if another module registered [route] (assets, reminders, reports …). */
-fun NavController.navigateIfExists(route: String): Boolean {
-    val exists = runCatching { graph.findNode(route) != null }.getOrDefault(false)
-    if (exists) navigate(route)
-    return exists
-}
-
-fun NavController.hasRoute(route: String): Boolean = runCatching { graph.findNode(route) != null }.getOrDefault(false)
+/**
+ * Navigates to [route] if any destination in the graph matches it (other modules register settings,
+ * profiles, reminders, panchang … later). Returns false, and does nothing, when no destination exists.
+ */
+fun NavController.navigateSafely(route: String): Boolean = runCatching { navigate(route) { launchSingleTop = true } }.isSuccess

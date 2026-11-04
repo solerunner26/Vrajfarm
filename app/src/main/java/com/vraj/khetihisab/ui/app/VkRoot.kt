@@ -26,6 +26,8 @@ import com.vraj.khetihisab.ui.assets.LendScreen
 import com.vraj.khetihisab.ui.assets.LendViewModel
 import com.vraj.khetihisab.ui.assets.RepoAssetsStore
 import com.vraj.khetihisab.ui.entry.EntryScreen
+import com.vraj.khetihisab.ui.home.homeGraph
+import com.vraj.khetihisab.ui.reminders.remindersGraph
 import com.vraj.khetihisab.ui.shopping.RepoShoppingStore
 import com.vraj.khetihisab.ui.shopping.ShoppingScreen
 import com.vraj.khetihisab.ui.shopping.ShoppingViewModel
@@ -33,7 +35,7 @@ import kotlinx.coroutines.launch
 
 object VkRoutes {
     const val HOME = "home"
-    const val ENTRY = "entry?kind={kind}"
+    const val ENTRY = "entry?kind={kind}&section={section}&farm={farm}&family={family}"
     const val SHOPPING = "shopping"
     const val ASSETS = "assets?remind={remind}"
     const val LEND = "lend?assetId={assetId}"
@@ -49,7 +51,13 @@ object VkRoutes {
  * Only the lead integrator edits this file (HANDOVER.md, Wave 2 contract).
  */
 @Composable
-fun VkRoot(container: AppContainer, activity: FragmentActivity, themePrefs: ThemePrefs) {
+fun VkRoot(
+    container: AppContainer,
+    activity: FragmentActivity,
+    themePrefs: ThemePrefs,
+    pendingDeepLink: kotlinx.coroutines.flow.StateFlow<android.content.Intent?> = kotlinx.coroutines.flow.MutableStateFlow(null),
+    onDeepLinkHandled: () -> Unit = {},
+) {
     val lockManager = container.lockManager
     val locked by lockManager.locked.collectAsStateWithLifecycle()
     val scope = rememberCoroutineScope()
@@ -66,19 +74,29 @@ fun VkRoot(container: AppContainer, activity: FragmentActivity, themePrefs: Them
     }
 
     val nav = rememberNavController()
-    NavHost(navController = nav, startDestination = VkRoutes.HOME) {
-        composable(VkRoutes.HOME) {
-            // Placeholder until the doc 05 Home dashboard is built; its tiles already link to Wave 2 screens.
-            HomePlaceholderScreen(
-                themeId = themePrefs.themeId,
-                onThemeChange = { id -> scope.launch { container.themeRepository.setTheme(id) } },
-                onOpen = { route -> nav.navigate(route) },
-            )
+    // Warm deep links (notification / widget taps while the app is open). Waits for unlock,
+    // because this code only runs once the lock screen has returned above.
+    val deepLink by pendingDeepLink.collectAsStateWithLifecycle()
+    androidx.compose.runtime.LaunchedEffect(deepLink) {
+        deepLink?.let { intent ->
+            runCatching { nav.handleDeepLink(intent) }
+            onDeepLinkHandled()
         }
+    }
+    NavHost(navController = nav, startDestination = VkRoutes.HOME) {
+        // Home (start), farms, farm/{id}, family, personal — doc 05/07/08/09.
+        homeGraph(nav)
+        // Reminders list + editor (doc 13); deep link vraj://reminders.
+        remindersGraph(nav)
 
         composable(
             VkRoutes.ENTRY,
-            arguments = listOf(navArgument("kind") { type = NavType.StringType; defaultValue = "expense" }),
+            arguments = listOf(
+                navArgument("kind") { type = NavType.StringType; defaultValue = "expense" },
+                navArgument("section") { type = NavType.StringType; nullable = true; defaultValue = null },
+                navArgument("farm") { type = NavType.LongType; defaultValue = -1L },
+                navArgument("family") { type = NavType.LongType; defaultValue = -1L },
+            ),
         ) {
             EntryScreen(onBack = { nav.popBackStack() }, onSaved = { nav.popBackStack() })
         }

@@ -48,6 +48,33 @@ object ReminderActions {
         WidgetRefresher.get(context).refreshNow()
     }
 
+    /** Undo of DONE / "ફરી ચાલુ કરો" (Reminders screen): back to active, alarms re-armed. */
+    suspend fun reopen(context: Context, id: Long) {
+        val repo = NotifyGraph.repos(context).reminders
+        repo.markUndone(id)
+        repo.byId(id)?.let { NotifyGraph.reminderScheduler(context).schedule(it) }
+        WidgetRefresher.get(context).refreshNow()
+    }
+
+    /**
+     * Add/edit sheet saved: drops every old alarm of [r] (including a snooze) and its shown
+     * notification, then arms the new ones. A due time in the past arms nothing (doc 13 edge case).
+     */
+    fun rearm(context: Context, r: ReminderEntity): List<ReminderScheduler.Scheduled> {
+        val scheduler = NotifyGraph.reminderScheduler(context)
+        scheduler.cancel(r.id)
+        VkNotify.cancel(context, ReminderNotifier.notificationId(r.id))
+        return scheduler.schedule(r)
+    }
+
+    /** Editor "કાઢી નાખો": soft delete + cancel alarms and notification. */
+    suspend fun delete(context: Context, id: Long) {
+        NotifyGraph.repos(context).reminders.softDelete(id)
+        NotifyGraph.reminderScheduler(context).cancel(id)
+        VkNotify.cancel(context, ReminderNotifier.notificationId(id))
+        WidgetRefresher.get(context).refreshNow()
+    }
+
     suspend fun snooze(context: Context, id: Long) {
         NotifyGraph.reminderScheduler(context).snooze(id)
         VkNotify.cancel(context, ReminderNotifier.notificationId(id))
