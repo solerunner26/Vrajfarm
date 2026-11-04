@@ -96,9 +96,17 @@
 | Reminders (13) | **DONE, wired** | route `reminders`, deep link `vraj://reminders`. Notification, widget and screen all use `ReminderActions.markDone`. |
 | Entry presets | **DONE** | `entry?kind=&section=&farm=&family=` |
 | Warm deep links | **DONE** | `MainActivity.onNewIntent`, then `VkRoot` `handleDeepLink`, after unlock |
-| Settings / Reports / Profiles / Help / Panchang calendar (04, 10, 14, 15) | **IN PROGRESS (Claude Wave 3B)** | Owns `ui/{settings,reports,profiles,help,panchang}`. Will expose `settingsGraph` (`ui/settings/INTEGRATION.md`). |
+| Settings + 8 sub-screens, Reports, Profiles, Help, Panchang calendar (04, 10, 14, 15) | **DONE, wired** | `settingsGraph`. Routes: `settings`, `settings/{panchang,backup,farms,family,crops,categories,security,templates}`, `reports?type=`, `profiles`, `help`, `panchang/calendar?epochDay=` (deep link `vraj://panchang/{epochDay}`). |
+| Daily Panchang dialog | **DONE, wired** | `PanchangAlertHost` is a Home overlay. Shows once a day; "રિમાઇન્ડર બનાવો" creates a reminder. `PanchangSource` now uses `PanchangAlertEngine`. |
+| Unused strings | **CLEANED** | Removed 176 unused string resources (old duplicates in `strings_screens.xml`). Widget labels used by the manifest were kept. |
 
-Unit tests: 141 run, 0 failed (Wave 3C run). Nothing has been run on a device yet.
+**All screens are built and wired.** `assembleDebug` OK. Unit tests: 164 run, 0 failed, 3 skipped on purpose. Instrumented tests compile. **Not yet run on a device or emulator.**
+
+**Known gaps:**
+- Entry has no edit route yet (Family long-press can only delete).
+- There is no backup *restore* (no API in `backup/`).
+- The Family year is fixed to Jan–Dec (open question 5).
+- The GoDaddy URL is still a placeholder (open question 6).
 
 ## Change log
 - **2026-11-04 (Claude, cleanup + animal husbandry):**

@@ -4,9 +4,7 @@
     <!-- WhatsApp (doc 12) -->
     <string name="as_wa_no_number">WhatsApp નંબર નથી</string>
     <string name="as_wa_share">મોકલો</string>
-    <string name="as_wa_templates">WhatsApp મેસેજ નમૂના</string>
     <string name="as_wa_late_line">(%d દિવસ મોડું થયું છે)</string>
-    <string name="as_wa_preview">WhatsApp પૂર્વાવલોકન</string>
 
     <!-- Shopping (doc 11) -->
     <string name="as_shop_title">ખરીદી યાદી</string>
@@ -68,7 +66,6 @@
     <string name="as_no_loans">કોઈ મિલકત ઉછીની નથી</string>
     <string name="as_no_assets">હજુ કોઈ મિલકત નથી</string>
     <string name="as_no_history">કંઈ મળ્યું નહીં</string>
-    <string name="as_open_shopping">ખરીદી યાદી</string>
     <string name="as_open_assets">મિલકત</string>
     <string name="as_close">બંધ કરો</string>
     <string name="as_delete">કાઢી નાખો</string>
@@ -87,7 +84,6 @@
     <string name="as_step_who">2 · કોણ લઈ જાય છે?</string>
     <string name="as_borrower_name">નામ</string>
     <string name="as_borrower_phone">WhatsApp નંબર</string>
-    <string name="as_pick_contact">સંપર્કમાંથી પસંદ કરો</string>
     <string name="as_step_asset">3 · કઈ મિલકત?</string>
     <string name="as_new_asset">+ નવી મિલકત</string>
     <string name="as_new_asset_title">નવી મિલકત</string>
@@ -114,12 +110,4 @@
     <string name="as_asset_name">મિલકતનું નામ</string>
 
     <!-- Notifications (doc 11 workers) -->
-    <string name="as_channel_assets">મિલકત ચેતવણી</string>
-    <string name="as_channel_assets_desc">ઉછીની મિલકત સમયસર પરત ન આવે ત્યારે</string>
-    <string name="as_channel_shopping">ખરીદી યાદી</string>
-    <string name="as_channel_shopping_desc">દર રવિવારે બાકી ખરીદીની યાદ</string>
-    <string name="as_notif_overdue_title">%s પરત નથી</string>
-    <string name="as_notif_overdue_text">%1$s · %2$d દિવસ મોડું</string>
-    <string name="as_shop_pending_notif">%d વસ્તુઓ ખરીદવાની બાકી</string>
-    <string name="as_shop_pending_more">…અને %d વધુ</string>
 </resources>

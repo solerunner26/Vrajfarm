@@ -8,7 +8,6 @@
     <string name="rem_high">જરૂરી</string>
     <string name="rem_normal">સામાન્ય</string>
     <string name="rem_done">DONE · પૂરું થયું</string>
-    <string name="rem_new">+ નવું રિમાઇન્ડર</string>
     <string name="rem_overdue">મુદત વીતી · %s</string>
     <string name="rem_tomorrow">આવતીકાલે · %s</string>
     <string name="rem_today">આજે %s</string>
@@ -50,7 +49,6 @@
     <string name="rem_reopened">ફરી ચાલુ કર્યું</string>
     <string name="rem_camera_denied">ફોટો માટે કેમેરા પરવાનગી આપો</string>
     <string name="rem_photo_busy">ફોટો તૈયાર થાય છે…</string>
-    <string name="rem_pick_date">તારીખ પસંદ કરો</string>
     <string name="rem_pick_time">સમય પસંદ કરો</string>
 
     <!-- Notification channels -->
@@ -76,8 +74,4 @@
     <string name="w_rem_empty">કોઈ બાકી કામ નથી</string>
     <string name="w_today_special">આજે %s</string>
     <string name="w_tomorrow_special">આવતીકાલે %s</string>
-    <string name="w_next_special">%1$s · %2$s</string>
-    <string name="w_shop_desc">ખરીદી બાકી · ટિક કરો</string>
-    <string name="w_rem_desc">જરૂરી કામ · DONE</string>
-    <string name="w_today_desc">આજની તારીખ અને તિથિ</string>
 </resources>

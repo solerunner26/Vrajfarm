@@ -47,7 +47,6 @@
     <string name="hm_next_year">આગલું વર્ષ</string>
     <string name="hm_crop_vigha">%1$s · %2$s</string>
     <string name="hm_change_crop_title">નવો પાક પસંદ કરો</string>
-    <string name="hm_crop_changed">પાક બદલાયો</string>
     <string name="hm_no_crops">પાક યાદી ખાલી છે</string>
 
     <!-- Family (doc 08) -->

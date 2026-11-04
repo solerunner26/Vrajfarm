@@ -28,6 +28,9 @@ import com.vraj.khetihisab.ui.assets.RepoAssetsStore
 import com.vraj.khetihisab.ui.entry.EntryScreen
 import com.vraj.khetihisab.ui.home.homeGraph
 import com.vraj.khetihisab.ui.reminders.remindersGraph
+import com.vraj.khetihisab.ui.panchang.PanchangAlertHost
+import com.vraj.khetihisab.ui.settings.SettingsRoutes
+import com.vraj.khetihisab.ui.settings.settingsGraph
 import com.vraj.khetihisab.ui.shopping.RepoShoppingStore
 import com.vraj.khetihisab.ui.shopping.ShoppingScreen
 import com.vraj.khetihisab.ui.shopping.ShoppingViewModel
@@ -85,9 +88,15 @@ fun VkRoot(
     }
     NavHost(navController = nav, startDestination = VkRoutes.HOME) {
         // Home (start), farms, farm/{id}, family, personal — doc 05/07/08/09.
-        homeGraph(nav)
+        // Home shows the once-a-day Panchang dialog (doc 10) as an overlay.
+        homeGraph(nav, homeOverlay = { onOpen ->
+            PanchangAlertHost(onOpenCalendar = { day -> onOpen(SettingsRoutes.calendar(day)) })
+        })
         // Reminders list + editor (doc 13); deep link vraj://reminders.
         remindersGraph(nav)
+        // Settings (+ master, backup, security, templates), reports, profiles, help,
+        // Panchang calendar (deep links vraj://panchang/…) — doc 04/10/14/15.
+        settingsGraph(nav, onOpenReminders = { nav.navigate("reminders") })
 
         composable(
             VkRoutes.ENTRY,

@@ -5,14 +5,8 @@
     <string name="app_wordmark">વ્રજ ખેતી હિસાબ</string>
 
     <!-- Panchang (doc 02) -->
-    <string name="vs_prefix">વિ.સં.</string>
-    <string name="paksha_sud">સુદ</string>
-    <string name="paksha_vad">વદ</string>
-    <string name="adhik">અધિક</string>
     <string name="panchang_today">આજનું પંચાંગ</string>
     <string name="panchang_sunrise">સૂર્યોદય %s</string>
-    <string name="panchang_sunset">સૂર્યાસ્ત %s</string>
-    <string name="panchang_tithi_ends">તિથિ સમાપ્તિ: %s</string>
     <string name="panchang_belief_footer">માન્યતા પ્રમાણે · સેટિંગ્સમાં બદલી શકો</string>
 
     <!-- Festival dialog (doc 10) -->
@@ -42,7 +36,6 @@
     <string name="lock_forgot_title">PIN ભૂલી ગયા?</string>
     <string name="lock_forgot_body">સુરક્ષા માટે PIN ફરીથી સેટ કરવાની કોઈ ઓનલાઇન રીત નથી. PIN બદલવા માટે ફોનના સેટિંગ્સમાંથી આ એપનો ડેટા સાફ કરો, પછી રાત્રિ બેકઅપમાંથી હિસાબ પાછો લાવો.</string>
     <string name="lock_forgot_ok">સમજાયું</string>
-    <string name="lock_open_home">હોમ ખોલો</string>
     <string name="lock_bio_prompt_title">વ્રજ ખેતી હિસાબ ખોલો</string>
     <string name="lock_bio_prompt_negative">PIN વાપરો</string>
     <string name="lock_bio_enable_title">ફિંગરપ્રિન્ટ ચાલુ કરશો?</string>
@@ -52,16 +45,8 @@
     <string name="keypad_backspace">છેલ્લો અંક ભૂંસો</string>
 
     <!-- Settings (doc 04) -->
-    <string name="settings_title">સેટિંગ્સ</string>
-    <string name="settings_farms">ખેતર, વીઘા અને પાક</string>
-    <string name="settings_family">પરિવાર WhatsApp નંબર</string>
-    <string name="settings_categories">ખર્ચના પ્રકાર</string>
-    <string name="settings_lock">PIN + ફિંગરપ્રિન્ટ લોક</string>
-    <string name="vigha_not_set">વીઘા સેટ કરો</string>
 
     <!-- Theme picker (doc 01 §7) -->
-    <string name="settings_theme">થીમ</string>
-    <string name="settings_theme_follow_system">ફોનનો ડાર્ક મોડ અનુસરો</string>
     <string name="theme_green">વ્રજ લીલો</string>
     <string name="theme_mati">માટી</string>
     <string name="theme_akash">આકાશ</string>
@@ -81,7 +66,6 @@
     <string name="status_due_in">%d દિવસમાં</string>
     <string name="status_due_today">આજે</string>
     <string name="status_overdue">%d દિવસ મોડું</string>
-    <string name="photo_add">ફોટો</string>
 
     <!-- Placeholder Home (Wave 1; replaced by doc 05) -->
 </resources>
