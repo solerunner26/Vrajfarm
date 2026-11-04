@@ -16,7 +16,7 @@ import kotlinx.coroutines.flow.Flow
  */
 @Dao
 abstract class ProfileDao {
-    @Query("SELECT * FROM person_profile ORDER BY role")
+    @Query("SELECT * FROM person_profile ORDER BY CASE role WHEN 'OWNER' THEN 0 WHEN 'MANAGER_1' THEN 1 ELSE 2 END")
     abstract fun all(): Flow<List<PersonProfileEntity>>
 
     @Query("SELECT * FROM person_profile WHERE role=:role LIMIT 1")

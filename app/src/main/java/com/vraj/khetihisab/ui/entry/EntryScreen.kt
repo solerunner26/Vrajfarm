@@ -436,7 +436,7 @@ private fun AmountArea(form: EntryForm, onEvent: (EntryEvent) -> Unit) {
             VkCard(Modifier.fillMaxWidth()) {
                 Text(stringResource(R.string.scr_amount), style = MaterialTheme.typography.bodySmall, color = cs.onSurfaceVariant, maxLines = 1)
                 Text(
-                    "₹" + form.amountText.ifEmpty { "0" },
+                    "₹" + groupTyped(form.amountText.ifEmpty { "0" }),
                     style = MaterialTheme.typography.displaySmall,
                     color = cs.onSurface,
                     maxLines = 1,
@@ -562,4 +562,12 @@ fun EntryTile(
             )
         }
     }
+}
+
+/** Keypad text with Indian grouping on the whole-rupee part, keeping what was typed after "." ("4500" → "4,500"). */
+private fun groupTyped(text: String): String {
+    val dot = text.indexOf('.')
+    val whole = if (dot < 0) text else text.substring(0, dot)
+    val grouped = whole.toLongOrNull()?.let(com.vraj.khetihisab.ui.components.VkFormat::groupIndian) ?: whole
+    return if (dot < 0) grouped else grouped + text.substring(dot)
 }

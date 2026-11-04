@@ -1,5 +1,7 @@
 package com.vraj.khetihisab.ui.farms
 
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.runtime.getValue
 import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
@@ -108,17 +110,19 @@ fun FarmsScreen(
         }
         item(key = "year") {
             Row(pad.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                VkTextButton("‹ " + stringResource(R.string.hm_prev_year), { onShiftYear(-1) })
+                val prevCd = stringResource(R.string.hm_prev_year)
+                VkTextButton("‹", { onShiftYear(-1) }, Modifier.semantics { contentDescription = prevCd })
                 Text(
                     stringResource(R.string.hm_crop_year, SeasonRange.cropYearLabel(state.choice.cropYear)),
-                    style = MaterialTheme.typography.bodyLarge,
+                    style = MaterialTheme.typography.titleMedium,
                     color = cs.onSurfaceVariant,
                     textAlign = TextAlign.Center,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.weight(1f),
                 )
-                VkTextButton(stringResource(R.string.hm_next_year) + " ›", { onShiftYear(1) })
+                val nextCd = stringResource(R.string.hm_next_year)
+                VkTextButton("›", { onShiftYear(1) }, Modifier.semantics { contentDescription = nextCd })
             }
         }
         item(key = "summary") { SummaryCard(state, pad) }

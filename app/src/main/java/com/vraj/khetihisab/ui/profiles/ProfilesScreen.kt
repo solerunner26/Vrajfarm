@@ -196,6 +196,7 @@ fun ProfilesScreen(vm: ProfilesViewModel, onBack: () -> Unit) {
         val card = if (role == ProfileRole.OWNER) u.owner else u.managers.firstOrNull { it.role == role }
         val sheet = rememberModalBottomSheetState(skipPartiallyExpanded = true)
         ModalBottomSheet(onDismissRequest = { sheetRole = null }, sheetState = sheet) {
+        com.vraj.khetihisab.ui.components.VkSheetSystemBars()
             Column(
                 Modifier.fillMaxWidth().navigationBarsPadding().padding(start = 16.dp, end = 16.dp, bottom = 24.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp),

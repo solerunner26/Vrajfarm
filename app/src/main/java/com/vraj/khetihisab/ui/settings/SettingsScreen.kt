@@ -236,7 +236,7 @@ private fun BackupCard(s: SettingsUiState, onBackupNow: () -> Unit, onConfigure:
             Spacer(Modifier.width(12.dp))
             Column(Modifier.weight(1f)) {
                 Text(stringResource(R.string.st_backup_title), style = MaterialTheme.typography.titleMedium, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                Text(stringResource(R.string.st_backup_sub), style = MaterialTheme.typography.bodySmall, color = cs.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                Text(stringResource(R.string.st_backup_sub), style = MaterialTheme.typography.bodySmall, color = cs.onSurfaceVariant, maxLines = 2, overflow = TextOverflow.Ellipsis)
             }
             val (bg, fg) = when (state) {
                 BackupState.OK -> cs.primaryContainer to cs.onPrimaryContainer

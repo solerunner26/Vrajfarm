@@ -106,6 +106,7 @@ internal fun ReminderEditorSheet(d: ReminderDraft, vm: RemindersViewModel) {
         containerColor = cs.surfaceContainerLowest,
         shape = RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp),
     ) {
+        com.vraj.khetihisab.ui.components.VkSheetSystemBars()
         Column(
             Modifier
                 .fillMaxWidth()
