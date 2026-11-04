@@ -8,6 +8,7 @@ import com.vraj.khetihisab.data.entity.TransactionEntity
 import com.vraj.khetihisab.data.model.CategoryTotal
 import com.vraj.khetihisab.data.model.FarmPnlRow
 import com.vraj.khetihisab.data.model.MonthTotal
+import com.vraj.khetihisab.data.model.SectionTotals
 import com.vraj.khetihisab.data.model.Totals
 import com.vraj.khetihisab.data.model.UdhaarSummary
 import kotlinx.coroutines.flow.Flow
@@ -72,6 +73,42 @@ interface TxnDao {
     FROM txn WHERE isDeleted=0 AND section='FARM' AND farmId IS NULL AND date BETWEEN :from AND :to""",
     )
     fun unassignedFarmTotals(from: LocalDate, to: LocalDate): Flow<Totals>
+
+    // ---------------- ANIMAL HUSBANDRY (પશુપાલન) — own card, counted in business P&L ----------------
+
+    @Query(
+        """SELECT COALESCE(SUM(CASE WHEN type='INCOME' THEN amountPaise END),0) income,
+      COALESCE(SUM(CASE WHEN type='EXPENSE' THEN amountPaise END),0) expense
+    FROM txn WHERE isDeleted=0 AND section='ANIMAL' AND date BETWEEN :from AND :to""",
+    )
+    fun animalTotals(from: LocalDate, to: LocalDate): Flow<Totals>
+
+    @Query(
+        """SELECT c.name, SUM(t.amountPaise) total FROM txn t JOIN category_master c ON c.id=t.categoryId
+    WHERE t.isDeleted=0 AND t.section='ANIMAL' AND t.type='EXPENSE' AND t.date BETWEEN :from AND :to
+    GROUP BY c.id ORDER BY total DESC""",
+    )
+    fun animalByCategory(from: LocalDate, to: LocalDate): Flow<List<CategoryTotal>>
+
+    // ---------------- BUSINESS P&L — every section except PERSONAL ----------------
+    // income  = INCOME in FARM + ANIMAL (+ any other non-personal section)
+    // expense = EXPENSE in FARM + ANIMAL + GENERAL, plus FAMILY ADVANCE (farm managers' salary/ઉપાડ)
+
+    @Query(
+        """SELECT COALESCE(SUM(CASE WHEN type='INCOME' THEN amountPaise END),0) income,
+      COALESCE(SUM(CASE WHEN type IN ('EXPENSE','ADVANCE') THEN amountPaise END),0) expense
+    FROM txn WHERE isDeleted=0 AND section!='PERSONAL' AND date BETWEEN :from AND :to""",
+    )
+    fun businessTotals(from: LocalDate, to: LocalDate): Flow<Totals>
+
+    @Query(
+        """SELECT section,
+      COALESCE(SUM(CASE WHEN type='INCOME' THEN amountPaise END),0) incomePaise,
+      COALESCE(SUM(CASE WHEN type IN ('EXPENSE','ADVANCE') THEN amountPaise END),0) expensePaise
+    FROM txn WHERE isDeleted=0 AND section!='PERSONAL' AND date BETWEEN :from AND :to
+    GROUP BY section""",
+    )
+    fun businessBySection(from: LocalDate, to: LocalDate): Flow<List<SectionTotals>>
 
     // ---------------- GENERAL (own card, never allocated to farms) ----------------
 

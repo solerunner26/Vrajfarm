@@ -16,7 +16,7 @@
 ### Reports
 | # | Gujarati title | Content | Filters |
 |---|---|---|---|
-| 1 | દૈનિક હિસાબ | all entries of a day, grouped by section, with day totals | date (default today) |
+| 1 | દૈનિક હિસાબ | all entries of a day, grouped by section (ખેતી, પશુપાલન, પરિવાર, સામાન્ય, અંગત), with a "કુલ (અંગત સિવાય)" business-P&L row | date (default today) |
 | 2 | ખેતરવાર નફો-નુકસાન | per farm: income, expense, net; then a grand total | season / range |
 | 3 | વીઘા સ્કોરકાર્ડ | the ranking table (doc 07) | season |
 | 4 | પરિવાર A/B ઉપાડ | month-wise advances for A and B, with year totals | year |

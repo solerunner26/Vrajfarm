@@ -20,7 +20,10 @@ Offline-first Gujarati farm and personal accounting app for Android, built for t
 There is no Firebase or Supabase. All data lives in local Room, plus a nightly upload to the owner's GoDaddy PHP endpoint. The database has **13 entities** (see handover/03).
 
 ## Non-negotiable rules
-- Personal (`PERSONAL`) money never enters Farm P&L queries. Add a DAO test for every new P&L query.
+- There are 5 account sections: FARM, ANIMAL (પશુપાલન, animal husbandry: cows, buffaloes), FAMILY (farm managers' salary/ઉપાડ), GENERAL, PERSONAL.
+  - The **business P&L** (`businessTotals`) counts every section except PERSONAL. Expenses include FAMILY advances.
+  - The per-farm P&L and the Vigha scorecard use FARM only.
+  - Personal (`PERSONAL`) money never enters any P&L. Add a DAO test for every new P&L query.
 - Profit-per-Vigha returns 0 when Vigha is 0. Money is stored as `Long` paise.
 - APMC: `TotalMann = Mann + ExtraKg / 20.0`, and `TotalAmount = TotalMann * RatePerMann`.
 - There are 5 user-selectable themes (green, mati, akash, kesar, night). Only colour tokens differ between them (handover/01 §7). Buttons, chips and tabs are always single-line (handover/01 §8, doc 17).

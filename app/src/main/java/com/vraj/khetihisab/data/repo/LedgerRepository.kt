@@ -76,6 +76,16 @@ class LedgerRepository(
     fun farmTotals(range: DateRange): Flow<Totals> = dao.farmTotals(range.from, range.to)
     fun unassignedFarmTotals(range: DateRange): Flow<Totals> = dao.unassignedFarmTotals(range.from, range.to)
 
+    // ---- animal husbandry (પશુપાલન) ----
+    fun animalTotals(range: DateRange): Flow<Totals> = dao.animalTotals(range.from, range.to)
+    fun animalByCategory(range: DateRange): Flow<List<CategoryTotal>> = dao.animalByCategory(range.from, range.to)
+
+    // ---- business P&L: everything except PERSONAL ----
+    /** Overall profit/loss: farm + animal husbandry + general + farm managers' advances. */
+    fun businessTotals(range: DateRange): Flow<Totals> = dao.businessTotals(range.from, range.to)
+    fun businessBySection(range: DateRange): Flow<List<com.vraj.khetihisab.data.model.SectionTotals>> =
+        dao.businessBySection(range.from, range.to)
+
     // ---- general ----
     fun generalExpense(range: DateRange): Flow<Long> = dao.generalExpense(range.from, range.to)
 

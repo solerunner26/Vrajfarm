@@ -26,8 +26,10 @@ Home is the owner's command centre after unlock. It shows today's date and tithi
    1. `VkCard(tone = Error)` "ઉધાર બાકી". Two stat tiles, દેવાના બાકી and લેવાના બાકી, a count chip, and `VkTonalButton("ચૂકતે કરો")` that opens the `PendingUdhaarSheet` (a list with a Settle button per row).
    2. `VkCard(tone = Neutral, border = error)` for each overdue loan, at most 2 (then "વધુ N"). Shows the borrower photo (56dp, rounded 12), "{asset} પરત નથી", "{borrower} · પરત {date}", `VkStatusBadge(Overdue(days))` and a WhatsApp `FilledTonalIconButton` (60dp) that calls `WhatsAppLauncher.loanReminder(loan)` (doc 12).
    3. Urgent reminders: `VkListRow` for each HIGH reminder due within 48 h, at most 2.
-3. **`VkSectionTitle("વિભાગો")`** and the 5 section cards. All are `VkCard`. Each has a 40dp icon, a 22sp title and a summary. They differ only by icon, never by colour.
+3. **`VkSectionTitle("વિભાગો")`** and the section cards. All are `VkCard`. Each has a 40dp icon, a 22sp title and a summary. They differ only by icon, never by colour.
+   - Full-width **કુલ નફો-નુકસાન** (business P&L, added 2026-11-04): `LedgerRepository.businessTotals`. It has three stat columns, આવક / ખર્ચ / ચોખ્ખો નફો, and the caption "ખેતી + પશુપાલન + સામાન્ય + મેનેજર ઉપાડ · અંગત સિવાય". Tapping it opens a breakdown sheet from `businessBySection`.
    - Full-width **૮ ખેતર હિસાબ**: three stat columns, આવક / ખર્ચ / ચોખ્ખો નફો (net in primary, or error if negative), and a season chip.
+   - Full-width **પશુપાલન** (`ic_vk_animal`): "દૂધ ₹… · ખર્ચ ₹…" plus the month net, from `animalTotals`.
    - 2×2 grid:
      - **પરિવાર A/B ઉપાડ**: "A ₹12,000 · B ₹8,500" for the current month
      - **સામાન્ય ખેતી ખર્ચ**: "લાઇટ · પાણી · CCTV" + month total

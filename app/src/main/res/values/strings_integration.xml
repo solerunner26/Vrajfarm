@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Widget picker labels (doc 13). Owner: lead integrator. -->
+<resources>
+    <string name="wg_today_name">આજનો હિસાબ</string>
+    <string name="wg_today_desc">આજની આવક-જાવક અને તિથિ</string>
+    <string name="wg_reminders_name">રિમાઇન્ડર</string>
+    <string name="wg_reminders_desc">બાકી રિમાઇન્ડર, એક ટૅપમાં પૂરું</string>
+    <string name="wg_shopping_name">ખરીદી યાદી</string>
+    <string name="wg_shopping_desc">ખરીદવાની બાકી વસ્તુઓ</string>
+</resources>

@@ -53,6 +53,14 @@ object SeedData {
 
         add(CategorySeed("પાક વેચાણ", AccountSection.FARM, TxnType.INCOME))
 
+        // પશુપાલન (animal husbandry): counted in the business P&L like FARM.
+        listOf("ઘાસચારો", "ખાણ-દાણ", "પશુ દવા / ડૉક્ટર", "પશુ ખરીદી", "અન્ય પશુ ખર્ચ").forEach {
+            add(CategorySeed(it, AccountSection.ANIMAL, TxnType.EXPENSE))
+        }
+        listOf("દૂધ વેચાણ", "પશુ વેચાણ").forEach {
+            add(CategorySeed(it, AccountSection.ANIMAL, TxnType.INCOME))
+        }
+
         listOf("લાઇટ બિલ", "પાણી વ્યવસ્થા", "CCTV", "રિપેરિંગ").forEach {
             add(CategorySeed(it, AccountSection.GENERAL, TxnType.EXPENSE))
         }

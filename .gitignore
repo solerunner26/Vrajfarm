@@ -26,3 +26,5 @@ local.properties
 *.keystore
 secrets.properties
 backup_config.php
+tools/build-log.txt
+tools/device-log.txt

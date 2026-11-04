@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Nightly backup and PDF reports (doc 15). Owner: backup-reports. -->
+<resources>
+    <!-- Backup errors (BackupFailure.messageRes) -->
+    <string name="bk_err_not_configured">બેકઅપ સરનામું કે ચાવી હજુ સેટ નથી</string>
+    <string name="bk_err_auth">બેકઅપ ચાવી ખોટી છે</string>
+    <string name="bk_err_https">સર્વર ફક્ત https સ્વીકારે છે</string>
+    <string name="bk_too_big">બેકઅપ ફાઇલ બહુ મોટી છે</string>
+    <string name="bk_err_rate">ઘણા પ્રયત્નો થયા, થોડી વાર પછી ફરી થશે</string>
+    <string name="bk_err_transfer">મોકલતી વખતે ફાઇલ અધૂરી રહી, ફરી પ્રયત્ન થશે</string>
+    <string name="bk_err_bad_request">સર્વરે બેકઅપ સ્વીકાર્યો નહીં</string>
+    <string name="bk_err_wrong_url">બેકઅપ સરનામું ખોટું છે</string>
+    <string name="bk_err_server_config">સર્વરનું સેટિંગ અધૂરું છે</string>
+    <string name="bk_err_disk">સર્વર પર જગ્યા ભરાઈ ગઈ છે</string>
+    <string name="bk_err_server">સર્વરમાં ખામી, ફરી પ્રયત્ન થશે</string>
+    <string name="bk_err_network">ઇન્ટરનેટ નથી, ફરી પ્રયત્ન થશે</string>
+    <string name="bk_err_local">ફોનમાં બેકઅપ ફાઇલ બની નહીં</string>
+    <string name="bk_err_unknown">અજાણી ખામી, ફરી પ્રયત્ન થશે</string>
+
+    <!-- Notifications -->
+    <string name="bk_channel_name">બેકઅપ</string>
+    <string name="bk_channel_desc">રાત્રિ બેકઅપની સ્થિતિ</string>
+    <string name="bk_notif_ok_title">બેકઅપ ફરી ચાલુ થયો</string>
+    <string name="bk_notif_ok_body">બધો હિસાબ સર્વર પર સાચવાઈ ગયો</string>
+    <string name="bk_notif_failed_title">બેકઅપ નિષ્ફળ</string>
+    <string name="bk_notif_running">બેકઅપ ચાલુ છે…</string>
+
+    <!-- Home pill -->
+    <string name="bk_pill_ok">બેકઅપ ઠીક</string>
+    <string name="bk_pill_failed">બેકઅપ નિષ્ફળ</string>
+    <string name="bk_pill_stale">બેકઅપ જૂનો</string>
+    <string name="bk_pill_never">બેકઅપ બાકી</string>
+
+    <!-- Report titles (ReportType) -->
+    <string name="rep_daily">દૈનિક હિસાબ</string>
+    <string name="rep_farm_pnl">ખેતરવાર નફો-નુકસાન</string>
+    <string name="rep_vigha">વીઘા સ્કોરકાર્ડ</string>
+    <string name="rep_family">પરિવાર A/B ઉપાડ</string>
+    <string name="rep_personal">અંગત હિસાબ</string>
+    <string name="rep_udhaar">ઉધાર બાકી</string>
+    <string name="rep_assets">મિલકત અને ઉછીનું</string>
+</resources>

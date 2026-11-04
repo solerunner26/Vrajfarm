@@ -35,6 +35,7 @@ const icons = {
 };
 
 // v2: one hue family (Vraj Green) in two tones for every icon.
+icons.animal = [0, 0, 0, '<path d="M30 33c-7-1-12-7-12-15 7 0 13 5 15 12z" fill="url(#b)"/><path d="M66 33c7-1 12-7 12-15-7 0-13 5-15 12z" fill="url(#b)"/><path d="M29 42c-8 1-15-2-18-7 7-4 14-3 19 1z" fill="url(#b)"/><path d="M67 42c8 1 15-2 18-7-7-4-14-3-19 1z" fill="url(#b)"/><path d="M30 38c0-9 8-15 18-15s18 6 18 15v16c0 4-1 7-3 9H33c-2-2-3-5-3-9z" fill="url(#a)"/><circle cx="40" cy="46" r="3.5" fill="#FFFFFF"/><circle cx="56" cy="46" r="3.5" fill="#FFFFFF"/><path d="M36 60h24a9 9 0 0 1 9 9 11 11 0 0 1-11 11H38a11 11 0 0 1-11-11 9 9 0 0 1 9-9z" fill="url(#b)"/><circle cx="42" cy="70" r="3" fill="#FFFFFF"/><circle cx="54" cy="70" r="3" fill="#FFFFFF"/>'];
 icons.moon = [0, 0, 0, '<path d="M58 14a34 34 0 1 0 24 58A28 28 0 0 1 58 14z" fill="url(#a)"/><circle cx="70" cy="28" r="5" fill="url(#b)"/><circle cx="80" cy="44" r="3.5" fill="url(#b)"/>'];
 icons.diya = [0, 0, 0, '<path d="M48 14c-8 10-10 17-10 22a10 10 0 0 0 20 0c0-5-2-12-10-22z" fill="url(#b)"/><path d="M12 54h72c0 15-16 26-36 26S12 69 12 54z" fill="url(#a)"/><rect x="40" y="78" width="16" height="6" rx="3" fill="url(#a)"/>'];
 const T = ['#E6F3EB', '#CBE6D6'], A = ['#2E7D5B', '#174A37'], B = ['#9ED3B3', '#5FA580'];

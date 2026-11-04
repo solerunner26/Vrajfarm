@@ -240,8 +240,23 @@ Ship `version = 1`. Every schema change after release must:
 
 **`fallbackToDestructiveMigration()` is forbidden**, because this is the owner's ledger. Before any migration runs, `BackupScheduler` (doc 15) takes an on-device copy of the DB file.
 
+## Animal husbandry section (added 2026-11-04)
+- **Enum:** `AccountSection` is now `FARM, ANIMAL, FAMILY, GENERAL, PERSONAL`. `ANIMAL` = પશુપાલન (cows, buffaloes). It is stored by name, so there is **no schema change and no migration**.
+- **Seeded categories:**
+  - ANIMAL/EXPENSE: ઘાસચારો, ખાણ-દાણ, પશુ દવા / ડૉક્ટર, પશુ ખરીદી, અન્ય પશુ ખર્ચ
+  - ANIMAL/INCOME: દૂધ વેચાણ, પશુ વેચાણ
+  - That makes 29 categories in total.
+- **New queries (TxnDao / LedgerRepository):**
+  - `animalTotals`, `animalByCategory`
+  - `businessTotals(from, to)`: income = INCOME rows, expense = EXPENSE + ADVANCE rows, `section != 'PERSONAL'`
+  - `businessBySection(from, to)`: the same totals, grouped by section
+  - Pure twins: `LedgerMath.countsInBusinessPnl(section)` and `LedgerMath.businessTotals(entries)`
+- **Tests:** `BusinessPnlTest` (JVM) and `AppDaoTest.businessPnlCountsAnimalHusbandryButNotPersonal`.
+- **Existing dev installs** seeded before this change won't have the ANIMAL categories, because seeding only runs on create. Clear the app data once. The app is not in production yet.
+
 ## Isolation rules (tested)
-1. Farm P&L and farm totals filter `section='FARM'` only. PERSONAL, FAMILY and GENERAL rows never change farm profit.
+0. **Business P&L = everything except PERSONAL:** FARM + ANIMAL + GENERAL expenses + FAMILY advances (farm managers' salary). PERSONAL is never part of any P&L.
+1. Farm P&L and farm totals filter `section='FARM'` only. PERSONAL, ANIMAL, FAMILY and GENERAL rows never change the per-farm profit or the Vigha scorecard. Those sections appear in the business P&L instead.
 2. GENERAL expenses appear on their own card. They are not allocated to farms.
 3. Personal shopping items (`tab=PERSONAL`) are never counted in farm reports.
 4. Family A and Family B totals filter by `familyId`.

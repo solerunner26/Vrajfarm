@@ -31,6 +31,7 @@
 
         <activity
             android:name=".MainActivity"
+            android:launchMode="singleTop"
             android:exported="true"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustResize"
@@ -39,6 +40,12 @@
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            <!-- vraj://shopping, vraj://reminders, vraj://panchang/{day} from notifications and widgets -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:scheme="vraj" />
             </intent-filter>
         </activity>
 
@@ -51,6 +58,49 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/file_paths" />
         </provider>
+        <!-- ===== Wave 2 integration (lead) ===== -->
+        <!-- Reminders + Panchang alarms (doc 13 / 10): explicit intents only, not exported. -->
+        <receiver android:name=".notify.ReminderReceiver" android:exported="false" />
+        <receiver android:name=".notify.ReminderActionReceiver" android:exported="false" />
+        <receiver android:name=".notify.PanchangAlarmReceiver" android:exported="false" />
+        <receiver android:name=".notify.CreatePanchangReminderReceiver" android:exported="false" />
+        <receiver android:name=".widget.TodayMidnightReceiver" android:exported="false" />
+
+        <!-- Re-arm alarms after boot, clock / zone change, update, exact-alarm permission change. -->
+        <receiver android:name=".notify.BootReceiver" android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.TIME_SET" />
+                <action android:name="android.intent.action.TIMEZONE_CHANGED" />
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+                <action android:name="android.app.action.SCHEDULE_EXACT_ALARM_PERMISSION_STATE_CHANGED" />
+            </intent-filter>
+        </receiver>
+
+        <!-- Nightly backup 23:45 (doc 15) -->
+        <receiver android:name=".backup.BackupAlarmReceiver" android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.TIME_SET" />
+                <action android:name="android.intent.action.TIMEZONE_CHANGED" />
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+                <action android:name="android.app.action.SCHEDULE_EXACT_ALARM_PERMISSION_STATE_CHANGED" />
+            </intent-filter>
+        </receiver>
+
+        <!-- Glance widgets (doc 13) -->
+        <receiver android:name=".widget.TodayWidgetReceiver" android:exported="true" android:label="@string/wg_today_name">
+            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_today" />
+        </receiver>
+        <receiver android:name=".widget.ReminderWidgetReceiver" android:exported="true" android:label="@string/wg_reminders_name">
+            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_reminders" />
+        </receiver>
+        <receiver android:name=".widget.ShoppingListWidgetReceiver" android:exported="true" android:label="@string/wg_shopping_name">
+            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_shopping" />
+        </receiver>
     </application>
 
     <queries>

@@ -48,6 +48,18 @@ data class CategoryTotal(
     val total: Long,
 )
 
+/**
+ * One section's share of the business P&L. Expense includes FAMILY ADVANCE (farm managers' salary/ઉપાડ).
+ * PERSONAL never appears here.
+ */
+data class SectionTotals(
+    val section: com.vraj.khetihisab.data.entity.AccountSection,
+    val incomePaise: Long,
+    val expensePaise: Long,
+) {
+    val netPaise: Long get() = incomePaise - expensePaise
+}
+
 /** Raw month bucket from SQL; [yearMonth] is "yyyy-MM". */
 data class MonthTotal(
     val yearMonth: String,

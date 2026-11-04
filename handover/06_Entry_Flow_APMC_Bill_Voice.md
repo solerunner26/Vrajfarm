@@ -4,7 +4,7 @@
 
 ## Purpose
 Record any money movement in 3 taps with big buttons that work outdoors:
-1. Choose the **section** (ખેતર / પરિવાર / સામાન્ય / અંગત).
+1. Choose the **section** (ખેતર / પશુપાલન / પરિવાર / સામાન્ય / અંગત).
 2. Choose the **target** (the farm, the family or the category).
 3. Enter the **amount** and payment status, then save.
 
@@ -19,7 +19,7 @@ Crop sales use the APMC Mann calculator. A bill can be photographed, and a note 
 ## Screen (EntryScreen) — artboard 03
 1. `VkTopHeader("નવી એન્ટ્રી", onBack)`, with a trailing mic `FilledTonalIconButton` (56dp).
 2. `VkSegmented` with **+ આવક / વેચાણ** and **− ખર્ચ / ઉપાડ**. Initial value from the nav argument.
-3. "ટેપ 1 · વિભાગ": 4 `VkChip` tiles (icon 28dp + label, 64dp tall, 4-column grid): ખેતર, પરિવાર, સામાન્ય, અંગત.
+3. "ટેપ 1 · વિભાગ": 5 tiles (icon 28dp + label, 64dp tall) in **two rows of 3** so labels never squeeze: ખેતર, પશુપાલન, પરિવાર / સામાન્ય, અંગત. પશુપાલન (ANIMAL, `ic_vk_animal`) shows its category chips in tap 2, like GENERAL.
 4. "ટેપ 2". Contents depend on the section:
    - FARM: 8 farm tiles (4×2) showing "ખેતર N" and the active crop, then a horizontal row of category chips for the selected type.
    - FAMILY: A / B tiles. The type is forced to `ADVANCE` and the label reads "ઉપાડ".

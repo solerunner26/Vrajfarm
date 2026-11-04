@@ -70,6 +70,38 @@ class AppDaoTest {
         assertEquals(1_200_00L, txn.personalTotals(from, to).first().expense)
     }
 
+    // ---------------- business P&L: all sections except PERSONAL ----------------
+
+    @Test fun businessPnlCountsAnimalHusbandryButNotPersonal() = runBlocking<Unit> {
+        val farmId = db.masterDao().insertFarm(farm("ખેતર 1"))
+        val famId = db.masterDao().insertFamily(family("A"))
+        val txn = db.txnDao()
+        txn.insert(txn(AccountSection.FARM, TxnType.INCOME, 48_800, farmId = farmId))
+        txn.insert(txn(AccountSection.FARM, TxnType.EXPENSE, 7_350, farmId = farmId))
+        txn.insert(txn(AccountSection.ANIMAL, TxnType.INCOME, 12_000))   // દૂધ વેચાણ
+        txn.insert(txn(AccountSection.ANIMAL, TxnType.EXPENSE, 4_500))   // ઘાસચારો
+        txn.insert(txn(AccountSection.FAMILY, TxnType.ADVANCE, 5_000, familyId = famId))
+        txn.insert(txn(AccountSection.GENERAL, TxnType.EXPENSE, 3_420))
+        txn.insert(txn(AccountSection.PERSONAL, TxnType.EXPENSE, 9_999))
+        txn.insert(txn(AccountSection.PERSONAL, TxnType.INCOME, 35_000))
+
+        val b = txn.businessTotals(from, to).first()
+        assertEquals(60_800_00L, b.income)
+        assertEquals(20_270_00L, b.expense)
+        assertEquals(40_530_00L, b.net)
+
+        val bySection = txn.businessBySection(from, to).first().associateBy { it.section }
+        assertTrue(AccountSection.PERSONAL !in bySection)
+        assertEquals(12_000_00L, bySection.getValue(AccountSection.ANIMAL).incomePaise)
+        assertEquals(4_500_00L, bySection.getValue(AccountSection.ANIMAL).expensePaise)
+        assertEquals(5_000_00L, bySection.getValue(AccountSection.FAMILY).expensePaise)
+
+        val animal = txn.animalTotals(from, to).first()
+        assertEquals(7_500_00L, animal.net)
+        // Animal rows never leak into the per-farm P&L.
+        assertEquals(41_450_00L, txn.farmPnl(from, to).first().single().netPaise)
+    }
+
     @Test fun familyAndGeneralNeverChangeFarmProfit() = runBlocking<Unit> {
         val farmId = db.masterDao().insertFarm(farm("ખેતર 1"))
         val famId = db.masterDao().insertFamily(family("A"))

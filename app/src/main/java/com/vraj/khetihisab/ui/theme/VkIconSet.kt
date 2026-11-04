@@ -15,8 +15,24 @@ internal class VkIconPart(
     val rotate: Float = 0f,
 )
 
-/** The 24 two-tone `ic_vk_*` icons (96×96 viewport). Draw with [VkIconImage]; never tint. */
+/** The 25 two-tone `ic_vk_*` icons (96×96 viewport). Draw with [VkIconImage]; never tint. */
 enum class VkIcon(internal val resName: String, internal val parts: List<VkIconPart>) {
+    ANIMAL(
+        "ic_vk_animal",
+        listOf(
+            VkIconPart("M28,0H68A28,28 0 0 1 96,28V68A28,28 0 0 1 68,96H28A28,28 0 0 1 0,68V28A28,28 0 0 1 28,0Z", VkInk.T),
+            VkIconPart("M30 33c-7-1-12-7-12-15 7 0 13 5 15 12z", VkInk.B),
+            VkIconPart("M66 33c7-1 12-7 12-15-7 0-13 5-15 12z", VkInk.B),
+            VkIconPart("M29 42c-8 1-15-2-18-7 7-4 14-3 19 1z", VkInk.B),
+            VkIconPart("M67 42c8 1 15-2 18-7-7-4-14-3-19 1z", VkInk.B),
+            VkIconPart("M30 38c0-9 8-15 18-15s18 6 18 15v16c0 4-1 7-3 9H33c-2-2-3-5-3-9z", VkInk.A),
+            VkIconPart("M36.5,46A3.5,3.5 0 1 0 43.5,46A3.5,3.5 0 1 0 36.5,46Z", VkInk.H),
+            VkIconPart("M52.5,46A3.5,3.5 0 1 0 59.5,46A3.5,3.5 0 1 0 52.5,46Z", VkInk.H),
+            VkIconPart("M36 60h24a9 9 0 0 1 9 9 11 11 0 0 1-11 11H38a11 11 0 0 1-11-11 9 9 0 0 1 9-9z", VkInk.B),
+            VkIconPart("M39,70A3,3 0 1 0 45,70A3,3 0 1 0 39,70Z", VkInk.H),
+            VkIconPart("M51,70A3,3 0 1 0 57,70A3,3 0 1 0 51,70Z", VkInk.H),
+        ),
+    ),
     ASSET(
         "ic_vk_asset",
         listOf(

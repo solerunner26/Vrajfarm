@@ -10,6 +10,27 @@ import kotlin.math.roundToLong
 
 /** Pure money / date helpers for the data layer. Unit-tested on the JVM. */
 object LedgerMath {
+
+    /** Every section except PERSONAL is part of the business P&L (FARM, ANIMAL, FAMILY, GENERAL). */
+    fun countsInBusinessPnl(section: com.vraj.khetihisab.data.entity.AccountSection): Boolean =
+        section != com.vraj.khetihisab.data.entity.AccountSection.PERSONAL
+
+    /**
+     * In-memory twin of `TxnDao.businessTotals` (used by reports and tests):
+     * income = INCOME rows, expense = EXPENSE + ADVANCE rows, PERSONAL and deleted rows skipped.
+     */
+    fun businessTotals(entries: List<com.vraj.khetihisab.data.entity.TransactionEntity>): com.vraj.khetihisab.data.model.Totals {
+        var income = 0L
+        var expense = 0L
+        entries.filter { !it.isDeleted && countsInBusinessPnl(it.section) }.forEach {
+            when (it.type) {
+                com.vraj.khetihisab.data.entity.TxnType.INCOME -> income += it.amountPaise
+                com.vraj.khetihisab.data.entity.TxnType.EXPENSE,
+                com.vraj.khetihisab.data.entity.TxnType.ADVANCE -> expense += it.amountPaise
+            }
+        }
+        return com.vraj.khetihisab.data.model.Totals(income, expense)
+    }
     val IST: ZoneId = ZoneId.of("Asia/Kolkata")
 
     /** Profit (paise) per vigha. Returns 0 when the area is 0 (or negative / NaN) — never divides by zero. */

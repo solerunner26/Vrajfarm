@@ -1,0 +1,303 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- compose-screens (docs 05–10 UI, 14). All keys are prefixed scr_ to avoid clashes with other modules. -->
+<resources>
+    <!-- Common -->
+    <string name="scr_today_chip">આજે · %s</string>
+    <string name="scr_save">સાચવો</string>
+    <string name="scr_cancel">રદ કરો</string>
+    <string name="scr_ok">બરાબર</string>
+    <string name="scr_delete">કાઢી નાખો</string>
+    <string name="scr_edit">સુધારો</string>
+    <string name="scr_add">ઉમેરો</string>
+    <string name="scr_close">બંધ કરો</string>
+    <string name="scr_month_pick">મહિનો પસંદ કરો</string>
+    <string name="scr_saved">એન્ટ્રી સચવાઈ ગઈ</string>
+    <string name="scr_undo">પાછું લો</string>
+    <string name="scr_view_bill">પાવતી જુઓ</string>
+    <string name="scr_pending_badge">ઉધાર</string>
+    <string name="scr_none_dash">—</string>
+    <string name="scr_farm_deleted">ખેતર કાઢી નાખેલ</string>
+    <string name="scr_family_x">પરિવાર %s</string>
+    <string name="scr_season_kharif">ખરીફ %d</string>
+    <string name="scr_season_rabi">રવી %d</string>
+    <string name="scr_season_summer">ઉનાળુ %d</string>
+    <string name="scr_full_year">આખું વર્ષ</string>
+    <string name="scr_income">આવક</string>
+    <string name="scr_expense">ખર્ચ</string>
+    <string name="scr_advance">ઉપાડ</string>
+    <string name="scr_net_profit">ચોખ્ખો નફો</string>
+    <string name="scr_vigha_value">%s વીઘા</string>
+    <string name="scr_vigha_not_set">વીઘા સેટ કરો</string>
+    <string name="scr_deleted">એન્ટ્રી કાઢી નાખી</string>
+    <string name="scr_delete_entry_title">આ એન્ટ્રી કાઢી નાખશો?</string>
+
+    <!-- Home (doc 05) -->
+    <string name="scr_home_greeting">નમસ્તે, %s</string>
+    <string name="scr_home_upcoming">આગામી તિથિ અને પર્વ</string>
+    <string name="scr_home_open_calendar">કેલેન્ડર જુઓ</string>
+    <string name="scr_home_attention">ધ્યાન આપો</string>
+    <string name="scr_udhaar_title">ઉધાર બાકી</string>
+    <string name="scr_udhaar_count">%d એન્ટ્રી</string>
+    <string name="scr_udhaar_payable">દેવાના બાકી</string>
+    <string name="scr_udhaar_receivable">લેવાના બાકી</string>
+    <string name="scr_udhaar_settle">ચૂકતે કરો</string>
+    <string name="scr_settled">ચૂકતે થયું</string>
+    <string name="scr_loan_not_returned">%s પરત નથી</string>
+    <string name="scr_loan_with">%1$s પાસે · પરત %2$s</string>
+    <string name="scr_more_n">વધુ %d</string>
+    <string name="scr_home_accounts">હિસાબ</string>
+    <string name="scr_sec_farms">૮ ખેતર હિસાબ</string>
+    <string name="scr_sec_family">પરિવાર ઉપાડ</string>
+    <string name="scr_sec_general">સામાન્ય ખર્ચ</string>
+    <string name="scr_sec_personal">અંગત / ઘર</string>
+    <string name="scr_sec_shop">ખરીદી, મિલકત</string>
+    <string name="scr_this_month_amt">આ મહિને %s</string>
+    <string name="scr_expense_amt">ખર્ચ %s</string>
+    <string name="scr_shop_meta">%1$d બાકી · %2$d ઉછીની</string>
+    <string name="scr_recent">તાજેતરની એન્ટ્રી</string>
+    <string name="scr_see_all">બધી</string>
+    <string name="scr_all_entries">બધી એન્ટ્રી</string>
+    <string name="scr_no_entries">હજી કોઈ એન્ટ્રી નથી</string>
+    <string name="scr_backup_ok">બેકઅપ OK</string>
+    <string name="scr_backup_pending">બેકઅપ બાકી</string>
+    <string name="scr_backup_failed">બેકઅપ નિષ્ફળ</string>
+    <string name="scr_day_today">આજે</string>
+    <string name="scr_day_tomorrow">આવતીકાલે</string>
+    <string name="scr_day_after">પરમ દિવસે</string>
+    <string name="scr_reminder_exists">રિમાઇન્ડર પહેલેથી છે</string>
+    <string name="scr_reminder_created">રિમાઇન્ડર બન્યું</string>
+    <string name="scr_cd_profile">પ્રોફાઇલ</string>
+    <string name="scr_whatsapp">WhatsApp</string>
+
+    <!-- Entry (doc 06) -->
+    <string name="scr_entry_title">નવી એન્ટ્રી</string>
+    <string name="scr_kind_income">આવક / વેચાણ</string>
+    <string name="scr_kind_expense">ખર્ચ / ઉપાડ</string>
+    <string name="scr_tap1">ટેપ 1 · વિભાગ</string>
+    <string name="scr_sec_farm_short">ખેતર</string>
+    <string name="scr_sec_animal_short">પશુપાલન</string>
+    <string name="scr_sec_family_short">પરિવાર</string>
+    <string name="scr_sec_general_short">સામાન્ય</string>
+    <string name="scr_sec_personal_short">અંગત</string>
+    <string name="scr_tap2_farm">ટેપ 2 · ખેતર અને પાક</string>
+    <string name="scr_tap2_family">ટેપ 2 · પરિવાર (ઉપાડ)</string>
+    <string name="scr_tap2_category">ટેપ 2 · પ્રકાર</string>
+    <string name="scr_amount">રકમ ₹</string>
+    <string name="scr_apmc_title">APMC મણ ગણક</string>
+    <string name="scr_apmc_switch">મણ ગણક</string>
+    <string name="scr_mann">મણ</string>
+    <string name="scr_extra_kg">વધારાના કિલો</string>
+    <string name="scr_rate_mann">મણનો ભાવ ₹</string>
+    <string name="scr_total_mann">કુલ મણ</string>
+    <string name="scr_total_amount">કુલ રકમ</string>
+    <string name="scr_kg_rule">1 મણ = 20 કિલો</string>
+    <string name="scr_mann_value">%s મણ</string>
+    <string name="scr_kg_normalized">20 કિલો = 1 મણ ઉમેર્યું</string>
+    <string name="scr_apmc_replace_title">રકમ બદલાશે</string>
+    <string name="scr_apmc_replace_body">લખેલી રકમની જગ્યાએ મણ ગણકની રકમ આવશે.</string>
+    <string name="scr_tap3">ટેપ 3 · ચુકવણી</string>
+    <string name="scr_paid">રોકડ ચૂકવેલ</string>
+    <string name="scr_pending">ઉધાર બાકી</string>
+    <string name="scr_counterparty">કોની પાસે / કોને?</string>
+    <string name="scr_bill_photo">પાવતી ફોટો</string>
+    <string name="scr_voice_note">બોલીને નોંધ</string>
+    <string name="scr_save_amount">સાચવો · %s</string>
+    <string name="scr_voice_prompt">બોલો…</string>
+    <string name="scr_voice_unavailable">ગુજરાતી અવાજ ઉપલબ્ધ નથી</string>
+    <string name="scr_voice_tip">Google એપ › સેટિંગ્સ › અવાજ › ઓફલાઇન ભાષામાં ગુજરાતી ડાઉનલોડ કરો</string>
+    <string name="scr_voice_use_amount">%s વાપરો?</string>
+    <string name="scr_photo_failed">ફોટો ખોલી શકાયો નહીં</string>
+    <string name="scr_camera_denied_title">કેમેરાની મંજૂરી નથી</string>
+    <string name="scr_camera_denied_body">ફોટો પાડવા માટે ફોનના સેટિંગ્સમાં આ એપને કેમેરાની મંજૂરી આપો.</string>
+    <string name="scr_open_settings">સેટિંગ્સ ખોલો</string>
+
+    <!-- Farms (doc 07) -->
+    <string name="scr_farms_title">૮ ખેતર હિસાબ</string>
+    <string name="scr_farm_income">ખેતી આવક</string>
+    <string name="scr_farm_expense">ખેતી ખર્ચ</string>
+    <string name="scr_total_land">કુલ જમીન</string>
+    <string name="scr_personal_excluded">અંગત ખર્ચ આ હિસાબમાં ગણાતો નથી.</string>
+    <string name="scr_scorecard">સ્કોરકાર્ડ</string>
+    <string name="scr_per_vigha">નફો / વીઘા</string>
+    <string name="scr_total_profit">કુલ નફો</string>
+    <string name="scr_per_vigha_caption">પ્રતિ વીઘા</string>
+    <string name="scr_no_crop">પાક નથી</string>
+    <string name="scr_change_crop">પાક બદલો</string>
+    <string name="scr_entry_for_farm">+ આ ખેતર માટે એન્ટ્રી</string>
+    <string name="scr_active_crop">ચાલુ પાક</string>
+    <string name="scr_crop_since">%1$s · %2$s થી</string>
+    <string name="scr_pdf">PDF રિપોર્ટ</string>
+    <string name="scr_no_entries_period">આ સમયમાં કોઈ એન્ટ્રી નથી</string>
+    <string name="scr_crop">પાક</string>
+    <string name="scr_kharif">ખરીફ</string>
+    <string name="scr_rabi">રવી</string>
+    <string name="scr_summer">ઉનાળુ</string>
+
+    <!-- Family (doc 08) -->
+    <string name="scr_family_title">ઉપાડ ખાતું</string>
+    <string name="scr_family_a">પરિવાર A</string>
+    <string name="scr_family_b">પરિવાર B</string>
+    <string name="scr_add_number">નંબર ઉમેરો</string>
+    <string name="scr_month_advance">%s ઉપાડ</string>
+    <string name="scr_year_total">વર્ષ %d કુલ</string>
+    <string name="scr_this_month_list">આ મહિનાનો ઉપાડ</string>
+    <string name="scr_wa_preview">WhatsApp મેસેજ પૂર્વાવલોકન</string>
+    <string name="scr_wa_send_receipt">WhatsApp પાવતી મોકલો</string>
+    <string name="scr_add_advance">+ ઉપાડ ઉમેરો</string>
+    <string name="scr_wa_add_number_title">WhatsApp નંબર ઉમેરો</string>
+    <string name="scr_phone">મોબાઇલ નંબર</string>
+    <string name="scr_no_advance_month">આ મહિને કોઈ ઉપાડ નથી</string>
+
+    <!-- Personal (doc 09) -->
+    <string name="scr_personal_title">અંગત / ઘર હિસાબ</string>
+    <string name="scr_personal_isolated">આ ખાતું ખેતીના નફા-નુકસાનથી સંપૂર્ણ અલગ છે.</string>
+    <string name="scr_income_month">આવક · %s</string>
+    <string name="scr_expense_month">ખર્ચ · %s</string>
+    <string name="scr_savings">બચત: %s</string>
+    <string name="scr_where_spent">ખર્ચ ક્યાં થયો?</string>
+    <string name="scr_others">અન્ય</string>
+    <string name="scr_empty_month">આ મહિને કોઈ એન્ટ્રી નથી</string>
+    <string name="scr_personal_udhaar">અંગત ઉધાર</string>
+
+    <!-- Profiles (doc 14) -->
+    <string name="scr_profile_title">પ્રોફાઇલ</string>
+    <string name="scr_role_owner">માલિક</string>
+    <string name="scr_role_manager">ફાર્મ મેનેજર %d</string>
+    <string name="scr_edit_profile">પ્રોફાઇલ સુધારો</string>
+    <string name="scr_managers">ફાર્મ મેનેજર</string>
+    <string name="scr_responsibility">જવાબદારી:</string>
+    <string name="scr_call">ફોન કરો</string>
+    <string name="scr_add_name">નામ ઉમેરો</string>
+    <string name="scr_photo_camera">કેમેરાથી ફોટો પાડો</string>
+    <string name="scr_photo_gallery">ગેલેરીમાંથી પસંદ કરો</string>
+    <string name="scr_photo_remove">ફોટો કાઢો</string>
+    <string name="scr_photo_sheet_title">%s — ફોટો</string>
+    <string name="scr_name">નામ</string>
+    <string name="scr_address">સરનામું</string>
+    <string name="scr_need_number">પહેલાં નંબર ઉમેરો</string>
+    <string name="scr_no_farms">કોઈ ખેતર નથી</string>
+    <string name="scr_assign_farms">જવાબદારીનાં ખેતર</string>
+
+    <!-- Help (doc 14). The scr_credit_* keys are used ONLY in HelpScreen.kt (CreditOnlyInHelpTest). -->
+    <string name="scr_help_title">મદદ અને માહિતી</string>
+    <string name="scr_app_latin">VRAJ KHETI HISAB</string>
+    <string name="scr_version_line">આવૃત્તિ %s · ઓફલાઇન · ખાનગી</string>
+    <string name="scr_faq">વારંવાર પુછાતા પ્રશ્નો</string>
+    <string name="scr_faq_q1">એન્ટ્રી કેવી રીતે લખવી?</string>
+    <string name="scr_faq_a1">હોમ પર નીચેનું બટન દબાવો. વિભાગ, ખેતર અને રકમ — માત્ર 3 ટેપમાં એન્ટ્રી થઈ જાય.</string>
+    <string name="scr_faq_q2">મણ ગણતરી કેવી રીતે થાય?</string>
+    <string name="scr_faq_a2">કુલ મણ = મણ + (વધારાના કિલો ÷ 20). કુલ રકમ = કુલ મણ × મણનો ભાવ.</string>
+    <string name="scr_faq_q3">મિલકત ઉછીની આપતી વખતે ફોટો કેમ?</string>
+    <string name="scr_faq_a3">લઈ જનારનો ફોટો તારીખ સાથે સચવાય છે, એટલે પછી શોધી શકો કે કોણ, ક્યારે, શું લઈ ગયું.</string>
+    <string name="scr_faq_q4">WhatsApp યાદી કેવી રીતે મોકલવી?</string>
+    <string name="scr_faq_a4">મિલકત કાર્ડ પર \"યાદ અપાવો\" દબાવો. તૈયાર ગુજરાતી મેસેજ સાથે WhatsApp ખુલશે — ફક્ત મોકલો દબાવો.</string>
+    <string name="scr_faq_q5">અમાસ, પૂનમ, અગિયારસ, બીજની સૂચના કેમ આવે છે?</string>
+    <string name="scr_faq_a5">પંચાંગ પ્રમાણે ખાસ દિવસોએ આગલી સાંજે અને તે દિવસે સૂચના આવે છે. સલાહ માન્યતા પ્રમાણે છે અને સેટિંગ્સમાં બદલી શકાય છે.</string>
+    <string name="scr_faq_q6">મારો ડેટા સુરક્ષિત છે?</string>
+    <string name="scr_faq_a6">બધો ડેટા ફોનમાં જ રહે છે. દરરોજ રાત્રે 11:45 વાગ્યે તમારા પોતાના સર્વર પર બેકઅપ જાય છે.</string>
+    <string name="scr_faq_q7">PIN ભૂલી જાઉં તો?</string>
+    <string name="scr_faq_a7">એપનો ડેટા સાફ કરી, બેકઅપમાંથી પાછો લાવવો પડે. PIN કોઈ સાથે શેર ન કરો.</string>
+    <string name="scr_owner_en">Owner: Girwansinh Vala · At Post Thorala, Taluka Mahuva, Dist. Bhavnagar</string>
+    <string name="scr_credit_en">Design and Developed by</string>
+    <string name="scr_credit_name">Jaldip Vala</string>
+    <string name="scr_credit_gu">ડિઝાઇન અને ડેવલપમેન્ટ: જલદીપ વાળા</string>
+    <string name="scr_licenses">ઓપન-સોર્સ લાઇસન્સ</string>
+    <string name="scr_licenses_body">ફોન્ટ: Noto Sans Gujarati, Baloo Bhai 2 — SIL Open Font License 1.1.\nલાઇબ્રેરી: AndroidX, Jetpack Compose, Room, WorkManager, Glance, Kotlin Coroutines, OkHttp, Coil — Apache License 2.0.</string>
+    <string name="scr_expanded">ખુલ્લું</string>
+    <string name="scr_collapsed">બંધ</string>
+
+    <!-- Settings (docs 04, 10, 15) -->
+    <string name="scr_settings_title">સેટિંગ્સ</string>
+    <string name="scr_theme">થીમ</string>
+    <string name="scr_theme_follow">ફોનનો ડાર્ક મોડ અનુસરો</string>
+    <string name="scr_backup_title">રાત્રિ બેકઅપ</string>
+    <string name="scr_backup_sub">GoDaddy + ઇમેઇલ · 365 દિવસ</string>
+    <string name="scr_backup_last">છેલ્લો બેકઅપ</string>
+    <string name="scr_backup_next">આગલો</string>
+    <string name="scr_backup_next_value">આજે · 11:45 PM</string>
+    <string name="scr_backup_never">હજી નથી</string>
+    <string name="scr_backup_now">હમણાં બેકઅપ લો</string>
+    <string name="scr_panchang_alerts">પંચાંગ સૂચના</string>
+    <string name="scr_pa_bij">બીજ</string>
+    <string name="scr_pa_agiyaras">અગિયારસ</string>
+    <string name="scr_pa_poonam">પૂનમ</string>
+    <string name="scr_pa_amas">અમાસ</string>
+    <string name="scr_pa_festival">તહેવાર</string>
+    <string name="scr_pa_bij_sub">સુદ બીજ · ભાઈબીજ, અષાઢી બીજ</string>
+    <string name="scr_pa_ag_sub">સુદ અને વદ અગિયારસ</string>
+    <string name="scr_pa_poonam_sub">દર મહિનાની પૂનમ</string>
+    <string name="scr_pa_amas_sub">દર મહિનાની અમાસ</string>
+    <string name="scr_pa_fest_sub">દિવાળી, હોળી, ઉત્તરાયણ…</string>
+    <string name="scr_pa_vad_bij">વદ બીજ પણ</string>
+    <string name="scr_pa_show_guidance">કામની સલાહ બતાવો</string>
+    <string name="scr_pa_show_guidance_sub">શું કરવું / ટાળવું (માન્યતા)</string>
+    <string name="scr_pa_evening">આગલી સાંજે યાદ</string>
+    <string name="scr_pa_evening_sub">નોટિફિકેશનનો સમય</string>
+    <string name="scr_pa_edit_guidance">સલાહનું લખાણ બદલો</string>
+    <string name="scr_pa_edit_guidance_sub">શું કરવું / શું ટાળવું</string>
+    <string name="scr_pa_do_label">કરવું</string>
+    <string name="scr_pa_avoid_label">ટાળવું</string>
+    <string name="scr_pa_reset">મૂળ સલાહ પાછી લાવો</string>
+    <string name="scr_pa_add_festival">મારો તહેવાર ઉમેરો</string>
+    <string name="scr_pa_festival_name">તહેવારનું નામ</string>
+    <string name="scr_pa_fixed_date">તારીખ (MM-dd, દા.ત. 01-14)</string>
+    <string name="scr_pa_by_tithi">તિથિ પ્રમાણે</string>
+    <string name="scr_pa_by_date">તારીખ પ્રમાણે</string>
+    <string name="scr_pa_invalid_date">તારીખ ખોટી છે</string>
+    <string name="scr_pa_my_festivals">મારા તહેવાર</string>
+    <string name="scr_pa_belief">માન્યતા પ્રમાણે · સેટિંગ્સમાં બદલી શકો</string>
+    <string name="scr_pa_set_time">સમય પસંદ કરો</string>
+    <string name="scr_general">સામાન્ય</string>
+    <string name="scr_set_profiles">માલિક અને મેનેજર</string>
+    <string name="scr_set_farms">ખેતર, વીઘા અને પાક</string>
+    <string name="scr_set_family">પરિવાર WhatsApp નંબર</string>
+    <string name="scr_set_crops">પાક યાદી</string>
+    <string name="scr_set_categories">ખર્ચના પ્રકાર</string>
+    <string name="scr_set_pin">PIN અને ફિંગરપ્રિન્ટ</string>
+    <string name="scr_set_help">મદદ અને માહિતી</string>
+    <string name="scr_set_reports">PDF રિપોર્ટ</string>
+    <string name="scr_set_calendar">પંચાંગ કેલેન્ડર</string>
+    <string name="scr_farm_name">ખેતરનું નામ</string>
+    <string name="scr_vigha">વીઘા</string>
+    <string name="scr_vigha_invalid">0 થી 500 વીઘા લખો</string>
+    <string name="scr_manager">મેનેજર</string>
+    <string name="scr_manager_none">કોઈ નહીં</string>
+    <string name="scr_manager_1">મેનેજર 1</string>
+    <string name="scr_manager_2">મેનેજર 2</string>
+    <string name="scr_display_name">નામ</string>
+    <string name="scr_new_crop">નવો પાક</string>
+    <string name="scr_new_category">નવો પ્રકાર</string>
+    <string name="scr_rename">નામ બદલો</string>
+    <string name="scr_active">ચાલુ</string>
+    <string name="scr_pin_current">હાલનો PIN દાખલ કરો</string>
+    <string name="scr_pin_new">નવો PIN દાખલ કરો</string>
+    <string name="scr_pin_confirm">નવો PIN ફરી દાખલ કરો</string>
+    <string name="scr_pin_changed">PIN બદલાઈ ગયો</string>
+    <string name="scr_pin_wrong">ખોટો PIN</string>
+    <string name="scr_pin_mismatch">PIN મેળ ખાતો નથી</string>
+    <string name="scr_pin_change">PIN બદલો</string>
+    <string name="scr_pin_locked">ફરી પ્રયાસ કરો: %s</string>
+    <string name="scr_bio_toggle">ફિંગરપ્રિન્ટથી ખોલો</string>
+    <string name="scr_bio_unavailable">આ ફોનમાં ફિંગરપ્રિન્ટ સેટ નથી</string>
+    <string name="scr_pin_digits">4 માંથી %d અંક દાખલ થયા</string>
+
+    <!-- Panchang calendar (doc 10) -->
+    <string name="scr_pa_calendar">પંચાંગ કેલેન્ડર</string>
+    <string name="scr_pa_special_this_month">આ મહિનાના ખાસ દિવસો</string>
+    <string name="scr_pa_tithi_ends">તિથિ સમાપ્તિ: %s</string>
+    <string name="scr_pa_sun">સૂર્યોદય %1$s · સૂર્યાસ્ત %2$s</string>
+    <string name="scr_pa_make_reminder">રિમાઇન્ડર બનાવો</string>
+    <string name="scr_pa_normal_day">સામાન્ય દિવસ</string>
+    <string name="scr_pa_near_boundary">તિથિ સૂર્યોદયની નજીક બદલાય છે — છાપેલા પંચાંગથી ચકાસો</string>
+    <string name="scr_pa_prev">પાછલો મહિનો</string>
+    <string name="scr_pa_next">આગલો મહિનો</string>
+    <string-array name="scr_weekdays_short">
+        <item>રવિ</item>
+        <item>સોમ</item>
+        <item>મંગળ</item>
+        <item>બુધ</item>
+        <item>ગુરુ</item>
+        <item>શુક્ર</item>
+        <item>શનિ</item>
+    </string-array>
+</resources>

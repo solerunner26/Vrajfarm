@@ -44,8 +44,13 @@ class SeedDataTest {
         assertEquals(6, names(AccountSection.PERSONAL, TxnType.EXPENSE).size)
         assertEquals(listOf("ભાડાની આવક", "અન્ય આવક"), names(AccountSection.PERSONAL, TxnType.INCOME))
         assertEquals(listOf("રોકડ ઉપાડ"), names(AccountSection.FAMILY, TxnType.ADVANCE))
+        assertEquals(
+            listOf("ઘાસચારો", "ખાણ-દાણ", "પશુ દવા / ડૉક્ટર", "પશુ ખરીદી", "અન્ય પશુ ખર્ચ"),
+            names(AccountSection.ANIMAL, TxnType.EXPENSE),
+        )
+        assertEquals(listOf("દૂધ વેચાણ", "પશુ વેચાણ"), names(AccountSection.ANIMAL, TxnType.INCOME))
         assertEquals(listOf("સાધન"), SeedData.categories.filter { it.isPhysicalTool }.map { it.name })
-        assertEquals(22, SeedData.categories.size)
+        assertEquals(29, SeedData.categories.size)
     }
 
     @Test fun panchangDefaultsCoverAllTypesEnabled() {

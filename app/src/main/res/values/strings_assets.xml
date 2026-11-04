@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- assets-shopping module (docs 11 + 12). Every key is prefixed as_ so parallel agents never collide. -->
+<resources>
+    <!-- WhatsApp (doc 12) -->
+    <string name="as_wa_no_number">WhatsApp નંબર નથી</string>
+    <string name="as_wa_share">મોકલો</string>
+    <string name="as_wa_templates">WhatsApp મેસેજ નમૂના</string>
+    <string name="as_wa_late_line">(%d દિવસ મોડું થયું છે)</string>
+    <string name="as_wa_preview">WhatsApp પૂર્વાવલોકન</string>
+
+    <!-- Shopping (doc 11) -->
+    <string name="as_shop_title">ખરીદી યાદી</string>
+    <string name="as_tab_farm">ખેતી માટે</string>
+    <string name="as_tab_personal">અંગત / ઘર</string>
+    <string name="as_add_item_hint">નવી વસ્તુ ઉમેરો…</string>
+    <string name="as_add">ઉમેરો</string>
+    <string name="as_more">વધુ</string>
+    <string name="as_less">ઓછું</string>
+    <string name="as_voice_add">બોલીને ઉમેરો</string>
+    <string name="as_is_tool">આ એક સાધન છે</string>
+    <string name="as_est_price">અંદાજિત કિંમત ₹</string>
+    <string name="as_for_date">તારીખ</string>
+    <string name="as_farm">ખેતર</string>
+    <string name="as_no_farm">કોઈ નહીં</string>
+    <string name="as_today_prefix">આજે · %s</string>
+    <string name="as_weekly_note">દર રવિવારે સવારે 8 વાગ્યે બાકી ખરીદીની યાદ</string>
+    <string name="as_shop_empty">બધું ખરીદાઈ ગયું</string>
+    <string name="as_bought_snack">%s ખરીદ્યું</string>
+    <string name="as_undo">પાછું</string>
+    <string name="as_new_tool">નવું સાધન</string>
+    <string name="as_home">ઘર</string>
+    <string name="as_convert_q">મિલકતમાં ઉમેરવું છે?</string>
+    <string name="as_convert_sub">%s એક સાધન છે</string>
+    <string name="as_convert_body">મિલકત યાદીમાં ઉમેરવાથી તેને ઉછીનું આપી શકશો અને કોની પાસે છે તે યાદ રહેશે.</string>
+    <string name="as_name">નામ</string>
+    <string name="as_price">કિંમત ₹</string>
+    <string name="as_purchase_date">ખરીદ તારીખ</string>
+    <string name="as_yes_add">હા, ઉમેરો</string>
+    <string name="as_no">ના</string>
+    <string name="as_asset_added">મિલકતમાં ઉમેર્યું</string>
+
+    <!-- Assets (doc 11) -->
+    <string name="as_assets_title">મિલકત અને ઉછીનું</string>
+    <string name="as_search_who">કોણ લઈ ગયું? નામ, તારીખ…</string>
+    <string name="as_tab_lent">ઉછીની %d</string>
+    <string name="as_tab_all">બધી %d</string>
+    <string name="as_tab_history">ઇતિહાસ</string>
+    <string name="as_taken_on">લીધું %s</string>
+    <string name="as_return_on">પરત %s</string>
+    <string name="as_returned_on">✓ પરત મળ્યું %s</string>
+    <string name="as_not_returned">હજુ પરત નથી</string>
+    <string name="as_remind">યાદ અપાવો</string>
+    <string name="as_mark_returned">પરત મળ્યું</string>
+    <string name="as_mark_returned_q">%s પરત મળ્યું?</string>
+    <string name="as_mark_returned_body">%s પાસેથી પરત મળ્યું તરીકે નોંધાશે.</string>
+    <string name="as_yes_returned">હા, મળ્યું</string>
+    <string name="as_cancel">રદ કરો</string>
+    <string name="as_call">ફોન કરો</string>
+    <string name="as_at_home">ઘરે છે</string>
+    <string name="as_lent_to">ઉછીનું · %s</string>
+    <string name="as_days_late">%d દિવસ મોડું</string>
+    <string name="as_days_left">%d દિવસ બાકી</string>
+    <string name="as_due_today">આજે પરત</string>
+    <string name="as_last_reminded">છેલ્લે યાદ અપાવ્યું: %s</string>
+    <string name="as_no_photo">ફોટો નથી</string>
+    <string name="as_photo">ફોટો</string>
+    <string name="as_lend_fab">ઉછીની આપો</string>
+    <string name="as_no_loans">કોઈ મિલકત ઉછીની નથી</string>
+    <string name="as_no_assets">હજુ કોઈ મિલકત નથી</string>
+    <string name="as_no_history">કંઈ મળ્યું નહીં</string>
+    <string name="as_open_shopping">ખરીદી યાદી</string>
+    <string name="as_open_assets">મિલકત</string>
+    <string name="as_close">બંધ કરો</string>
+    <string name="as_delete">કાઢી નાખો</string>
+    <string name="as_delete_blocked">પહેલાં પરત મળ્યું કરો</string>
+    <string name="as_asset_detail_loans">ઉછીનો ઇતિહાસ</string>
+    <string name="as_bought_on">ખરીદી %s</string>
+
+    <!-- Lend (doc 11) -->
+    <string name="as_lend_title">મિલકત ઉછીની આપો</string>
+    <string name="as_step_photo">1 · લઈ જનારનો ફોટો</string>
+    <string name="as_take_photo">ફોટો પાડો</string>
+    <string name="as_take_photo_hint">ચહેરો અને મિલકત સાથે દેખાય તેવો</string>
+    <string name="as_retake">ફરી પાડો</string>
+    <string name="as_camera_permission">ફોટો માટે કેમેરા પરવાનગી આપો</string>
+    <string name="as_open_settings">સેટિંગ્સ ખોલો</string>
+    <string name="as_step_who">2 · કોણ લઈ જાય છે?</string>
+    <string name="as_borrower_name">નામ</string>
+    <string name="as_borrower_phone">WhatsApp નંબર</string>
+    <string name="as_pick_contact">સંપર્કમાંથી પસંદ કરો</string>
+    <string name="as_step_asset">3 · કઈ મિલકત?</string>
+    <string name="as_new_asset">+ નવી મિલકત</string>
+    <string name="as_new_asset_title">નવી મિલકત</string>
+    <string name="as_step_dates">4 · તારીખ</string>
+    <string name="as_handover_date">આપ્યાની તારીખ</string>
+    <string name="as_return_after">કેટલા દિવસ પછી પરત?</string>
+    <string name="as_pick_date">તારીખ પસંદ કરો</string>
+    <string name="as_return_date">પરત તારીખ: %s</string>
+    <string name="as_notify_on_due">પરત તારીખે યાદ આપો</string>
+    <string name="as_save">સાચવો</string>
+    <string name="as_save_send">સાચવો + મોકલો</string>
+    <string name="as_no_photo_confirm">ફોટો વગર સાચવવું છે?</string>
+    <string name="as_no_photo_body">ફોટો હોય તો પછી ઓળખવામાં સરળ રહે છે.</string>
+    <string name="as_save_anyway">હા, સાચવો</string>
+    <string name="as_already_lent">પહેલેથી ઉછીનું આપેલ છે</string>
+    <string name="as_already_lent_body">%s હાલ બીજા પાસે છે. છતાં આપવું છે?</string>
+    <string name="as_continue">હા, આપો</string>
+    <string name="as_err_name">નામ લખો</string>
+    <string name="as_err_asset">મિલકત પસંદ કરો</string>
+    <string name="as_err_return_before">પરત તારીખ આપ્યાની તારીખ પછીની હોવી જોઈએ</string>
+    <string name="as_ok">બરાબર</string>
+    <string name="as_saved">સાચવ્યું</string>
+    <string name="as_preview">WhatsApp સંદેશ</string>
+    <string name="as_asset_name">મિલકતનું નામ</string>
+
+    <!-- Notifications (doc 11 workers) -->
+    <string name="as_channel_assets">મિલકત ચેતવણી</string>
+    <string name="as_channel_assets_desc">ઉછીની મિલકત સમયસર પરત ન આવે ત્યારે</string>
+    <string name="as_channel_shopping">ખરીદી યાદી</string>
+    <string name="as_channel_shopping_desc">દર રવિવારે બાકી ખરીદીની યાદ</string>
+    <string name="as_notif_overdue_title">%s પરત નથી</string>
+    <string name="as_notif_overdue_text">%1$s · %2$d દિવસ મોડું</string>
+    <string name="as_shop_pending_notif">%d વસ્તુઓ ખરીદવાની બાકી</string>
+    <string name="as_shop_pending_more">…અને %d વધુ</string>
+</resources>

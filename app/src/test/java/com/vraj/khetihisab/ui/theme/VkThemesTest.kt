@@ -65,8 +65,8 @@ class VkThemesTest {
     }
 
     @Test
-    fun iconSet_has24Icons_andPalettesPerTheme() {
-        assertEquals(24, VkIcon.entries.size)
+    fun iconSet_has25Icons_andPalettesPerTheme() {
+        assertEquals(25, VkIcon.entries.size)
         assertEquals(5, VkThemeId.entries.map { VkIcons.of(it) }.toSet().size)
     }
 

@@ -49,7 +49,7 @@ import java.time.ZoneId
  * compose-screens replaces this with HomeScreen (doc 05). Figures are sample data only.
  */
 @Composable
-fun HomePlaceholderScreen(themeId: VkThemeId, onThemeChange: (VkThemeId) -> Unit) {
+fun HomePlaceholderScreen(themeId: VkThemeId, onThemeChange: (VkThemeId) -> Unit, onOpen: (String) -> Unit = {}) {
     val today = remember { LocalDate.now(ZoneId.of("Asia/Kolkata")) }
     val day = remember(today) { GujaratiPanchangHelper.day(today) }
     val banner = remember(today) { GujaratiPanchangHelper.bannerLabel(today) }
@@ -76,18 +76,18 @@ fun HomePlaceholderScreen(themeId: VkThemeId, onThemeChange: (VkThemeId) -> Unit
             item { VkSectionTitle(stringResource(R.string.home_sections), Modifier.padding(horizontal = 16.dp)) }
             item {
                 val sections = listOf(
-                    VkIcon.FARM to R.string.home_section_farm,
-                    VkIcon.FAMILY to R.string.home_section_family,
-                    VkIcon.PERSONAL to R.string.home_section_personal,
-                    VkIcon.SHOPPING to R.string.home_section_shopping,
-                    VkIcon.ASSET to R.string.home_section_assets,
-                    VkIcon.REMINDER to R.string.home_section_reminder,
+                    Triple(VkIcon.FARM, R.string.home_section_farm, null),
+                    Triple(VkIcon.FAMILY, R.string.home_section_family, null),
+                    Triple(VkIcon.PERSONAL, R.string.home_section_personal, null),
+                    Triple(VkIcon.SHOPPING, R.string.home_section_shopping, VkRoutes.SHOPPING),
+                    Triple(VkIcon.ASSET, R.string.home_section_assets, VkRoutes.assets()),
+                    Triple(VkIcon.REMINDER, R.string.home_section_reminder, null),
                 )
                 Column(Modifier.padding(horizontal = 16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                     sections.chunked(2).forEach { pair ->
                         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                            pair.forEach { (icon, label) ->
-                                VkCard(Modifier.weight(1f), onClick = {}) {
+                            pair.forEach { (icon, label, route) ->
+                                VkCard(Modifier.weight(1f), onClick = { route?.let(onOpen) }) {
                                     VkIconImage(icon, size = 40.dp)
                                     Text(stringResource(label), style = MaterialTheme.typography.titleMedium, maxLines = 1, overflow = TextOverflow.Ellipsis)
                                     Text(stringResource(R.string.home_this_month), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1)
@@ -137,14 +137,14 @@ fun HomePlaceholderScreen(themeId: VkThemeId, onThemeChange: (VkThemeId) -> Unit
                 )
             }
         }
-        VkBottomDock(onExpense = {}, onIncome = {}, modifier = Modifier.align(Alignment.BottomCenter))
+        VkBottomDock(onExpense = { onOpen(VkRoutes.entry("expense")) }, onIncome = { onOpen(VkRoutes.entry("income")) }, modifier = Modifier.align(Alignment.BottomCenter))
     }
 }
 
 @Preview(name = "Home · green", widthDp = 360, heightDp = 1100)
 @Composable
-private fun HomeGreenPreview() = VkTheme(VkThemeId.GREEN) { HomePlaceholderScreen(VkThemeId.GREEN) {} }
+private fun HomeGreenPreview() = VkTheme(VkThemeId.GREEN) { HomePlaceholderScreen(VkThemeId.GREEN, onThemeChange = {}) }
 
 @Preview(name = "Home · night", widthDp = 360, heightDp = 1100)
 @Composable
-private fun HomeNightPreview() = VkTheme(VkThemeId.NIGHT) { HomePlaceholderScreen(VkThemeId.NIGHT) {} }
+private fun HomeNightPreview() = VkTheme(VkThemeId.NIGHT) { HomePlaceholderScreen(VkThemeId.NIGHT, onThemeChange = {}) }

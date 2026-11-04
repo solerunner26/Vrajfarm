@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Reminders, notifications and widgets (doc 13) + Panchang alert scheduling (doc 10). Owner: reminders-widgets. -->
+<resources>
+    <!-- Reminders screen -->
+    <string name="rem_title">રિમાઇન્ડર</string>
+    <string name="rem_active">ચાલુ (%d)</string>
+    <string name="rem_archive">આર્કાઇવ (%d)</string>
+    <string name="rem_high">જરૂરી</string>
+    <string name="rem_normal">સામાન્ય</string>
+    <string name="rem_done">DONE · પૂરું થયું</string>
+    <string name="rem_new">+ નવું રિમાઇન્ડર</string>
+    <string name="rem_overdue">મુદત વીતી · %s</string>
+    <string name="rem_tomorrow">આવતીકાલે · %s</string>
+    <string name="rem_today">આજે %s</string>
+    <string name="rem_snooze">1 કલાક પછી</string>
+    <string name="rem_reopen">ફરી ચાલુ કરો</string>
+    <string name="rem_done_on">પૂરું થયું · %s</string>
+    <string name="rem_empty_active">કોઈ ચાલુ રિમાઇન્ડર નથી</string>
+    <string name="rem_empty_archive">આર્કાઇવ ખાલી છે</string>
+    <string name="rem_origin_loan">મિલકત</string>
+    <string name="rem_origin_panchang">પંચાંગ</string>
+    <string name="rem_exact_banner">સમયસર સૂચના માટે એલાર્મની પરવાનગી આપો</string>
+    <string name="rem_exact_allow">પરવાનગી આપો</string>
+    <string name="rem_photo_cd">રિમાઇન્ડરનો ફોટો</string>
+
+    <!-- Editor sheet -->
+    <string name="rem_sheet_new">નવું રિમાઇન્ડર</string>
+    <string name="rem_sheet_edit">રિમાઇન્ડર બદલો</string>
+    <string name="rem_field_title">શું કરવાનું છે?</string>
+    <string name="rem_field_note">નોંધ</string>
+    <string name="rem_priority">પ્રાથમિકતા</string>
+    <string name="rem_date">તારીખ: %s</string>
+    <string name="rem_time">સમય: %s</string>
+    <string name="rem_photo">ફોટો</string>
+    <string name="rem_photo_camera">કેમેરા</string>
+    <string name="rem_photo_gallery">ગેલેરી</string>
+    <string name="rem_photo_remove">ફોટો કાઢો</string>
+    <string name="rem_voice">બોલીને લખો</string>
+    <string name="rem_voice_prompt">રિમાઇન્ડર બોલો</string>
+    <string name="rem_save">સાચવો</string>
+    <string name="rem_cancel">રદ કરો</string>
+    <string name="rem_delete">કાઢી નાખો</string>
+    <string name="rem_ok">બરાબર</string>
+    <string name="rem_title_required">શું કરવાનું છે તે લખો</string>
+    <string name="rem_past_warning">આ સમય વીતી ગયો છે · સૂચના નહીં આવે</string>
+
+    <!-- Notification channels -->
+    <string name="ch_reminders">રિમાઇન્ડર</string>
+    <string name="ch_assets">મિલકત ચેતવણી</string>
+    <string name="ch_shopping">ખરીદી યાદી</string>
+    <string name="ch_panchang">પંચાંગ ચેતવણી</string>
+    <string name="ch_backup">બેકઅપ</string>
+
+    <!-- Notifications -->
+    <string name="nt_done">પૂરું થયું</string>
+    <string name="nt_tomorrow_title">આવતીકાલે %s</string>
+    <string name="nt_make_reminder">રિમાઇન્ડર બનાવો</string>
+    <string name="nt_reminder_created">રિમાઇન્ડર બનાવ્યું</string>
+    <string name="nt_reminder_exists">રિમાઇન્ડર પહેલેથી છે</string>
+    <string name="nt_belief_note">માન્યતા પ્રમાણે · સેટિંગ્સમાં બદલી શકો</string>
+
+    <!-- Widgets -->
+    <string name="w_shop">ખરીદી બાકી</string>
+    <string name="w_rem">જરૂરી કામ</string>
+    <string name="w_done">DONE</string>
+    <string name="w_shop_empty">બધું ખરીદાઈ ગયું</string>
+    <string name="w_rem_empty">કોઈ બાકી કામ નથી</string>
+    <string name="w_today_special">આજે %s</string>
+    <string name="w_tomorrow_special">આવતીકાલે %s</string>
+    <string name="w_next_special">%1$s · %2$s</string>
+    <string name="w_shop_desc">ખરીદી બાકી · ટિક કરો</string>
+    <string name="w_rem_desc">જરૂરી કામ · DONE</string>
+    <string name="w_today_desc">આજની તારીખ અને તિથિ</string>
+</resources>

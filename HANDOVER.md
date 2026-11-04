@@ -1,17 +1,21 @@
 # HANDOVER — live status board
 
 > Every AI or human working on this repo updates this file **before stopping** (see `AGENTS.md` §5).
-> Last updated: **2026-11-03 by Claude Code (Opus)**
+> Last updated: **2026-11-04 by Claude (Opus): cleanup + પશુપાલન (animal husbandry) section**
 
 ## Snapshot
-- **Phase:** design complete. Android build is in Wave 1 (foundation + database), **in progress, not yet verified**.
+- **Phase:** Wave 1 done. Wave 2 code compiles, is integrated, and `assembleDebug` + `testDebugUnitTest` pass (2026-11-04). Several Wave 2 screens were never written (see task board).
 - **Design:**
   - 16 screens + brand + 5-theme board, offline copies in `design/canvas/`
   - 17 handover docs in `handover/`
   - Visual QA done on Home, Entry, Settings (green + night), Lend and the Panchang dialog. See doc 17.
-- **Code:** a Gradle project and `app/` exist and are partially written by two Claude sub-agents. **The build has not been run successfully end-to-end yet.** Treat the code as a draft until the checks in the next section pass.
+- **Code:** builds green. **Never launched on a device yet** (no phone/emulator attached on 2026-11-04).
 
-## Before continuing: verify Wave 1
+## Verify (Windows)
+- Double-click `tools/build-check.bat` → `tools/build-log.txt` (assembleDebug + unit tests). Last run 2026-11-04: **BUILD SUCCESSFUL**.
+- Double-click `tools/device-check.bat` → `tools/device-log.txt` (adb install + launch). Last run: no device attached.
+
+## Original Wave 1 setup notes
 1. Create `local.properties` with `sdk.dir=C\:\\Users\\<you>\\AppData\\Local\\Android\\Sdk`.
 2. Run, with `JAVA_HOME` set to Android Studio's `jbr`:
    - `./gradlew assembleDebug`
@@ -24,18 +28,18 @@
 |---|---|---|---|---|
 | 1 | Foundation: Gradle, 5 themes, Vk components, icons as ImageVectors, Panchang engine, PIN/biometric lock (02, 04) | android-foundation: build files, `ui/theme`, `ui/components`, `ui/decor`, `panchang`, `security`, `settings/ThemeRepository` | **DONE (Claude, 2026-11-03)**, verified by the lead | `assembleDebug` OK. Unit tests: 65 run, 0 failed, 3 skipped on purpose. **Not yet launched on a device:** the emulator stayed offline. See "Foundation notes" below. |
 | 2 | Database: 13 Room entities, DAOs, seeding, repositories (03) | room-database: `app/src/**/data/**` only | **DONE (Claude, 2026-11-03)** | Schema v1 exported to `app/schemas/`. Data unit tests pass (22/22). 27 instrumented DAO tests compile but **have not been run yet**: they need a device or emulator (`connectedDebugAndroidTest`). Deviations from doc 03 are listed below under "Database notes". |
-| 3 | WhatsAppLauncher (12) | assets-shopping | **IN PROGRESS (Claude Wave 2, 2026-11-03)** | Do first in Wave 2. Other modules depend on it. |
-| 4 | Home dashboard (05) | compose-screens | **IN PROGRESS (Claude Wave 2, 2026-11-03)** | Canvas: `design/canvas/Main.dc.html` |
-| 5 | 3-tap entry, APMC, bill photo, voice (06) | compose-screens | **IN PROGRESS (Claude Wave 2, 2026-11-03)** | `Entry.dc.html` |
-| 6 | Farms P&L + Vigha scorecard (07) | compose-screens | **IN PROGRESS (Claude Wave 2, 2026-11-03)** | `Farms.dc.html` |
-| 7 | Family advances + WhatsApp receipt (08) | compose-screens | **IN PROGRESS (Claude Wave 2, 2026-11-03)** | `Family.dc.html` |
-| 8 | Personal account (09) | compose-screens | **IN PROGRESS (Claude Wave 2, 2026-11-03)** | `Personal.dc.html` |
-| 9 | Panchang alerts, calendar, festival rules (10) | foundation (rules) + compose-screens (UI) + reminders-widgets (scheduling) | **IN PROGRESS (Claude Wave 2, 2026-11-03)** | `PanchangAlert` / `PanchangCalendar.dc.html` |
-| 10 | Shopping, assets, lending, borrower photo, history (11) | assets-shopping | **IN PROGRESS (Claude Wave 2, 2026-11-03)** | `Shopping`, `Assets`, `Lend.dc.html` |
-| 11 | Reminders, notifications, Glance widgets (13) | reminders-widgets | **IN PROGRESS (Claude Wave 2, 2026-11-03)** | `Reminders`, `Widgets.dc.html` |
-| 12 | Profiles, Help & About (14) | compose-screens | **IN PROGRESS (Claude Wave 2, 2026-11-03)** | The credit "Design and Developed by Jaldip Vala" appears ONLY in Help |
+| 3 | WhatsAppLauncher (12) | assets-shopping | **DONE (compiles)** | `share/`: launcher, templates, editable template store, phone normaliser. |
+| 4 | Home dashboard (05) | compose-screens | **TODO — not written** | Only helpers exist (`ui/home/Screens*.kt`). `HomePlaceholderScreen` is still the start screen; its Shopping/Assets tiles and the +/− dock now navigate. Canvas: `Main.dc.html` |
+| 5 | 3-tap entry, APMC, bill photo, voice (06) | compose-screens | **DONE (compiles, wired)** | Route `entry?kind=expense|income`. Not device-tested. |
+| 6 | Farms P&L + Vigha scorecard (07) | compose-screens | **TODO — not written** | Repo helpers ready: `LedgerRepository.farmPnlStats`, `vighaRanking`. `Farms.dc.html` |
+| 7 | Family advances + WhatsApp receipt (08) | compose-screens | **TODO — not written** | `familyAdvanceByMonth` + `WhatsAppTemplates` family statement ready. `Family.dc.html` |
+| 8 | Personal account (09) | compose-screens | **TODO — not written** | Use `personalPendingList()`. `Personal.dc.html` |
+| 9 | Panchang alerts, calendar, festival rules (10) | foundation (rules) + compose-screens (UI) + reminders-widgets (scheduling) | **PARTIAL** | Engine (`FestivalRules`, `PanchangAlertEngine`) + evening alarm/notifications done and wired. **Calendar screen and Panchang settings UI not written.** `ui/panchang/PanchangSource` still uses its fallback (TODO to switch to the engine). |
+| 10 | Shopping, assets, lending, borrower photo, history (11) | assets-shopping | **DONE (compiles, wired)** | Routes `shopping`, `assets?remind=`, `lend?assetId=`. `LendScreen.kt` written by the integrator on 2026-11-04 (agent stopped before it); no contact picker yet. |
+| 11 | Reminders, notifications, Glance widgets (13) | reminders-widgets | **PARTIAL** | Receivers, alarms, boot re-arm, 3 Glance widgets: done and in the manifest. **Reminders screen + editor sheet not written** (strings exist in `strings_reminders.xml`). |
+| 12 | Profiles, Help & About (14) | compose-screens | **TODO — not written** | The credit "Design and Developed by Jaldip Vala" appears ONLY in Help |
 | 13a | Server: `server/backup_receiver.php` + cPanel guide (15) | backup-reports: `server/**` | **DONE, NOT EXECUTED (Claude, 2026-11-03)** | Code reviewed only, because there's no PHP on the dev PC. **First run `php server/tests/run_tests.php` (about 35 checks) on any PHP 8 machine.** Contract changes for the Android worker: too large → **413** `{"error":"size"}` (don't retry); HTTPS is required; rate limit 10/h per IP. The real config is `vraj_config.php` outside the web root (git-ignored). |
-| 13b | Android: PDF reports + 11:45 PM `NightlyBackupWorker` (15) | backup-reports | **IN PROGRESS (Claude Wave 2, 2026-11-03)** | Needs the owner's GoDaddy domain (still open). Map the server errors listed in `server/README.md`. |
+| 13b | Android: PDF reports + 11:45 PM `NightlyBackupWorker` (15) | backup-reports | **DONE (compiles, wired)** | Fixed 2026-11-04: nested-comment bug in `BackupZipBuilder`, missing `strings_backup.xml`, PDF page list. Scheduled at app start. **Reports screen and backup settings UI (URL/key entry) not written**; needs the GoDaddy domain. |
 | 14 | QA matrix, device checks (16, 17) | qa-tester | TODO | Last. Use the mobile-mcp server from `.mcp.json` if available |
 
 ## Foundation notes
@@ -83,13 +87,41 @@
 6. What is the GoDaddy backup URL / domain?
 
 ## Change log
+- **2026-11-04 (Claude, cleanup + animal husbandry):**
+  - **Removed:**
+    - `ui/home/WhatsAppBridge.kt`, a temporary share-sheet stand-in that bypassed `WhatsAppLauncher` (breaking the CLAUDE.md rule). `ScreensShare` now calls `WhatsAppLauncher.open`, and its unused `loanReminder` was dropped.
+    - `ui/panchang/PanchangUiPrefs.kt`, a duplicate SharedPreferences copy of `notify/PanchangAlertSettingsStore` (DataStore) that was never used.
+    - `test/.../panchang/alerts/ProbeTest.kt`, a debug probe that only wrote a temp file.
+  - **Added the ANIMAL section (પશુપાલન):**
+    - enum value, 7 seeded categories, a cow icon `ic_vk_animal` in all 5 themes, and a 5th entry tile (3 + 2 layout)
+    - queries `animalTotals`, `businessTotals`, `businessBySection`
+    - a "કુલ (અંગત સિવાય)" row in the daily PDF
+  - **Business P&L** = FARM + ANIMAL + GENERAL + FAMILY advances. PERSONAL is excluded.
+  - Docs 03/05/06/15 and CLAUDE.md updated.
+  - **Results:** build green. Unit tests 67 run, 0 failed. New DAO test compiles; it needs a device to run.
+  - The Home card for the business P&L is specified in doc 05; it will be built with the Home screen.
+- **2026-11-04 (Claude, integration):** Wave 2 compiled for the first time (51 errors fixed, all in backup/report). Wrote `LendScreen`, integrated all modules, added widget/receiver manifest entries and `tools/*-check.bat`. Build + unit tests green.
 - **2026-11-03 (Claude):**
   - Design: v1 multi-colour, then two-tone green, then 5 themes + QA fixes.
   - Wrote the handover docs 00–17.
   - Wave 1 agents started, then paused by a usage limit and resumed.
   - Repo initialised and pushed. Added `AGENTS.md` and this board.
 
-## Wave 2 integration contract (in progress)
+## Wave 2 integration (done 2026-11-04)
+- The agents never wrote their INTEGRATION.md files; the integrator wired them from the code:
+  - `di/AppContainer`: one `DataRepositories` (widget refresher listener), WhatsApp template store, backup scheduler/status.
+  - `VrajApp.onCreate`: installs it into `NotifyGraph`, `AssetsModule`, `ScreensDepsProvider` (with real backup status + "backup now"); creates notification channels; re-arms alarms and the 23:45 backup.
+  - `ui/app/VkRoot`: routes `home`, `entry`, `shopping` (deep link `vraj://shopping`), `assets`, `lend`.
+  - Manifest: all receivers, boot re-arm, 3 widget providers (`res/xml/widget_*.xml`), `vraj://` VIEW filter, `singleTop`.
+- Known gaps: `MainActivity` does not forward `onNewIntent` deep links to the NavController yet; `vraj://reminders` and `vraj://panchang/…` have no destination until those screens exist.
+
+## Next steps (in order)
+1. Run on the S22 or an emulator (`tools/device-check.bat`), click through Entry, Shopping, Assets, Lend.
+2. Build the missing screens: Home (05, including the new "કુલ નફો-નુકસાન" and પશુપાલન cards), Reminders (13), Farms (07), Family (08), Personal (09), Panchang calendar + settings (10), Settings/Master + backup settings + Reports (04, 15), Profiles/Help (14).
+3. Hook `onNewIntent` deep links; switch `PanchangSource` to `PanchangAlertEngine`.
+4. QA (16).
+
+## Wave 2 integration contract (original)
 Each Wave 2 agent owns only its own packages. It exposes a `NavGraphBuilder.xxxGraph(navController)` and writes its wiring needs to an `INTEGRATION.md` inside its package:
 - `ui/assets/INTEGRATION.md`
 - `ui/home/INTEGRATION.md`

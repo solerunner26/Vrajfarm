@@ -1,7 +1,12 @@
 package com.vraj.khetihisab.data.entity
 
 /** Ledger section. PERSONAL money must never reach any farm P&L query. */
-enum class AccountSection { FARM, FAMILY, GENERAL, PERSONAL }
+/**
+ * Every section except PERSONAL counts in the overall business P&L:
+ * FARM (crops), ANIMAL (પશુપાલન — cows, buffaloes: feed, vet, milk), FAMILY (farm managers' salary/ઉપાડ),
+ * GENERAL (light, water, CCTV). PERSONAL is always excluded. Stored by name, so order is free.
+ */
+enum class AccountSection { FARM, ANIMAL, FAMILY, GENERAL, PERSONAL }
 
 /** ADVANCE = ઉપાડ (Family). */
 enum class TxnType { INCOME, EXPENSE, ADVANCE }
