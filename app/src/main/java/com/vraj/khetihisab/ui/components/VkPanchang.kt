@@ -123,7 +123,7 @@ fun VkFestivalDialog(
                 }
                 Column(Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                     // 2. Type chips (neutral, outlined)
-                    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                         special.types.sortedBy { it.ordinal }.forEach { t ->
                             AssistChip(
                                 onClick = {},

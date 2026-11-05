@@ -164,14 +164,14 @@ fun FarmDetailScreen(
             if (state.crops.isEmpty()) {
                 Text(stringResource(R.string.hm_no_crops), style = MaterialTheme.typography.bodyLarge)
             } else {
-                FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    state.crops.forEach { crop ->
-                        VkChip(crop.name, selected = state.cycle?.crop?.id == crop.id, onClick = {
-                            picking = false
-                            if (state.cycle?.crop?.id != crop.id) onChangeCrop(crop.id)
-                        })
-                    }
-                }
+                com.vraj.khetihisab.ui.components.VkChoiceGrid(
+                    options = state.crops.map { it.id to it.name },
+                    selected = state.cycle?.crop?.id,
+                    onToggle = { id ->
+                        picking = false
+                        if (state.cycle?.crop?.id != id) onChangeCrop(id)
+                    },
+                )
             }
         }
     }

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Owner review 2026-11-05: chip rows replaced by dropdowns / pickers / equal grids. -->
+<resources>
+    <string name="v6_custom_date">બીજી તારીખ પસંદ કરો…</string>
+    <string name="v6_custom_date_set">%s (પસંદ કરેલ તારીખ)</string>
+    <string name="v6_period">સમયગાળો</string>
+    <string name="v6_period_custom">પસંદ કરેલ તારીખો</string>
+    <string name="v6_alert_type">સૂચનાનો પ્રકાર</string>
+    <string name="v6_date">તારીખ</string>
+    <string name="v6_time">સમય</string>
+    <string name="v6_section">વિભાગ</string>
+</resources>

@@ -159,21 +159,21 @@ private fun ReportOptions(type: ReportType, range: DateRange?, failed: Boolean, 
         if (type.usesRange && range != null) {
             val presets = ReportsViewModel.presetsFor(type)
             if (presets.isNotEmpty()) {
-                FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    presets.forEach { p ->
-                        val pr = ReportsViewModel.presetRange(p, LocalDate.now(ReportsViewModel.IST))
-                        VkChip(stringResource(presetLabel(p)), selected = pr == range, onClick = { vm.setPreset(p) })
-                    }
-                }
+                val today = LocalDate.now(ReportsViewModel.IST)
+                com.vraj.khetihisab.ui.components.VkDropdownField(
+                    label = stringResource(R.string.v6_period),
+                    options = presets.map { p -> p to stringResource(presetLabel(p)) },
+                    selected = presets.firstOrNull { ReportsViewModel.presetRange(it, today) == range },
+                    onSelect = { vm.setPreset(it) },
+                    placeholder = stringResource(R.string.v6_period_custom),
+                )
             }
-            Text(rangeLabel(range), style = MaterialTheme.typography.titleMedium)
+            // Dates as standard fields that show their own value (no vague "થી / સુધી" buttons).
             if (type == ReportType.DAILY_LEDGER) {
-                VkTonalButton(stringResource(R.string.st_rep_pick_day), { picking = "day" }, Modifier.fillMaxWidth())
+                com.vraj.khetihisab.ui.components.VkPickerField(stringResource(R.string.st_rep_pick_day), range.from.format(DMY), { picking = "day" }, testTag = "rep_day")
             } else {
-                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                    VkTonalButton(stringResource(R.string.st_rep_from), { picking = "from" }, Modifier.weight(1f))
-                    VkTonalButton(stringResource(R.string.st_rep_to), { picking = "to" }, Modifier.weight(1f))
-                }
+                com.vraj.khetihisab.ui.components.VkPickerField(stringResource(R.string.st_rep_from), range.from.format(DMY), { picking = "from" }, testTag = "rep_from")
+                com.vraj.khetihisab.ui.components.VkPickerField(stringResource(R.string.st_rep_to), range.to.format(DMY), { picking = "to" }, testTag = "rep_to")
             }
         } else {
             StNote(stringResource(R.string.st_rep_meta_now))

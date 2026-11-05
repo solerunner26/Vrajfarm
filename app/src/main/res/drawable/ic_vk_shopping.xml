@@ -1,47 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- GENERATED from design sources by svg2vk.js. Compose screens use VkIcon (theme-aware) instead. -->
-<vector xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:aapt="http://schemas.android.com/aapt"
-    android:width="40dp"
-    android:height="40dp"
-    android:viewportWidth="96"
-    android:viewportHeight="96">
-    <path
-        android:pathData="M28,0H68A28,28 0 0 1 96,28V68A28,28 0 0 1 68,96H28A28,28 0 0 1 0,68V28A28,28 0 0 1 28,0Z">
-        <aapt:attr name="android:fillColor">
-            <gradient android:type="linear" android:startX="0" android:startY="0" android:endX="96" android:endY="96">
-                <item android:offset="0" android:color="#FFE6F3EB" />
-                <item android:offset="1" android:color="#FFCBE6D6" />
-            </gradient>
-        </aapt:attr>
-    </path>
-    <path
-        android:pathData="M36 36v-6a12 12 0 0 1 24 0v6"
-        android:strokeWidth="7"
-        android:strokeLineCap="round">
-        <aapt:attr name="android:strokeColor">
-            <gradient android:type="linear" android:startX="0" android:startY="0" android:endX="96" android:endY="96">
-                <item android:offset="0" android:color="#FF9ED3B3" />
-                <item android:offset="1" android:color="#FF5FA580" />
-            </gradient>
-        </aapt:attr>
-    </path>
-    <path
-        android:pathData="M22 36h52l-4 38a7 7 0 0 1-7 6H33a7 7 0 0 1-7-6z">
-        <aapt:attr name="android:fillColor">
-            <gradient android:type="linear" android:startX="0" android:startY="0" android:endX="96" android:endY="96">
-                <item android:offset="0" android:color="#FF2E7D5B" />
-                <item android:offset="1" android:color="#FF174A37" />
-            </gradient>
-        </aapt:attr>
-    </path>
-    <path
-        android:pathData="M40,56A8,8 0 1 0 56,56A8,8 0 1 0 40,56Z">
-        <aapt:attr name="android:fillColor">
-            <gradient android:type="linear" android:startX="0" android:startY="0" android:endX="96" android:endY="96">
-                <item android:offset="0" android:color="#FF9ED3B3" />
-                <item android:offset="1" android:color="#FF5FA580" />
-            </gradient>
-        </aapt:attr>
-    </path>
+<!-- From design/icons/shopping.svg (woven basket, 2026-11-05). Compose screens use VkIcon (theme-aware). -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android" xmlns:aapt="http://schemas.android.com/aapt" android:width="40dp" android:height="40dp" android:viewportWidth="96" android:viewportHeight="96">
+<path android:pathData="M28,0H68A28,28 0 0 1 96,28V68A28,28 0 0 1 68,96H28A28,28 0 0 1 0,68V28A28,28 0 0 1 28,0Z"><aapt:attr name="android:fillColor"><gradient android:type="linear" android:startX="0" android:startY="0" android:endX="96" android:endY="96"><item android:offset="0" android:color="#FFE6F3EB" /><item android:offset="1" android:color="#FFCBE6D6" /></gradient></aapt:attr></path>
+<path android:pathData="M24 44C24 20 72 20 72 44" android:strokeWidth="6" android:strokeLineCap="round"><aapt:attr name="android:strokeColor"><gradient android:type="linear" android:startX="0" android:startY="0" android:endX="96" android:endY="96"><item android:offset="0" android:color="#FF9ED3B3" /><item android:offset="1" android:color="#FF5FA580" /></gradient></aapt:attr></path>
+<path android:pathData="M50 40c2-12 11-18 21-18-1 11-9 18-21 18z"><aapt:attr name="android:fillColor"><gradient android:type="linear" android:startX="0" android:startY="0" android:endX="96" android:endY="96"><item android:offset="0" android:color="#FF9ED3B3" /><item android:offset="1" android:color="#FF5FA580" /></gradient></aapt:attr></path>
+<path android:pathData="M14 42h68l-7 34a6 6 0 0 1-6 5H27a6 6 0 0 1-6-5z"><aapt:attr name="android:fillColor"><gradient android:type="linear" android:startX="0" android:startY="0" android:endX="96" android:endY="96"><item android:offset="0" android:color="#FF2E7D5B" /><item android:offset="1" android:color="#FF174A37" /></gradient></aapt:attr></path>
+<path android:pathData="M20 56h56" android:strokeWidth="3" android:strokeLineCap="round" android:strokeColor="#8CE6F3EB" />
+<path android:pathData="M23 68h50" android:strokeWidth="3" android:strokeLineCap="round" android:strokeColor="#8CE6F3EB" />
+<path android:pathData="M38 46v32" android:strokeWidth="3" android:strokeLineCap="round" android:strokeColor="#8CE6F3EB" />
+<path android:pathData="M58 46v32" android:strokeWidth="3" android:strokeLineCap="round" android:strokeColor="#8CE6F3EB" />
 </vector>

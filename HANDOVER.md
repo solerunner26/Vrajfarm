@@ -109,6 +109,13 @@
 - The GoDaddy URL is still a placeholder (open question 6).
 
 ## Change log
+- **2026-11-05 (Claude, selection-controls fix after owner review):** the owner rejected the lend screen's wrapping day chips. Root cause: the UI audit had been told to skip ui/assets/*. Every chip group in the app was re-checked and replaced:
+  - New `ui/components/VkSelect.kt` with the rule for the whole app: fixed choices → `VkDropdownField`; type-or-pick → `VkComboField`; dates/times → `VkPickerField`; main pick of a flow → `VkChoiceGrid` (equal tiles, optional same-shape "+ add" tile).
+  - Lend: borrower combo, asset dropdown, handover date field, return-period dropdown (+ custom date); preview hidden until name + asset are set.
+  - Entry tap 2 types, farm-detail crop picker, Profiles farm assignment (multi), month picker (2 columns) → `VkChoiceGrid`. Farm settings manager/crop, shopping farm, report period, Farms period, Panchang guidance type/month/tithi, expense-type section → `VkDropdownField`. Reminder date/time, milk date, shopping and report dates → `VkPickerField`. Milk animal → `VkComboField`.
+  - `VkDialog` got a `deleteLabel/onDelete` action slot and a scroll hairline; in-content delete buttons moved there.
+  - Shopping icon redrawn as a woven basket (it read as a padlock) in design/icons/shopping.svg, VkIconSet and the drawable.
+  - Every changed screen was screenshot-checked on the emulator. 179 unit + 56 instrumented tests green.
 - **2026-11-05 (Claude + 2 agents, FINAL release):** owner said this is the last update for now.
   - **Update not shown on the Pixel:** the app checked GitHub only once per process; Android kept the process alive, so it never re-checked. Now `UpdateState.refresh()` runs every time the app comes to the front (10-min gap) and `UpdateCheckWorker` checks twice a day and posts "નવું અપડેટ" (once per version). A phone still on the debug-signed `v0.1.0-beta` has no updater and cannot take a release-signed update: uninstall once and install the latest APK.
   - **Asset management:** Settings/Home open `assets?tab=all`; summary tiles (total / lent / late), "+ નવી મિલકત ઉમેરો", assets as `VkTile`s, shared `AssetFormDialog` (name, price, note) for add/edit, delete confirm, lend bar below the list (no overlap), 60dp call button. Lend: `AssetDropdown` (M3 exposed menu) of existing assets + "+ નવી"; return chips show "N દિવસ".

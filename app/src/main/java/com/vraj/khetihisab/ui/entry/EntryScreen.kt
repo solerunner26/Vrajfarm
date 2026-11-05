@@ -417,13 +417,14 @@ private fun Tap2(form: EntryForm, lists: EntryLists, onEvent: (EntryEvent) -> Un
                         repeat(4 - row.size) { Spacer(Modifier.weight(1f)) }
                     }
                 }
-                // Wraps onto more lines instead of hiding types off-screen (audit #25).
-                FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    lists.categories.forEach { c ->
-                        VkChip(c.label, form.categoryId == c.id, { onEvent(EntryEvent.PickCategory(c.id, c.isCropSale)) })
-                    }
-                    if (onAddCategory != null) VkChip(stringResource(R.string.v3_new_type), false, { addingType = true })
-                }
+                // Equal tiles in a 2-column grid (owner review: no ragged chip rows).
+                com.vraj.khetihisab.ui.components.VkChoiceGrid(
+                    options = lists.categories.map { it.id to it.label },
+                    selected = form.categoryId,
+                    onToggle = { id -> lists.categories.firstOrNull { it.id == id }?.let { c -> onEvent(EntryEvent.PickCategory(c.id, c.isCropSale)) } },
+                    addLabel = if (onAddCategory != null) stringResource(R.string.v3_new_type) else null,
+                    onAdd = { addingType = true },
+                )
             }
             AccountSection.FAMILY -> {
                 VkSectionTitle(stringResource(R.string.scr_tap2_family))
@@ -441,12 +442,13 @@ private fun Tap2(form: EntryForm, lists: EntryLists, onEvent: (EntryEvent) -> Un
             }
             AccountSection.ANIMAL, AccountSection.GENERAL, AccountSection.PERSONAL -> {
                 VkSectionTitle(stringResource(R.string.scr_tap2_category))
-                FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    lists.categories.forEach { c ->
-                        VkChip(c.label, form.categoryId == c.id, { onEvent(EntryEvent.PickCategory(c.id, c.isCropSale)) })
-                    }
-                    if (onAddCategory != null) VkChip(stringResource(R.string.v3_new_type), false, { addingType = true })
-                }
+                com.vraj.khetihisab.ui.components.VkChoiceGrid(
+                    options = lists.categories.map { it.id to it.label },
+                    selected = form.categoryId,
+                    onToggle = { id -> lists.categories.firstOrNull { it.id == id }?.let { c -> onEvent(EntryEvent.PickCategory(c.id, c.isCropSale)) } },
+                    addLabel = if (onAddCategory != null) stringResource(R.string.v3_new_type) else null,
+                    onAdd = { addingType = true },
+                )
             }
             null -> Unit
         }

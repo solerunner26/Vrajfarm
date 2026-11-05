@@ -224,14 +224,14 @@ private fun AddRow(st: ShoppingUiState, vm: ShoppingViewModel, onVoice: () -> Un
         if (d.expanded) {
             VkCard {
                 Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                    AsLabel(stringResource(R.string.as_for_date))
-                    VkChip(AssetsFormat.dmy(d.date), selected = true, onClick = onPickDate)
+                    com.vraj.khetihisab.ui.components.VkPickerField(stringResource(R.string.as_for_date), AssetsFormat.dmy(d.date), onPickDate)
                     if (st.tab == ShopTab.FARM && st.farms.isNotEmpty()) {
-                        AsLabel(stringResource(R.string.as_farm))
-                        FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                            VkChip(stringResource(R.string.as_no_farm), d.farmId == null, { vm.onDraftFarm(null) })
-                            st.farms.forEach { f -> VkChip(f.name, d.farmId == f.id, { vm.onDraftFarm(f.id) }) }
-                        }
+                        com.vraj.khetihisab.ui.components.VkDropdownField(
+                            label = stringResource(R.string.as_farm),
+                            options = listOf<Pair<Long?, String>>(null to stringResource(R.string.as_no_farm)) + st.farms.map { it.id to it.name },
+                            selected = d.farmId,
+                            onSelect = { vm.onDraftFarm(it) },
+                        )
                     }
                     AsTextField(
                         value = d.priceText,
@@ -319,6 +319,8 @@ private fun ShopEditDialog(row: ShopRow, onDismiss: () -> Unit, onSave: (String,
         confirmLabel = stringResource(R.string.scr_save),
         onConfirm = { onSave(name, price) },
         confirmEnabled = name.isNotBlank(),
+        deleteLabel = stringResource(R.string.scr_delete),
+        onDelete = { confirm = true },
     ) {
         com.vraj.khetihisab.ui.components.VkTextField(value = name, onValueChange = { name = it }, label = stringResource(R.string.as_add_item_hint))
         com.vraj.khetihisab.ui.components.VkTextField(
@@ -327,7 +329,6 @@ private fun ShopEditDialog(row: ShopRow, onDismiss: () -> Unit, onSave: (String,
             label = stringResource(R.string.as_est_price),
             keyboardType = KeyboardType.Decimal,
         )
-        com.vraj.khetihisab.ui.components.VkDangerButton(stringResource(R.string.scr_delete), { confirm = true }, Modifier.fillMaxWidth())
     }
     if (confirm) {
         com.vraj.khetihisab.ui.components.VkConfirmDeleteDialog(
@@ -363,8 +364,7 @@ private fun ConvertSheet(c: ConvertSheet, vm: ShoppingViewModel) {
             Text(stringResource(R.string.as_convert_body), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
             AsTextField(c.name, vm::onConvertName, stringResource(R.string.as_name), isError = c.name.isBlank())
             AsTextField(c.priceText, vm::onConvertPrice, stringResource(R.string.as_price), keyboard = KeyboardOptions(keyboardType = KeyboardType.Decimal))
-            AsLabel(stringResource(R.string.as_purchase_date))
-            com.vraj.khetihisab.ui.components.VkDateChip(AssetsFormat.dmy(c.purchaseDate), { pickDate = true })
+            com.vraj.khetihisab.ui.components.VkPickerField(stringResource(R.string.as_purchase_date), AssetsFormat.dmy(c.purchaseDate), { pickDate = true })
             VkPrimaryButton(stringResource(R.string.as_yes_add), vm::confirmConvert, Modifier.fillMaxWidth(), enabled = c.name.isNotBlank())
             VkTextButton(stringResource(R.string.as_no), vm::dismissConvert, Modifier.fillMaxWidth())
         }

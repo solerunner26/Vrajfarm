@@ -50,11 +50,12 @@ fun PanchangGuidanceScreen(vm: PanchangGuidanceViewModel, onBack: () -> Unit) {
     StScrollBody {
         VkTopHeader(title = stringResource(R.string.st_pa_edit_guidance), onBack = onBack)
         StBodyColumn {
-            FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                PanchangTypeRows.forEach { row ->
-                    VkChip(stringResource(row.title), selected = d.type == row.type, onClick = { vm.select(row.type) })
-                }
-            }
+            com.vraj.khetihisab.ui.components.VkDropdownField(
+                label = stringResource(R.string.v6_alert_type),
+                options = PanchangTypeRows.map { it.type to stringResource(it.title) },
+                selected = d.type,
+                onSelect = { vm.select(it) },
+            )
             VkCard(Modifier.fillMaxWidth()) {
                 StTextField(
                     value = d.doText,
@@ -148,19 +149,23 @@ private fun AddFestivalDialog(onDismiss: () -> Unit, onAdd: (FestivalInput) -> F
             onSelect = { byTithi = it; error = null },
         )
         if (byTithi) {
-            Text(stringResource(R.string.st_pa_month), style = MaterialTheme.typography.labelLarge)
-            FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                PanchangNames.months.forEachIndexed { i, m -> VkChip(m, selected = month == i, onClick = { month = i }) }
-            }
+            com.vraj.khetihisab.ui.components.VkDropdownField(
+                label = stringResource(R.string.st_pa_month),
+                options = PanchangNames.months.mapIndexed { i, m -> i to m },
+                selected = month,
+                onSelect = { month = it },
+            )
             VkSegmented(
                 options = listOf(false to PanchangNames.PAKSHA_SUD, true to PanchangNames.PAKSHA_VAD),
                 selected = vad,
                 onSelect = { vad = it },
             )
-            Text(stringResource(R.string.st_pa_tithi_number), style = MaterialTheme.typography.labelLarge)
-            FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                (1..15).forEach { n -> VkChip(n.toString(), selected = tithi == n, onClick = { tithi = n }) }
-            }
+            com.vraj.khetihisab.ui.components.VkDropdownField(
+                label = stringResource(R.string.st_pa_tithi_number),
+                options = (1..15).map { it to it.toString() },
+                selected = tithi,
+                onSelect = { tithi = it },
+            )
         } else {
             StTextField(
                 date,

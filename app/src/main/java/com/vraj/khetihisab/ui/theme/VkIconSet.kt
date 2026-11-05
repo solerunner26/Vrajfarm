@@ -254,9 +254,14 @@ enum class VkIcon(internal val resName: String, internal val parts: List<VkIconP
         "ic_vk_shopping",
         listOf(
             VkIconPart("M28,0H68A28,28 0 0 1 96,28V68A28,28 0 0 1 68,96H28A28,28 0 0 1 0,68V28A28,28 0 0 1 28,0Z", VkInk.T),
-            VkIconPart("M36 36v-6a12 12 0 0 1 24 0v6", null, stroke = VkInk.B, strokeWidth = 7f, roundCap = true),
-            VkIconPart("M22 36h52l-4 38a7 7 0 0 1-7 6H33a7 7 0 0 1-7-6z", VkInk.A),
-            VkIconPart("M40,56A8,8 0 1 0 56,56A8,8 0 1 0 40,56Z", VkInk.B),
+            // 2026-11-05: woven farm basket with a leaf (the old bag read as a padlock).
+            VkIconPart("M24 44C24 20 72 20 72 44", null, stroke = VkInk.B, strokeWidth = 6f, roundCap = true),
+            VkIconPart("M50 40c2-12 11-18 21-18-1 11-9 18-21 18z", VkInk.B),
+            VkIconPart("M14 42h68l-7 34a6 6 0 0 1-6 5H27a6 6 0 0 1-6-5z", VkInk.A),
+            VkIconPart("M20 56h56", null, stroke = VkInk.T, strokeWidth = 3f, alpha = 0.55f, roundCap = true),
+            VkIconPart("M23 68h50", null, stroke = VkInk.T, strokeWidth = 3f, alpha = 0.55f, roundCap = true),
+            VkIconPart("M38 46v32", null, stroke = VkInk.T, strokeWidth = 3f, alpha = 0.55f, roundCap = true),
+            VkIconPart("M58 46v32", null, stroke = VkInk.T, strokeWidth = 3f, alpha = 0.55f, roundCap = true),
         ),
     ),
     UTILITY(

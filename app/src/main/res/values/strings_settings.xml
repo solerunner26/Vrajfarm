@@ -207,9 +207,9 @@
     <string name="st_rep_fy">નાણાકીય વર્ષ</string>
     <string name="st_rep_this_year">આ વર્ષ</string>
     <string name="st_rep_last_year">ગયું વર્ષ</string>
-    <string name="st_rep_pick_day">તારીખ પસંદ કરો</string>
-    <string name="st_rep_from">થી</string>
-    <string name="st_rep_to">સુધી</string>
+    <string name="st_rep_pick_day">તારીખ</string>
+    <string name="st_rep_from">શરૂઆતની તારીખ</string>
+    <string name="st_rep_to">છેલ્લી તારીખ</string>
     <string name="st_rep_generate">PDF બનાવો</string>
     <string name="st_rep_generating">PDF બને છે…</string>
     <string name="st_rep_failed">PDF બની નહીં, ફરી પ્રયત્ન કરો</string>
@@ -234,7 +234,7 @@
     <string name="st_add_name">નામ ઉમેરો</string>
     <string name="st_need_number">પહેલાં નંબર ઉમેરો</string>
     <string name="st_assign_farms">જવાબદારીનાં ખેતર</string>
-    <string name="st_assign_note">એક ખેતર એક જ ભાગિયાનું રહે છે; અહીં પસંદ કરવાથી બીજા ભાગિયા પાસેથી હટી જશે.</string>
+    <string name="st_assign_note">મોટું ખેતર બંને ભાગિયાને સાથે આપી શકાય: બંનેમાં એ ખેતર પસંદ કરો.</string>
     <string name="st_change_photo">%s નો ફોટો બદલો</string>
     <string name="st_photo_sheet_title">%s — ફોટો</string>
     <string name="st_photo_camera">કેમેરાથી ફોટો પાડો</string>
