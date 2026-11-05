@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="gu" data-theme="mati">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kheti Hisab</title>
+<meta name="description" content="Kheti Hisab – offline farm accounting app for Android in Gujarati, Hindi and English. Interactive screen-by-screen demo.">
+<meta name="theme-color" content="#7A3218">
+<link rel="icon" href="assets/icons/farm.svg" type="image/svg+xml">
+<link rel="stylesheet" href="site.css?v=2">
+</head>
+<body>
+<a class="skip" href="#main">Skip</a>
+<header class="top">
+  <a class="brand" href="#top"><img src="assets/icons/farm.svg" alt=""><span class="brand-name">Kheti Hisab</span></a>
+  <nav class="nav"><a href="#why" data-s="navWhy"></a><a href="#features" data-s="navFeatures"></a><a href="#tour" data-s="navTour"></a><a href="#choose" data-s="navChoose"></a></nav>
+  <div class="tools">
+    <label class="sel"><span class="sr" data-s="lang"></span><select id="langSel"><option value="gu">ગુજરાતી</option><option value="hi">हिन्दी</option><option value="en">English</option></select></label>
+    <label class="sel sw-sel"><span class="sr" data-s="themeLbl"></span><select id="themeSel"></select></label>
+    <button class="menu" id="menuBtn" aria-label="Menu">☰</button>
+  </div>
+</header>
+
+<main id="main">
+<section class="hero" id="top">
+  <div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div>
+  <div class="hero-copy rv">
+    <p class="kicker" data-s="kicker"></p>
+    <h1><span data-s="h1a"></span><br><em data-s="h1b"></em></h1>
+    <p class="lead" data-s="sub"></p>
+    <div class="ctas"><a class="cta" href="#tour" data-s="ctaTour"></a><a class="cta ghost" href="#choose" data-s="ctaChoose"></a></div>
+    <dl class="stats"><div><dt data-count="30">30</dt><dd data-s="stScreens"></dd></div><div><dt data-count="5">5</dt><dd data-s="stThemes"></dd></div><div><dt data-count="3">3</dt><dd data-s="stLangs"></dd></div><div><dt data-count="7">7</dt><dd data-s="stReports"></dd></div></dl>
+  </div>
+  <div class="film anim" id="film" aria-live="polite">
+    <div class="film-tag"><i></i><span data-s="filmTag"></span></div>
+    <div class="film-cap"><span class="film-count" id="filmCount"></span><h2 id="filmH"></h2><p id="filmP"></p><div class="film-dots" id="filmDots"></div></div>
+    <div class="film-phone"><div class="halo"></div><div class="device phone small"><div class="notch"></div><div class="d-screen" id="filmScreen"></div></div>
+      <span class="float f1"><img src="assets/icons/panchang.svg" alt=""></span><span class="float f2"><img src="assets/icons/report.svg" alt=""></span><span class="float f3"><img src="assets/icons/lock.svg" alt=""></span></div>
+    <div class="film-ctl">
+      <div class="film-track"><i id="filmBar"></i></div>
+      <button id="filmPrev" data-sa="prev">‹</button><button id="filmPlay" class="wide"></button><button id="filmNext" data-sa="next">›</button><button id="filmReplay" data-sa="replay">↻</button><button id="filmFull" data-sa="full">⛶</button>
+    </div>
+  </div>
+</section>
+
+<div class="marquee" aria-hidden="true"><div id="marquee"></div></div>
+
+<section class="sec" id="why">
+  <header class="sec-h rv"><p class="kicker leaf" data-s="whyKicker"></p><h2 data-s="whyTitle"></h2></header>
+  <div class="usp-tabs rv" id="uspTabs">
+    <button data-u="0"><img src="assets/icons/settings.svg" alt=""><b data-s="u1t"></b><span data-s="u1b"></span></button>
+    <button data-u="1"><img src="assets/icons/lock.svg" alt=""><b data-s="u2t"></b><span data-s="u2b"></span></button>
+    <button data-u="2"><img src="assets/icons/report.svg" alt=""><b data-s="u3t"></b><span data-s="u3b"></span></button>
+    <button data-u="3"><img src="assets/icons/asset.svg" alt=""><b data-s="u4t"></b><span data-s="u4b"></span></button>
+  </div>
+  <div class="usp-panel rv" id="uspPanel"></div>
+</section>
+
+<section class="sec alt" id="features">
+  <header class="sec-h rv"><p class="kicker leaf" data-s="featKicker"></p><h2 data-s="featTitle"></h2><p class="lead" data-s="featSub"></p></header>
+  <div class="feat-grid" id="featGrid"></div>
+</section>
+
+<section class="sec" id="tour">
+  <header class="sec-h rv"><p class="kicker leaf" data-s="tourKicker"></p><h2 data-s="tourTitle"></h2><p class="lead" data-s="tourSub"></p></header>
+  <div class="tour-bar">
+    <div class="seg" id="viewSeg"><button class="on" data-v="m" data-s="viewMobile"></button><button data-v="w" data-s="viewWeb"></button></div>
+    <label class="sel tour-sel"><span class="sr" data-s="jump"></span><select id="tourSelect"></select></label>
+    <button class="switch" id="autoTg"><i></i><span data-s="auto"></span></button>
+  </div>
+  <div class="tour">
+    <aside class="tour-list" id="tourList"></aside>
+    <div class="tour-stage"><div class="device phone" id="device"></div></div>
+    <article class="tour-info">
+      <img id="stIcon" src="assets/icons/farm.svg" alt="">
+      <h3 id="stTitle"></h3><p id="stPurpose" class="lead"></p>
+      <p class="kicker" data-s="stepsLbl"></p><ol id="stSteps" class="steps"></ol>
+      <div class="pager"><button id="stPrev" data-sa="prev">‹</button><span id="stCount"></span><button id="stNext" data-sa="next">›</button></div>
+    </article>
+  </div>
+</section>
+
+<section class="sec alt" id="choose">
+  <header class="sec-h rv"><p class="kicker leaf" data-s="chooseKicker"></p><h2 data-s="chooseTitle"></h2><p class="lead" data-s="chooseSub"></p></header>
+  <div class="choose">
+    <div><div class="mod-grid" id="modGrid"></div><textarea id="customReq" rows="3" data-sp="customPh"></textarea></div>
+    <aside class="summary"><p class="kicker" data-s="yourList"></p><p class="count"><b id="pickCount">0</b> <span data-s="selected"></span></p><ul id="pickList"></ul>
+      <button class="cta" id="copyList" data-s="copy"></button><a class="cta ghost" id="waShare" target="_blank" rel="noopener" data-s="waShare"></a></aside>
+  </div>
+</section>
+</main>
+
+<footer class="foot"><img src="assets/icons/farm.svg" alt=""><h2 data-s="footCta"></h2><a class="cta" href="#choose" data-s="ctaChoose"></a><p data-s="foot"></p></footer>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script src="i18n.js?v=2"></script>
+<script src="app.js?v=2"></script>
+</body>
+</html>

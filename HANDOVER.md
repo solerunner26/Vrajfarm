@@ -1,7 +1,7 @@
 # HANDOVER — live status board
 
 > Every AI or human working on this repo updates this file **before stopping** (see `AGENTS.md` §5).
-> Last updated: **2026-11-05 by Claude (Opus): owner feedback round 3 (DB v2: joint ભાગિયા farms + milk register, Gmail one-tap, voice entry, letterhead PDFs) — release v0.2.x**
+> Last updated: **2026-11-05 by Agent Mode: expanded the multilingual showcase with customization, security/report USPs, guided workflows and a playable launch story**
 
 ## Snapshot
 - **Phase:** Wave 1 done. Wave 2 code compiles, is integrated, and `assembleDebug` + `testDebugUnitTest` pass (2026-11-04). Several Wave 2 screens were never written (see task board).
@@ -9,7 +9,8 @@
   - 16 screens + brand + 5-theme board, offline copies in `design/canvas/`
   - 17 handover docs in `handover/`
   - Visual QA done on Home, Entry, Settings (green + night), Lend and the Panchang dialog. See doc 17.
-- **Code:** builds green. **Never launched on a device yet** (no phone/emulator attached on 2026-11-04).
+- **Code:** Android builds green. **Never launched on a device yet** (no phone/emulator attached on 2026-11-04).
+- **Public showcase:** `docs/website/` contains the static, responsive Gujarati/Hindi/English presentation with 33 fictional-data screen previews, six guided workflows, a local-only feature selector, and a 30-second launch story that auto-starts and loops until paused or closed. `docs/Farm-Ledger-Website.zip` is the ready-to-upload archive. Security claims describe implemented controls only; built-in reports are the documented seven PDF types. The site has no API, data collection, runtime framework or GoDaddy backup server.
 
 ## Verify (Windows)
 - Double-click `tools/build-check.bat` → `tools/build-log.txt` (assembleDebug + unit tests). Last run 2026-11-04: **BUILD SUCCESSFUL**.
@@ -41,6 +42,7 @@
 | 13a | Server: `server/backup_receiver.php` + cPanel guide (15) | backup-reports: `server/**` | **DONE, NOT EXECUTED (Claude, 2026-11-03)** | Code reviewed only, because there's no PHP on the dev PC. **First run `php server/tests/run_tests.php` (about 35 checks) on any PHP 8 machine.** Contract changes for the Android worker: too large → **413** `{"error":"size"}` (don't retry); HTTPS is required; rate limit 10/h per IP. The real config is `vraj_config.php` outside the web root (git-ignored). |
 | 13b | Android: PDF reports + 11:45 PM `NightlyBackupWorker` (15) | backup-reports | **DONE (compiles, wired)** | Fixed 2026-11-04: nested-comment bug in `BackupZipBuilder`, missing `strings_backup.xml`, PDF page list. Scheduled at app start. **Reports screen and backup settings UI (URL/key entry) not written**; needs the GoDaddy domain. |
 | 14 | QA matrix, device checks (16, 17) | qa-tester | TODO | Last. Use the mobile-mcp server from `.mcp.json` if available |
+| 15 | Generic public product showcase | Agent Mode: `docs/website/**` | **DONE (2026-11-05)** | Static responsive site under `docs/website/`; three languages, 33 fictional-data screen previews, six step-by-step workflows, local feature wishlist, and one 30-second captioned ad that auto-starts and loops. Ready-to-upload archive at `docs/Farm-Ledger-Website.zip`. Includes factual security safeguards and seven current built-in shareable PDF reports; no absolute-security or unlimited-report claim. `node --check` and jsdom interaction/language smoke tests pass. No app backend or GoDaddy backup service is included. |
 
 ## Foundation notes
 - **Versions:**
