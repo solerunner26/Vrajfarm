@@ -110,8 +110,12 @@ internal fun StDialog(
     onDismiss: () -> Unit,
     confirmEnabled: Boolean = true,
     danger: Boolean = false,
+    deleteLabel: String? = null,
+    onDelete: (() -> Unit)? = null,
     content: @Composable ColumnScope.() -> Unit,
 ) = VkDialog(
+    deleteLabel = deleteLabel,
+    onDelete = onDelete,
     title = title,
     onDismiss = onDismiss,
     confirmLabel = confirmLabel,

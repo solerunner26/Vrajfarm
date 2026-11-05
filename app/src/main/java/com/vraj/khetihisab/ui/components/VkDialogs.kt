@@ -63,8 +63,12 @@ fun VkDialog(
     confirmEnabled: Boolean = true,
     danger: Boolean = false,
     dismissible: Boolean = true,
+    /** Delete lives with the actions (never inside scrolling content, where it can be cut off). */
+    deleteLabel: String? = null,
+    onDelete: (() -> Unit)? = null,
     content: @Composable ColumnScope.() -> Unit = {},
 ) {
+    val scroll = rememberScrollState()
     AlertDialog(
         onDismissRequest = { if (dismissible) onDismiss() },
         modifier = modifier,
@@ -74,11 +78,20 @@ fun VkDialog(
         textContentColor = MaterialTheme.colorScheme.onSurface,
         title = { Text(title, style = MaterialTheme.typography.headlineSmall, modifier = Modifier.semantics { heading() }) },
         text = {
-            Column(
-                Modifier.verticalScroll(rememberScrollState()),
-                verticalArrangement = Arrangement.spacedBy(12.dp),
-                content = content,
-            )
+            Column {
+                Column(
+                    Modifier.weight(1f, fill = false).verticalScroll(scroll),
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                    content = content,
+                )
+                // A hairline tells the user there is more above/below, instead of a half-cut control.
+                if (scroll.maxValue > 0) {
+                    androidx.compose.material3.HorizontalDivider(
+                        Modifier.padding(top = 8.dp),
+                        color = MaterialTheme.colorScheme.outlineVariant,
+                    )
+                }
+            }
         },
         confirmButton = {
             Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -89,6 +102,7 @@ fun VkDialog(
                         VkPrimaryButton(confirmLabel, onConfirm, Modifier.fillMaxWidth(), enabled = confirmEnabled)
                     }
                 }
+                if (deleteLabel != null && onDelete != null) VkDangerButton(deleteLabel, onDelete, Modifier.fillMaxWidth())
                 if (dismissLabel != null) VkTextButton(dismissLabel, onDismiss, Modifier.fillMaxWidth())
             }
         },

@@ -121,16 +121,17 @@ fun LendScreen(vm: LendViewModel, onBack: () -> Unit, onDone: () -> Unit) {
 
             // 2 · who
             AsLabel(stringResource(R.string.as_step_who))
-            AsTextField(
-                f.name, vm::onName, stringResource(R.string.as_borrower_name),
+            // Type a name or pick someone who borrowed before (one field, list below — no chip rows).
+            com.vraj.khetihisab.ui.components.VkComboField(
+                label = stringResource(R.string.as_borrower_name),
+                value = f.name,
+                onValueChange = vm::onName,
+                suggestions = st.suggestions.map { it.borrowerName },
+                onPick = { name -> st.suggestions.firstOrNull { it.borrowerName == name }?.let(vm::onSuggestion) ?: vm.onName(name) },
                 isError = LendError.NAME in st.errors,
                 supporting = if (LendError.NAME in st.errors) stringResource(R.string.as_err_name) else null,
+                testTag = "lend_name",
             )
-            if (st.suggestions.isNotEmpty() && f.name.isBlank()) {
-                FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    st.suggestions.take(6).forEach { s -> VkChip(s.borrowerName, selected = false, onClick = { vm.onSuggestion(s) }) }
-                }
-            }
             AsTextField(
                 f.phone, vm::onPhone, stringResource(R.string.as_borrower_phone),
                 keyboard = KeyboardOptions(keyboardType = KeyboardType.Phone),
@@ -139,12 +140,14 @@ fun LendScreen(vm: LendViewModel, onBack: () -> Unit, onDone: () -> Unit) {
             // 3 · asset — pick from the list of existing assets, or add a new one (owner 2026-11-05).
             AsLabel(stringResource(R.string.as_step_asset))
             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                AssetDropdown(
-                    names = st.assets.map { it.id to it.name },
-                    selectedId = f.assetId,
+                com.vraj.khetihisab.ui.components.VkDropdownField(
+                    label = stringResource(if (st.assets.isEmpty()) R.string.v4_asset_none_yet else R.string.v4_asset_pick),
+                    options = st.assets.map { it.id to it.name },
+                    selected = f.assetId,
+                    onSelect = vm::onAsset,
                     isError = LendError.ASSET in st.errors,
-                    onPick = vm::onAsset,
                     modifier = Modifier.weight(1f),
+                    testTag = "asset_dropdown",
                 )
                 VkTonalButton(stringResource(R.string.v4_asset_new_short), vm::showNewAsset, sign = "+")
             }
@@ -152,31 +155,50 @@ fun LendScreen(vm: LendViewModel, onBack: () -> Unit, onDone: () -> Unit) {
 
             // 4 · dates
             AsLabel(stringResource(R.string.as_step_dates))
+            // Owner review 2026-11-05: a standard date field + one dropdown for the period (no chip rows).
             VkCard {
-                Text(stringResource(R.string.as_handover_date), style = MaterialTheme.typography.labelLarge)
-                VkTextButton("${AssetsFormat.dmy(f.handover)} · ${st.handoverTithi}", onClick = { pickHandover = true })
-                Spacer(Modifier.height(8.dp))
-                Text(stringResource(R.string.as_return_after), style = MaterialTheme.typography.labelLarge)
-                FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    listOf(1, 3, 7, 15, 30).forEach { d -> VkChip(stringResource(R.string.v4_days_n, d), selected = f.returnDays == d, onClick = { vm.onReturnDays(d) }) }
-                    VkChip(stringResource(R.string.as_pick_date), selected = f.customReturn != null, onClick = { pickReturn = true })
-                }
-                Text(
-                    stringResource(R.string.as_return_date, AssetsFormat.dmy(f.expectedReturn)),
-                    style = MaterialTheme.typography.bodyLarge,
-                    modifier = Modifier.padding(top = 8.dp),
+                com.vraj.khetihisab.ui.components.VkPickerField(
+                    label = stringResource(R.string.as_handover_date),
+                    value = "${AssetsFormat.dmy(f.handover)} · ${st.handoverTithi}",
+                    onClick = { pickHandover = true },
+                    testTag = "lend_handover",
                 )
+                val custom = -1
+                val periodOptions = listOf(1, 3, 7, 15, 30).map { d -> d to stringResource(R.string.v4_days_n, d) } +
+                    (custom to if (f.customReturn != null) stringResource(R.string.v6_custom_date_set, AssetsFormat.dmy(f.expectedReturn)) else stringResource(R.string.v6_custom_date))
+                com.vraj.khetihisab.ui.components.VkDropdownField(
+                    label = stringResource(R.string.as_return_after),
+                    options = periodOptions,
+                    selected = if (f.customReturn != null) custom else f.returnDays,
+                    onSelect = { d -> if (d == custom) pickReturn = true else vm.onReturnDays(d) },
+                    isError = LendError.RETURN_BEFORE_HANDOVER in st.errors,
+                    testTag = "lend_period",
+                )
+                // The result, as a quiet confirmation line.
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    com.vraj.khetihisab.ui.theme.VkIconImage(com.vraj.khetihisab.ui.theme.VkIcon.REMINDER, size = 28.dp)
+                    Spacer(Modifier.width(10.dp))
+                    Text(
+                        stringResource(R.string.as_return_date, AssetsFormat.dmy(f.expectedReturn)),
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.primary,
+                    )
+                }
                 if (LendError.RETURN_BEFORE_HANDOVER in st.errors) {
                     Text(stringResource(R.string.as_err_return_before), color = MaterialTheme.colorScheme.error)
                 }
-                Row(Modifier.fillMaxWidth().heightIn(min = 60.dp), verticalAlignment = Alignment.CenterVertically) {
-                    Text(stringResource(R.string.as_notify_on_due), Modifier.weight(1f), style = MaterialTheme.typography.bodyLarge)
-                    Switch(checked = f.notify, onCheckedChange = vm::onNotify)
-                }
+                com.vraj.khetihisab.ui.components.VkSwitchRow(
+                    title = stringResource(R.string.as_notify_on_due),
+                    checked = f.notify,
+                    onCheckedChange = vm::onNotify,
+                    onLabel = stringResource(R.string.st_on),
+                    offLabel = stringResource(R.string.st_off),
+                )
             }
 
             // WhatsApp preview
-            if (st.preview.isNotBlank()) {
+            // Only once the message is complete (name + asset), never with blanks in it.
+            if (st.preview.isNotBlank() && f.name.isNotBlank() && f.assetId != null) {
                 VkCard(tone = com.vraj.khetihisab.ui.components.VkTone.Primary) {
                     Text(stringResource(R.string.as_preview), style = MaterialTheme.typography.labelLarge)
                     Spacer(Modifier.height(4.dp))
@@ -214,45 +236,5 @@ fun LendScreen(vm: LendViewModel, onBack: () -> Unit, onDone: () -> Unit) {
             onSave = { n, _, _ -> vm.addAsset(n) },
         )
         null -> Unit
-    }
-}
-
-/** Dropdown of existing assets (standard M3 exposed menu). */
-@OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
-@Composable
-private fun AssetDropdown(
-    names: List<Pair<Long, String>>,
-    selectedId: Long?,
-    isError: Boolean,
-    onPick: (Long) -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    var open by remember { mutableStateOf(false) }
-    val selected = names.firstOrNull { it.first == selectedId }?.second.orEmpty()
-    androidx.compose.material3.ExposedDropdownMenuBox(expanded = open, onExpandedChange = { open = it && names.isNotEmpty() }, modifier = modifier) {
-        androidx.compose.material3.OutlinedTextField(
-            value = selected,
-            onValueChange = {},
-            readOnly = true,
-            singleLine = true,
-            isError = isError,
-            label = { Text(stringResource(if (names.isEmpty()) R.string.v4_asset_none_yet else R.string.v4_asset_pick), maxLines = 1) },
-            trailingIcon = { androidx.compose.material3.ExposedDropdownMenuDefaults.TrailingIcon(expanded = open) },
-            textStyle = MaterialTheme.typography.bodyLarge,
-            modifier = Modifier
-                .menuAnchor(androidx.compose.material3.MenuAnchorType.PrimaryNotEditable)
-                .fillMaxWidth()
-                .heightIn(min = 60.dp)
-                .testTag("asset_dropdown"),
-        )
-        ExposedDropdownMenu(expanded = open, onDismissRequest = { open = false }) {
-            names.forEach { (id, name) ->
-                androidx.compose.material3.DropdownMenuItem(
-                    text = { Text(name, style = MaterialTheme.typography.bodyLarge, maxLines = 1) },
-                    onClick = { onPick(id); open = false },
-                    modifier = Modifier.heightIn(min = 56.dp),
-                )
-            }
-        }
     }
 }

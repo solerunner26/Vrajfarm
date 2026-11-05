@@ -254,16 +254,13 @@ fun MonthPickerDialog(
                 { year += 1 },
             )
         }
-        FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            (1..12).forEach { m ->
-                val ym = YearMonth.of(year, m)
-                VkChip(
-                    text = ScreensFormat.monthGu(ym),
-                    selected = ym == current,
-                    onClick = { onPick(ym) },
-                )
-            }
-        }
+        com.vraj.khetihisab.ui.components.VkChoiceGrid(
+            options = (1..12).map { m -> YearMonth.of(year, m).let { it to ScreensFormat.monthGu(it) } },
+            selected = current,
+            onToggle = onPick,
+            // 2 columns: "જાન્યુઆરી" / "સપ્ટેમ્બર" must fit whole, with the selected tick.
+            columns = 2,
+        )
     }
 }
 

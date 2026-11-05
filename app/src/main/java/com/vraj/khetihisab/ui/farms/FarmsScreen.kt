@@ -106,12 +106,15 @@ fun FarmsScreen(
             )
         }
         item(key = "chips") {
-            Row(
-                Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()).padding(horizontal = 16.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-            ) {
-                state.chips.forEach { c -> VkChip(periodLabel(c), selected = c == state.choice, onClick = { onPeriod(c.period) }) }
-            }
+            // One dropdown instead of a sideways-scrolling chip row that hid options off-screen.
+            com.vraj.khetihisab.ui.components.VkDropdownField(
+                label = stringResource(R.string.v6_period),
+                options = state.chips.map { c -> c to periodLabel(c) },
+                selected = state.choice,
+                onSelect = { onPeriod(it.period) },
+                modifier = Modifier.padding(horizontal = 16.dp),
+                testTag = "farms_period",
+            )
         }
         item(key = "year") {
             Row(pad.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {

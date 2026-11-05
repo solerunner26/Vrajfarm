@@ -156,18 +156,8 @@ internal fun ReminderEditorSheet(d: ReminderDraft, vm: RemindersViewModel) {
             )
 
             // Stacked full-width: "તારીખ: 05-11-2026" exceeds the half-width label budget (doc 01 §8).
-            VkChip(
-                stringResource(R.string.rem_date, d.date.format(ReminderTiming.DATE)),
-                selected = true,
-                onClick = { pickDate = true },
-                modifier = Modifier.fillMaxWidth(),
-            )
-            VkChip(
-                stringResource(R.string.rem_time, d.time.format(ReminderTiming.TIME)),
-                selected = true,
-                onClick = { pickTime = true },
-                modifier = Modifier.fillMaxWidth(),
-            )
+            com.vraj.khetihisab.ui.components.VkPickerField(stringResource(R.string.v6_date), d.date.format(ReminderTiming.DATE), { pickDate = true }, testTag = "rem_date")
+            com.vraj.khetihisab.ui.components.VkPickerField(stringResource(R.string.v6_time), d.time.format(ReminderTiming.TIME), { pickTime = true }, icon = com.vraj.khetihisab.ui.theme.VkIcon.REMINDER, testTag = "rem_time")
             if (vm.isPast(d)) {
                 Text(stringResource(R.string.rem_past_warning), style = MaterialTheme.typography.bodyMedium, color = cs.error)
             }

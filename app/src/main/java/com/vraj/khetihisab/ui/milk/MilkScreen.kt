@@ -295,7 +295,8 @@ private fun MilkSheet(
     val decimal = { t: String -> t.filter { c -> c.isDigit() || c == '.' } }
     VkBottomSheet(stringResource(if (existing == null) R.string.v3_milk_add else R.string.v2_edit), onDismiss) {
         Column(Modifier.fillMaxWidth().padding(horizontal = 16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            VkDateChip(
+            com.vraj.khetihisab.ui.components.VkPickerField(
+                stringResource(R.string.v6_date),
                 if (date == today) stringResource(R.string.scr_today_chip, ScreensFormat.dmy(date)) else ScreensFormat.dmy(date),
                 { pickDate = true },
             )
@@ -304,12 +305,13 @@ private fun MilkSheet(
                 selected = session,
                 onSelect = { session = it },
             )
-            if (animals.isNotEmpty()) {
-                FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    animals.take(8).forEach { a -> VkChip(a, animal == a, { animal = a }) }
-                }
-            }
-            VkTextField(animal, { animal = it.take(40) }, stringResource(R.string.v3_milk_animal))
+            com.vraj.khetihisab.ui.components.VkComboField(
+                label = stringResource(R.string.v3_milk_animal),
+                value = animal,
+                onValueChange = { animal = it.take(40) },
+                suggestions = animals,
+                testTag = "milk_animal",
+            )
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 VkTextField(litres, { litres = decimal(it) }, stringResource(R.string.v3_milk_litres), Modifier.weight(1f), keyboardType = KeyboardType.Decimal)
                 VkTextField(fat, { fat = decimal(it) }, stringResource(R.string.v3_milk_fat), Modifier.weight(1f), keyboardType = KeyboardType.Decimal)

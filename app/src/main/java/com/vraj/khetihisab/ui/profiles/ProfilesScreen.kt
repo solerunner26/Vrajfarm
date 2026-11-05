@@ -381,14 +381,11 @@ private fun ProfileEditDialog(card: PersonCard, farms: List<FarmEntity>, onDismi
             StTextField(address, { address = it }, stringResource(R.string.st_address), singleLine = false, minLines = 2)
         } else {
             Text(stringResource(R.string.st_assign_farms), style = MaterialTheme.typography.labelLarge)
-            FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                farms.forEach { f ->
-                    val on = f.id in selected
-                    VkChip(f.name, selected = on, onClick = {
-                        selected = if (on) selected.filter { it != f.id }.toLongArray() else selected + f.id
-                    })
-                }
-            }
+            com.vraj.khetihisab.ui.components.VkChoiceGrid(
+                options = farms.map { it.id to it.name },
+                selectedSet = selected.toSet(),
+                onToggle = { id -> selected = if (id in selected) selected.filter { it != id }.toLongArray() else selected + id },
+            )
             StNote(stringResource(R.string.st_assign_note))
         }
         when (error) {

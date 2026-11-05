@@ -222,6 +222,8 @@ private fun FarmEditDialog(
         },
         dismissLabel = stringResource(R.string.st_cancel),
         onDismiss = onDismiss,
+        deleteLabel = if (onDelete != null) stringResource(R.string.scr_delete) else null,
+        onDelete = onDelete,
     ) {
         StTextField(name, { name = it; error = null }, stringResource(R.string.st_farm_name), isError = error == MasterError.NAME)
         StTextField(
@@ -231,19 +233,25 @@ private fun FarmEditDialog(
             isError = error == MasterError.VIGHA,
             supporting = stringResource(R.string.st_vigha_invalid),
         )
-        Text(stringResource(R.string.st_manager), style = MaterialTheme.typography.labelLarge)
-        FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-            listOf(
+        com.vraj.khetihisab.ui.components.VkDropdownField(
+            label = stringResource(R.string.st_manager),
+            options = listOf(
                 "none" to stringResource(R.string.st_manager_none),
                 "m1" to stringResource(R.string.st_manager_1),
                 "m2" to stringResource(R.string.st_manager_2),
                 "both" to stringResource(R.string.v3_both_bhagiya),
-            ).forEach { (k, label) -> VkChip(label, selected = manager == k, onClick = { manager = k }) }
-        }
-        Text(stringResource(R.string.st_active_crop), style = MaterialTheme.typography.labelLarge)
-        FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-            crops.forEach { c -> VkChip(c.name, selected = cropId == c.id, onClick = { cropId = c.id }) }
-        }
+            ),
+            selected = manager,
+            onSelect = { manager = it },
+            testTag = "farm_manager",
+        )
+        com.vraj.khetihisab.ui.components.VkDropdownField(
+            label = stringResource(R.string.st_active_crop),
+            options = crops.map { it.id to it.name },
+            selected = cropId,
+            onSelect = { cropId = it },
+            testTag = "farm_crop",
+        )
         VkSegmented(
             options = listOf(Season.KHARIF, Season.RABI, Season.SUMMER).map { it to seasonLabel(it) },
             selected = season,
@@ -251,9 +259,6 @@ private fun FarmEditDialog(
         )
         StTextField(year, { v -> year = v.filter(Char::isDigit).take(4) }, stringResource(R.string.st_year), keyboard = KeyboardOptions(keyboardType = KeyboardType.Number))
         error?.let { StError(errorText(it)) }
-        if (onDelete != null) {
-            com.vraj.khetihisab.ui.components.VkOutlinedButton(stringResource(R.string.scr_delete), onDelete, Modifier.fillMaxWidth())
-        }
     }
 }
 
@@ -331,12 +336,11 @@ private fun NameDialog(title: String, initial: String, onDismiss: () -> Unit, on
         onConfirm = { error = onSave(name) },
         dismissLabel = stringResource(R.string.st_cancel),
         onDismiss = onDismiss,
+        deleteLabel = if (onDelete != null) stringResource(R.string.scr_delete) else null,
+        onDelete = onDelete,
     ) {
         StTextField(name, { name = it; error = null }, stringResource(R.string.st_display_name), isError = error != null)
         error?.let { StError(errorText(it)) }
-        if (onDelete != null) {
-            com.vraj.khetihisab.ui.components.VkOutlinedButton(stringResource(R.string.scr_delete), onDelete, Modifier.fillMaxWidth())
-        }
     }
 }
 
@@ -372,9 +376,13 @@ fun CategoriesSettingsRoute(onBack: () -> Unit) {
     StScrollBody {
         VkTopHeader(title = stringResource(R.string.st_set_categories), onBack = onBack)
         StBodyColumn {
-            FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                MasterSettingsViewModel.SECTIONS.forEach { s -> VkChip(sectionLabel(s), selected = s == section, onClick = { section = s }) }
-            }
+            com.vraj.khetihisab.ui.components.VkDropdownField(
+                label = stringResource(R.string.v6_section),
+                options = MasterSettingsViewModel.SECTIONS.map { it to sectionLabel(it) },
+                selected = section,
+                onSelect = { section = it },
+                testTag = "cat_section",
+            )
             grouped.forEach { (type, list) ->
                 VkSectionTitle("${sectionLabel(section)} · ${typeLabel(type)}")
                 if (list.isNotEmpty()) {
