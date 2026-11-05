@@ -43,23 +43,12 @@ import com.vraj.khetihisab.ui.theme.VkThemeId
 import com.vraj.khetihisab.ui.theme.VkThemes
 import java.io.File
 
-/** Home bottom dock: tonal "− ખર્ચ / ઉપાડ" + gradient "+ આવક / વેચાણ" (doc 17 #1). */
+/** Home bottom dock: tonal "− ખર્ચ / ઉપાડ" + gradient "+ આવક / વેચાણ" (doc 17 #1), on [VkActionBar]. */
 @Composable
 fun VkBottomDock(onExpense: () -> Unit, onIncome: () -> Unit, modifier: Modifier = Modifier) {
-    val x = LocalVkExtra.current
-    val cs = MaterialTheme.colorScheme
-    Column(modifier.fillMaxWidth().background(x.dock)) {
-        Box(Modifier.fillMaxWidth().height(1.dp).background(cs.outlineVariant))
-        Row(
-            Modifier
-                .fillMaxWidth()
-                .navigationBarsPadding()
-                .padding(start = 16.dp, end = 16.dp, top = 12.dp, bottom = 20.dp),
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-        ) {
-            VkTonalButton(stringResource(R.string.dock_expense), onExpense, Modifier.weight(1f), sign = "−")
-            VkPrimaryButton(stringResource(R.string.dock_income), onIncome, Modifier.weight(1f), sign = "+")
-        }
+    VkActionBar(modifier) {
+        VkTonalButton(stringResource(R.string.dock_expense), onExpense, Modifier.weight(1f), sign = "−")
+        VkPrimaryButton(stringResource(R.string.dock_income), onIncome, Modifier.weight(1f), sign = "+")
     }
 }
 

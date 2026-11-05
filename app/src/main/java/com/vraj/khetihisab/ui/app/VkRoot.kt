@@ -36,6 +36,7 @@ import com.vraj.khetihisab.ui.assets.LendScreen
 import com.vraj.khetihisab.ui.assets.LendViewModel
 import com.vraj.khetihisab.ui.assets.RepoAssetsStore
 import com.vraj.khetihisab.ui.entry.EntryScreen
+import com.vraj.khetihisab.ui.components.VkSnackbarHost
 import com.vraj.khetihisab.ui.home.homeGraph
 import com.vraj.khetihisab.ui.reminders.remindersGraph
 import com.vraj.khetihisab.ui.panchang.PanchangAlertHost
@@ -71,9 +72,26 @@ fun VkRoot(
     pendingDeepLink: kotlinx.coroutines.flow.StateFlow<android.content.Intent?> = kotlinx.coroutines.flow.MutableStateFlow(null),
     onDeepLinkHandled: () -> Unit = {},
 ) {
+    val ctx = LocalContext.current
+    val motion = remember { com.vraj.khetihisab.ui.components.vkMotionFrom(ctx) }
+    androidx.compose.runtime.CompositionLocalProvider(com.vraj.khetihisab.ui.components.LocalVkMotion provides motion) {
+        VkRootContent(container, activity, pendingDeepLink, onDeepLinkHandled)
+    }
+}
+
+@Composable
+private fun VkRootContent(
+    container: AppContainer,
+    activity: FragmentActivity,
+    pendingDeepLink: kotlinx.coroutines.flow.StateFlow<android.content.Intent?>,
+    onDeepLinkHandled: () -> Unit,
+) {
     val lockManager = container.lockManager
     val locked by lockManager.locked.collectAsStateWithLifecycle()
     val scope = rememberCoroutineScope()
+    // One app-level snackbar + success tick (audit #5, #22). Lives as long as the activity.
+    val snackbar = remember { com.vraj.khetihisab.ui.components.VkSnackbarController(androidx.compose.material3.SnackbarHostState(), scope) }
+    val savedMsg = androidx.compose.ui.res.stringResource(com.vraj.khetihisab.R.string.v5_saved)
 
     if (locked) {
         val bioAvailable = remember { BiometricHelper.isAvailable(activity) }
@@ -98,6 +116,7 @@ fun VkRoot(
     }
     // Every screen sits on the theme background (Night included), and a brand-coloured scrim keeps
     // scrolled content from running under the transparent status bar (edge-to-edge).
+    androidx.compose.runtime.CompositionLocalProvider(com.vraj.khetihisab.ui.components.LocalVkSnackbar provides snackbar) {
     Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
     NavHost(navController = nav, startDestination = VkRoutes.HOME) {
         // Home (start), farms, farm/{id}, family, personal — doc 05/07/08/09.
@@ -122,7 +141,13 @@ fun VkRoot(
                 navArgument("edit") { type = NavType.LongType; defaultValue = -1L },
             ),
         ) {
-            EntryScreen(onBack = { nav.popBackStack() }, onSaved = { nav.popBackStack() })
+            EntryScreen(
+                onBack = { nav.popBackStack() },
+                onSaved = {
+                    nav.popBackStack()
+                    snackbar.show(savedMsg, success = true)
+                },
+            )
         }
 
         composable(VkRoutes.SHOPPING, deepLinks = listOf(navDeepLink { uriPattern = VkDeepLinks.SHOPPING })) {
@@ -165,7 +190,9 @@ fun VkRoot(
             .windowInsetsTopHeight(WindowInsets.statusBars)
             .background(LocalVkExtra.current.brandBrush),
     )
+    VkSnackbarHost(snackbar)
     // "નવું અપડેટ" dialog — checks GitHub once per app start.
     com.vraj.khetihisab.update.UpdateHost()
+    }
     }
 }

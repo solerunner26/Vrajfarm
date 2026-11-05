@@ -16,6 +16,10 @@ val VkShapes = Shapes(
 object VkDimens {
     val gutter = 16.dp
     val cardPadding = 16.dp
+    /** Space between top-level cards/sections in a screen list (audit #27). */
+    val listGap = 16.dp
+    /** Sub-tile / inner tile radius (audit #29). */
+    val subTileRadius = 16.dp
     val minTouch = 60.dp
     val buttonHeight = 60.dp
     val keypadKey = 64.dp

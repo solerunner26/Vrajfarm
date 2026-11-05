@@ -39,6 +39,8 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowLeft
+import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowRight
 import com.vraj.khetihisab.R
 import com.vraj.khetihisab.ui.components.AmountKind
 import com.vraj.khetihisab.ui.components.VkAmount
@@ -56,7 +58,10 @@ import java.time.YearMonth
 val DockBottomPadding: Dp = 120.dp
 val PlainBottomPadding: Dp = 32.dp
 
-/** Stat tile used on hero cards: small label + big money (≥ 26sp on hero, doc 01 §3). */
+/**
+ * Stat tile used on hero cards: small label + big money (≥ 26sp on hero, doc 01 §3). The value
+ * autosizes (min 20sp big / 18sp small) so lakh amounts never overflow a half-width tile (audit #3).
+ */
 @Composable
 fun StatTile(
     label: String,
@@ -73,16 +78,31 @@ fun StatTile(
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
         )
-        Text(
+        com.vraj.khetihisab.ui.components.VkFitText(
             value,
-            style = if (big) {
-                MaterialTheme.typography.headlineSmall.copy(fontSize = 26.sp, fontWeight = FontWeight.ExtraBold)
-            } else {
-                MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.ExtraBold)
-            },
+            style = if (big) com.vraj.khetihisab.ui.theme.VkCurrencyStyle else com.vraj.khetihisab.ui.theme.VkCurrencyRow,
             color = valueColor,
-            maxLines = 1,
-            softWrap = false,
+            minSize = if (big) 20 else 18,
+        )
+    }
+}
+
+/** Money stat: label + [com.vraj.khetihisab.ui.components.VkFitMoney] (counts up when it changes, A2). */
+@Composable
+fun MoneyStat(
+    label: String,
+    paise: Long,
+    modifier: Modifier = Modifier,
+    valueColor: Color = MaterialTheme.colorScheme.onSurface,
+    big: Boolean = true,
+) {
+    Column(modifier, verticalArrangement = Arrangement.spacedBy(2.dp)) {
+        Text(label, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
+        com.vraj.khetihisab.ui.components.VkFitMoney(
+            paise,
+            style = if (big) com.vraj.khetihisab.ui.theme.VkCurrencyStyle else com.vraj.khetihisab.ui.theme.VkCurrencyRow,
+            color = valueColor,
+            minSize = if (big) 20 else 18,
         )
     }
 }
@@ -180,7 +200,7 @@ fun TxnListRow(
                     if (masked) {
                         Text(
                             com.vraj.khetihisab.ui.components.VK_MASK,
-                            style = MaterialTheme.typography.titleMedium.copy(fontWeight = androidx.compose.ui.text.font.FontWeight.ExtraBold),
+                            style = com.vraj.khetihisab.ui.theme.VkCurrencyRow,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             maxLines = 1,
                             softWrap = false,
@@ -210,37 +230,40 @@ fun MonthPickerDialog(
     onDismiss: () -> Unit,
 ) {
     var year by remember { mutableIntStateOf(current.year) }
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        shape = RoundedCornerShape(28.dp),
-        containerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
-        title = { Text(stringResource(R.string.scr_month_pick), maxLines = 1) },
-        text = {
-            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                    VkTextButton("‹ ${year - 1}", { year -= 1 })
-                    Text(
-                        year.toString(),
-                        style = MaterialTheme.typography.titleMedium,
-                        modifier = Modifier.weight(1f),
-                        textAlign = TextAlign.Center,
-                    )
-                    VkTextButton("${year + 1} ›", { year += 1 })
-                }
-                FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    (1..12).forEach { m ->
-                        val ym = YearMonth.of(year, m)
-                        VkChip(
-                            text = ScreensFormat.monthGu(ym),
-                            selected = ym == current,
-                            onClick = { onPick(ym) },
-                        )
-                    }
-                }
+    com.vraj.khetihisab.ui.components.VkDialog(
+        title = stringResource(R.string.scr_month_pick),
+        onDismiss = onDismiss,
+        dismissLabel = stringResource(R.string.scr_close),
+    ) {
+        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+            com.vraj.khetihisab.ui.components.VkIconAction(
+                androidx.compose.material.icons.Icons.AutoMirrored.Rounded.KeyboardArrowLeft,
+                stringResource(R.string.v5_prev_year),
+                { year -= 1 },
+            )
+            Text(
+                year.toString(),
+                style = MaterialTheme.typography.titleLarge,
+                modifier = Modifier.weight(1f),
+                textAlign = TextAlign.Center,
+            )
+            com.vraj.khetihisab.ui.components.VkIconAction(
+                androidx.compose.material.icons.Icons.AutoMirrored.Rounded.KeyboardArrowRight,
+                stringResource(R.string.v5_next_year),
+                { year += 1 },
+            )
+        }
+        FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            (1..12).forEach { m ->
+                val ym = YearMonth.of(year, m)
+                VkChip(
+                    text = ScreensFormat.monthGu(ym),
+                    selected = ym == current,
+                    onClick = { onPick(ym) },
+                )
             }
-        },
-        confirmButton = { VkTextButton(stringResource(R.string.scr_close), onDismiss) },
-    )
+        }
+    }
 }
 
 /** Simple confirm dialog with stacked actions (doc 01 §8.5). */
@@ -252,19 +275,14 @@ fun ConfirmDialog(
     onConfirm: () -> Unit,
     onDismiss: () -> Unit,
 ) {
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        shape = RoundedCornerShape(28.dp),
-        containerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
-        title = { Text(title) },
-        text = body?.let { { Text(it, style = MaterialTheme.typography.bodyLarge) } },
-        confirmButton = {
-            Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                VkPrimaryButton(confirmLabel, onConfirm, Modifier.fillMaxWidth())
-                VkTextButton(stringResource(R.string.scr_cancel), onDismiss, Modifier.fillMaxWidth())
-            }
-        },
-    )
+    com.vraj.khetihisab.ui.components.VkDialog(
+        title = title,
+        onDismiss = onDismiss,
+        confirmLabel = confirmLabel,
+        onConfirm = onConfirm,
+    ) {
+        if (body != null) Text(body, style = MaterialTheme.typography.bodyLarge)
+    }
 }
 
 /**

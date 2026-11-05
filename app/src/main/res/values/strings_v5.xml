@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Final release design audit (2026-11-05). All new user-facing copy, prefix v5_. -->
+<resources>
+    <string name="v5_saved">સાચવ્યું ✓</string>
+    <string name="v5_deleted">કાઢી નાખ્યું</string>
+    <string name="v5_undo">પાછું લાવો</string>
+    <string name="v5_restored">પાછું લાવ્યું</string>
+    <string name="v5_delete_title">કાઢી નાખવું છે?</string>
+    <string name="v5_delete_body_undo">પછી \"પાછું લાવો\" દબાવીને પાછું લાવી શકાશે.</string>
+    <string name="v5_delete_body_final">આ પાછું નહીં આવે.</string>
+    <string name="v5_settled">ચૂકતે થયું ✓</string>
+    <string name="v5_settle">ચૂકતે</string>
+    <string name="v5_bought">લીધું ✓</string>
+    <string name="v5_done">થઈ ગયું ✓</string>
+    <string name="v5_edit">સુધારો</string>
+    <string name="v5_bill_photo">પાવતી ફોટો</string>
+    <string name="v5_gdrive">ગૂગલ ડ્રાઇવ</string>
+    <string name="v5_whatsapp">વોટ્સએપ</string>
+    <string name="v5_email">ઈ-મેલ</string>
+    <string name="v5_gmail">જીમેલ</string>
+    <string name="v5_backup_done">બેકઅપ થઈ ગયો ✓</string>
+    <string name="v5_backup_failed">બેકઅપ ન થયો. ફરી પ્રયત્ન કરો.</string>
+    <string name="v5_no_entries">હજી કોઈ એન્ટ્રી નથી</string>
+    <string name="v5_no_entries_action">નવી એન્ટ્રી</string>
+    <string name="v5_no_items">અહીં હજી કંઈ નથી</string>
+    <string name="v5_no_milk">આ મહિને દૂધ નોંધ્યું નથી</string>
+    <string name="v5_no_reminders">કોઈ રીમાઇન્ડર નથી</string>
+    <string name="v5_no_shopping">ખરીદીની યાદી ખાલી છે</string>
+    <string name="v5_no_people">હજી કોઈ ભાગિયા ઉમેર્યા નથી</string>
+    <string name="v5_no_farms">હજી કોઈ ખેતર નથી</string>
+    <string name="v5_no_pending">કોઈ ઉધાર બાકી નથી</string>
+    <string name="v5_loading">લોડ થાય છે…</string>
+    <string name="v5_pick_date">તારીખ</string>
+    <string name="v5_prev_year">પાછલું વર્ષ</string>
+    <string name="v5_next_year">આગલું વર્ષ</string>
+    <string name="v5_remove">હટાવો</string>
+    <string name="v5_more">વધુ</string>
+    <string name="v5_add">ઉમેરો</string>
+    <string name="v5_subtract">ઘટાડો</string>
+    <string name="v5_priority_high">જરૂરી</string>
+    <string name="v5_priority_normal">સામાન્ય</string>
+    <string name="v5_pin_wrong">ખોટો પિન</string>
+    <string name="v5_net">ચોખ્ખું</string>
+</resources>

@@ -29,6 +29,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import com.vraj.khetihisab.data.entity.Priority
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -65,7 +68,7 @@ private val FabBottomPadding = 112.dp
 fun RemindersScreen(vm: RemindersViewModel, onBack: () -> Unit) {
     val st by vm.state.collectAsStateWithLifecycle()
     val context = LocalContext.current
-    val snackbar = remember { SnackbarHostState() }
+    val snackbar = com.vraj.khetihisab.ui.components.rememberVkSnackbar()
 
     LifecycleEventEffect(Lifecycle.Event.ON_RESUME) { vm.refreshExactAllowed() }
 
@@ -79,13 +82,10 @@ fun RemindersScreen(vm: RemindersViewModel, onBack: () -> Unit) {
     LaunchedEffect(vm) {
         vm.eventFlow.collect { e ->
             when (e) {
-                is RemindersEvent.Done -> {
-                    val r = snackbar.showSnackbar(doneMsg.format(e.title), actionLabel = undoLabel, duration = SnackbarDuration.Short)
-                    if (r == SnackbarResult.ActionPerformed) vm.undoDone(e.id)
-                }
-                RemindersEvent.Saved -> snackbar.showSnackbar(savedMsg, duration = SnackbarDuration.Short)
-                RemindersEvent.Deleted -> snackbar.showSnackbar(deletedMsg, duration = SnackbarDuration.Short)
-                RemindersEvent.Reopened -> snackbar.showSnackbar(reopenedMsg, duration = SnackbarDuration.Short)
+                is RemindersEvent.Done -> snackbar.show(doneMsg.format(e.title), actionLabel = undoLabel) { vm.undoDone(e.id) }
+                RemindersEvent.Saved -> snackbar.show(savedMsg, success = true)
+                RemindersEvent.Deleted -> snackbar.show(deletedMsg)
+                RemindersEvent.Reopened -> snackbar.show(reopenedMsg)
                 RemindersEvent.AskNotificationPermission ->
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                         suppressLockForExternal(context)
@@ -99,9 +99,9 @@ fun RemindersScreen(vm: RemindersViewModel, onBack: () -> Unit) {
         Column(Modifier.fillMaxSize()) {
             VkTopHeader(title = stringResource(R.string.rem_title), onBack = onBack)
             LazyColumn(
-                Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 12.dp, bottom = FabBottomPadding),
-                verticalArrangement = Arrangement.spacedBy(10.dp),
+                Modifier.weight(1f).fillMaxWidth(),
+                contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 12.dp, bottom = 16.dp),
+                verticalArrangement = Arrangement.spacedBy(com.vraj.khetihisab.ui.theme.VkDimens.listGap),
             ) {
                 item(key = "seg") {
                     VkSegmented(
@@ -127,41 +127,31 @@ fun RemindersScreen(vm: RemindersViewModel, onBack: () -> Unit) {
                 }
                 if (st.loaded && st.visible.isEmpty()) {
                     item(key = "empty") {
-                        Text(
-                            stringResource(if (st.tab == ReminderTab.ACTIVE) R.string.rem_empty_active else R.string.rem_empty_archive),
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                            modifier = Modifier.padding(8.dp),
-                        )
+                        VkCard(Modifier.fillMaxWidth()) {
+                            com.vraj.khetihisab.ui.components.VkEmptyState(
+                                VkIcon.REMINDER,
+                                stringResource(if (st.tab == ReminderTab.ACTIVE) R.string.rem_empty_active else R.string.rem_empty_archive),
+                            )
+                        }
                     }
                 }
                 items(st.visible, key = { it.id }) { card ->
                     ReminderCardView(
                         card,
+                        modifier = Modifier.animateItem(),
                         onDone = { vm.markDone(card.id, card.title) },
                         onReopen = { vm.reopen(card.id) },
                         onEdit = { vm.openEdit(card.id) },
                     )
                 }
             }
-        }
 
-        Column(
-            Modifier
-                .align(Alignment.BottomCenter)
-                .fillMaxWidth()
-                .navigationBarsPadding()
-                .padding(horizontal = 16.dp, vertical = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-        ) {
-            SnackbarHost(snackbar)
-            if (st.editor == null) {
+            // Add sits in the bottom action bar (audit #23).
+            com.vraj.khetihisab.ui.components.VkActionBar {
                 VkPrimaryButton(
                     text = stringResource(R.string.rem_sheet_new),
                     onClick = vm::openNew,
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.weight(1f),
                     sign = "+",
                 )
             }
@@ -185,9 +175,17 @@ private fun ExactAlarmBanner(onAllow: () -> Unit) {
 }
 
 @Composable
-private fun ReminderCardView(card: ReminderCard, onDone: () -> Unit, onReopen: () -> Unit, onEdit: () -> Unit) {
+private fun ReminderCardView(card: ReminderCard, onDone: () -> Unit, onReopen: () -> Unit, onEdit: () -> Unit, modifier: Modifier = Modifier) {
     val cs = MaterialTheme.colorScheme
-    VkCard(Modifier.fillMaxWidth(), contentPadding = 14.dp, onClick = if (card.archived) null else onEdit) {
+    // A7: the tick draws in first, then the card moves to the archive.
+    var ticking by remember(card.id) { mutableStateOf(false) }
+    LaunchedEffect(ticking) {
+        if (ticking) {
+            kotlinx.coroutines.delay(450)
+            onDone()
+        }
+    }
+    VkCard(modifier.fillMaxWidth(), onClick = if (card.archived) null else onEdit) {
         Row(verticalAlignment = Alignment.Top) {
             if (card.imagePath != null) {
                 ReminderThumb(card.imagePath, size = 64.dp)
@@ -215,8 +213,7 @@ private fun ReminderCardView(card: ReminderCard, onDone: () -> Unit, onReopen: (
                 }
                 Text(
                     card.title,
-                    style = MaterialTheme.typography.bodyLarge.copy(
-                        fontSize = 18.sp,
+                    style = MaterialTheme.typography.titleMedium.copy(
                         fontWeight = FontWeight.ExtraBold,
                         textDecoration = if (card.archived) TextDecoration.LineThrough else null,
                     ),
@@ -225,15 +222,17 @@ private fun ReminderCardView(card: ReminderCard, onDone: () -> Unit, onReopen: (
                     overflow = TextOverflow.Ellipsis,
                 )
                 card.note?.let {
-                    Text(it, style = MaterialTheme.typography.bodyMedium, color = cs.onSurfaceVariant, maxLines = 2, overflow = TextOverflow.Ellipsis)
+                    Text(it, style = MaterialTheme.typography.bodyLarge, color = cs.onSurfaceVariant, maxLines = 2, overflow = TextOverflow.Ellipsis)
                 }
             }
         }
-        Spacer(Modifier.padding(top = 10.dp))
         if (card.archived) {
             VkTextButton(stringResource(R.string.rem_reopen), onReopen, Modifier.fillMaxWidth())
         } else {
-            VkTonalButton(stringResource(R.string.rem_done), onDone, Modifier.fillMaxWidth())
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                if (ticking) com.vraj.khetihisab.ui.components.VkCheckMark(true, size = 36.dp)
+                VkTonalButton(stringResource(R.string.rem_done), { ticking = true }, Modifier.weight(1f), enabled = !ticking)
+            }
         }
     }
 }
@@ -242,8 +241,8 @@ private fun ReminderCardView(card: ReminderCard, onDone: () -> Unit, onReopen: (
 private fun TagBadge(tag: ReminderTag) {
     val cs = MaterialTheme.colorScheme
     when (tag) {
-        ReminderTag.HIGH -> VkBadge(stringResource(R.string.rem_high), cs.primaryContainer, cs.onPrimaryContainer)
-        ReminderTag.NORMAL -> VkBadge(stringResource(R.string.rem_normal), cs.surfaceContainer, cs.onSurfaceVariant)
+        ReminderTag.HIGH -> com.vraj.khetihisab.ui.components.VkPriorityBadge(Priority.HIGH)
+        ReminderTag.NORMAL -> com.vraj.khetihisab.ui.components.VkPriorityBadge(Priority.NORMAL)
         ReminderTag.PANCHANG -> VkBadge(stringResource(R.string.rem_origin_panchang), cs.tertiaryContainer, cs.onTertiaryContainer)
     }
 }

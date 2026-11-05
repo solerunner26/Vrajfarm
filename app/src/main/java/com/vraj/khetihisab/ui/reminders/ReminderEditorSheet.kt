@@ -83,6 +83,7 @@ internal fun ReminderEditorSheet(d: ReminderDraft, vm: RemindersViewModel) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     var pickDate by rememberSaveable { mutableStateOf(false) }
     var pickTime by rememberSaveable { mutableStateOf(false) }
+    var confirmDelete by rememberSaveable { mutableStateOf(false) }
 
     val photo = rememberReminderPhotoPicker(onPicked = vm::onPhoto)
 
@@ -188,13 +189,19 @@ internal fun ReminderEditorSheet(d: ReminderDraft, vm: RemindersViewModel) {
             }
 
             VkPrimaryButton(stringResource(R.string.rem_save), vm::save, Modifier.fillMaxWidth(), enabled = !photo.busy)
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                VkTextButton(stringResource(R.string.rem_cancel), vm::dismissEditor, Modifier.weight(1f))
-                if (!d.isNew) VkTextButton(stringResource(R.string.rem_delete), vm::delete, Modifier.weight(1f))
-            }
+            // One dismiss: swipe down / back closes the sheet (audit #19). Delete asks first (#7).
+            if (!d.isNew) com.vraj.khetihisab.ui.components.VkDangerButton(stringResource(R.string.rem_delete), { confirmDelete = true }, Modifier.fillMaxWidth())
         }
     }
 
+    if (confirmDelete) {
+        com.vraj.khetihisab.ui.components.VkConfirmDeleteDialog(
+            what = d.title,
+            onConfirm = { confirmDelete = false; vm.delete() },
+            onDismiss = { confirmDelete = false },
+            undoable = false,
+        )
+    }
     if (pickDate) RemDatePickerDialog(d.date, onDismiss = { pickDate = false }, onPicked = vm::onDate)
     if (pickTime) RemTimePickerDialog(d.time, onDismiss = { pickTime = false }, onPicked = vm::onTime)
 }
@@ -247,25 +254,16 @@ private fun RemTextField(
     isError: Boolean = false,
     supporting: String? = null,
 ) {
-    val cs = MaterialTheme.colorScheme
-    OutlinedTextField(
+    com.vraj.khetihisab.ui.components.VkTextField(
         value = value,
         onValueChange = onValueChange,
-        label = { Text(label, maxLines = 1, overflow = TextOverflow.Ellipsis) },
+        label = label,
+        modifier = modifier,
         singleLine = singleLine,
-        minLines = 1,
         maxLines = if (singleLine) 1 else 4,
+        keyboard = KeyboardOptions(imeAction = if (singleLine) ImeAction.Next else ImeAction.Default),
         isError = isError,
-        keyboardOptions = KeyboardOptions(imeAction = if (singleLine) ImeAction.Next else ImeAction.Default).gujarati(),
-        supportingText = supporting?.let { { Text(it, maxLines = 1, overflow = TextOverflow.Ellipsis) } },
-        shape = RoundedCornerShape(16.dp),
-        textStyle = MaterialTheme.typography.bodyLarge,
-        colors = OutlinedTextFieldDefaults.colors(
-            focusedContainerColor = cs.surfaceContainerLowest,
-            unfocusedContainerColor = cs.surfaceContainerLowest,
-            unfocusedBorderColor = cs.outline,
-        ),
-        modifier = modifier.fillMaxWidth().heightIn(min = 60.dp),
+        supporting = supporting,
     )
 }
 
@@ -289,17 +287,14 @@ private fun RemDatePickerDialog(initial: LocalDate, onDismiss: () -> Unit, onPic
 @Composable
 private fun RemTimePickerDialog(initial: LocalTime, onDismiss: () -> Unit, onPicked: (LocalTime) -> Unit) {
     val st = rememberTimePickerState(initialHour = initial.hour, initialMinute = initial.minute, is24Hour = false)
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        shape = RoundedCornerShape(28.dp),
-        title = { Text(stringResource(R.string.rem_pick_time), maxLines = 1, overflow = TextOverflow.Ellipsis) },
-        text = { TimePicker(state = st) },
-        confirmButton = {
-            VkTextButton(stringResource(R.string.rem_ok), onClick = {
-                onPicked(LocalTime.of(st.hour, st.minute))
-                onDismiss()
-            })
+    com.vraj.khetihisab.ui.components.VkDialog(
+        title = stringResource(R.string.rem_pick_time),
+        onDismiss = onDismiss,
+        confirmLabel = stringResource(R.string.rem_ok),
+        onConfirm = {
+            onPicked(LocalTime.of(st.hour, st.minute))
+            onDismiss()
         },
-        dismissButton = { VkTextButton(stringResource(R.string.rem_cancel), onClick = onDismiss) },
-    )
+        dismissLabel = stringResource(R.string.rem_cancel),
+    ) { TimePicker(state = st) }
 }

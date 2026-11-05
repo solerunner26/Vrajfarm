@@ -16,6 +16,8 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
+import androidx.compose.material.icons.rounded.ArrowDropDown
+import androidx.compose.ui.platform.testTag
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -109,17 +111,26 @@ fun VkTopHeader(
     }
 }
 
-/** 48dp round header action on the gradient (css .vk-hbtn). */
+/**
+ * Round header action on the gradient (css .vk-hbtn): a 60dp touch box (doc 01 §2) around a 48dp
+ * visible disc, with a springy press.
+ */
 @Composable
 fun VkHeaderButton(onClick: () -> Unit, modifier: Modifier = Modifier, content: @Composable () -> Unit) {
+    val interaction = androidx.compose.runtime.remember { androidx.compose.foundation.interaction.MutableInteractionSource() }
     Box(
         modifier
-            .size(48.dp)
+            .size(VkDimens.minTouch)
+            .vkPressScale(interaction)
             .clip(CircleShape)
-            .background(LocalVkExtra.current.headerButton)
-            .clickable(role = Role.Button, onClick = onClick),
+            .clickable(interactionSource = interaction, indication = androidx.compose.material3.ripple(), role = Role.Button, onClick = onClick),
         contentAlignment = Alignment.Center,
-    ) { content() }
+    ) {
+        Box(
+            Modifier.size(48.dp).clip(CircleShape).background(LocalVkExtra.current.headerButton),
+            contentAlignment = Alignment.Center,
+        ) { content() }
+    }
 }
 
 /** Header action showing an ic_vk icon (30dp). */
@@ -127,6 +138,31 @@ fun VkHeaderButton(onClick: () -> Unit, modifier: Modifier = Modifier, content: 
 fun VkHeaderIconButton(icon: VkIcon, label: String, onClick: () -> Unit) {
     VkHeaderButton(onClick = onClick, modifier = Modifier.semantics { contentDescription = label }) {
         VkIconImage(icon, size = 30.dp)
+    }
+}
+
+/**
+ * Month picker as a header chip (audit #32): "નવેમ્બર 2026" + a drop-down arrow icon, on a 60dp
+ * touch box. Put it in [VkTopHeader] actions on every month-based screen.
+ */
+@Composable
+fun VkMonthChip(label: String, onClick: () -> Unit, modifier: Modifier = Modifier) {
+    val x = LocalVkExtra.current
+    Box(
+        modifier
+            .heightIn(min = VkDimens.minTouch)
+            .clip(CircleShape)
+            .clickable(role = Role.Button, onClick = onClick)
+            .testTag("month_chip"),
+        contentAlignment = Alignment.Center,
+    ) {
+        Row(
+            Modifier.clip(CircleShape).background(x.headerButton).padding(start = 12.dp, end = 6.dp, top = 6.dp, bottom = 6.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text(label, color = x.onGradient, style = MaterialTheme.typography.labelLarge, maxLines = 1, softWrap = false)
+            Icon(Icons.Rounded.ArrowDropDown, contentDescription = null, tint = x.onGradient, modifier = Modifier.size(24.dp))
+        }
     }
 }
 

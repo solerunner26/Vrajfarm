@@ -111,11 +111,19 @@ fun VkListRow(
     onClick: (() -> Unit)? = null,
 ) {
     val cs = MaterialTheme.colorScheme
+    val interaction = androidx.compose.runtime.remember { androidx.compose.foundation.interaction.MutableInteractionSource() }
     Row(
         modifier
             .fillMaxWidth()
             .heightIn(min = 64.dp)
-            .then(if (onClick != null) Modifier.clickable(role = Role.Button, onClick = onClick) else Modifier)
+            .then(
+                if (onClick != null) {
+                    Modifier.vkPressScale(interaction, 0.98f)
+                        .clickable(interactionSource = interaction, indication = androidx.compose.material3.ripple(), role = Role.Button, onClick = onClick)
+                } else {
+                    Modifier
+                },
+            )
             .padding(horizontal = 16.dp, vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -151,7 +159,7 @@ fun VkAmount(
     paise: Long,
     kind: AmountKind,
     modifier: Modifier = Modifier,
-    style: TextStyle = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.ExtraBold),
+    style: TextStyle = com.vraj.khetihisab.ui.theme.VkCurrencyRow,
 ) {
     val cs = MaterialTheme.colorScheme
     val (sign, color) = when (kind) {
@@ -198,6 +206,6 @@ fun VkBadge(text: String, background: Color, content: Color, modifier: Modifier 
             .background(background)
             .padding(horizontal = 10.dp, vertical = 2.dp),
     ) {
-        Text(text, color = content, style = TextStyle(fontSize = 13.sp, fontWeight = FontWeight.Bold, fontFamily = MaterialTheme.typography.bodySmall.fontFamily), maxLines = 1, softWrap = false)
+        Text(text, color = content, style = MaterialTheme.typography.labelMedium, maxLines = 1, softWrap = false)
     }
 }
