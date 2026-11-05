@@ -51,16 +51,15 @@ private fun masterViewModel(): MasterSettingsViewModel =
 /** Shows "સાચવ્યું" / duplicate errors raised after a write. */
 @Composable
 private fun MasterEvents(vm: MasterSettingsViewModel) {
-    val ctx = LocalContext.current
     val saved = stringResource(R.string.st_saved)
     val dup = stringResource(R.string.st_err_duplicate)
+    val snackbar = com.vraj.khetihisab.ui.components.rememberVkSnackbar()
     LaunchedEffect(vm) {
         vm.events.collect { e ->
-            val msg = when (e) {
-                MasterEvent.Saved -> saved
-                is MasterEvent.Error -> dup
+            when (e) {
+                MasterEvent.Saved -> snackbar.show(saved, success = true)
+                is MasterEvent.Error -> snackbar.show(dup)
             }
-            Toast.makeText(ctx, msg, Toast.LENGTH_SHORT).show()
         }
     }
 }

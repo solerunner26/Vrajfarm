@@ -21,6 +21,7 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
@@ -78,6 +79,8 @@ fun LockScreen(
     var lockoutMs by remember { mutableLongStateOf(pinStore.lockoutRemainingMillis()) }
     var showForgot by remember { mutableStateOf(false) }
     var askBiometric by remember { mutableStateOf(false) }
+    // #53: a wrong PIN shakes the dots and gives a short "reject" buzz.
+    var shake by remember { mutableStateOf(0) }
 
     val wrongText = stringResource(R.string.lock_wrong)
     val mismatchText = stringResource(R.string.lock_mismatch)
@@ -109,7 +112,7 @@ fun LockScreen(
                         if (biometricAvailable) askBiometric = true else onUnlocked()
                     }
                 } else {
-                    message = mismatchText; entered = ""; firstPin = ""; mode = LockMode.SET_NEW
+                    message = mismatchText; entered = ""; firstPin = ""; mode = LockMode.SET_NEW; shake++
                 }
             }
             LockMode.ENTER -> {
@@ -120,8 +123,8 @@ fun LockScreen(
                     entered = ""
                     when (r) {
                         PinStore.VerifyResult.Success -> onUnlocked()
-                        is PinStore.VerifyResult.Wrong -> { message = wrongText }
-                        is PinStore.VerifyResult.LockedOut -> { message = wrongText; lockoutMs = r.remainingMillis }
+                        is PinStore.VerifyResult.Wrong -> { message = wrongText; shake++ }
+                        is PinStore.VerifyResult.LockedOut -> { message = wrongText; lockoutMs = r.remainingMillis; shake++ }
                         PinStore.VerifyResult.NoPin -> mode = LockMode.SET_NEW
                     }
                 }
@@ -160,7 +163,7 @@ fun LockScreen(
                 textAlign = TextAlign.Center,
             )
             Spacer(Modifier.height(16.dp))
-            PinDots(count = entered.length)
+            PinDots(count = entered.length, shake = shake)
             // Reserved message slot: fixed height so nothing jumps (doc 17 #10).
             Box(Modifier.fillMaxWidth().height(36.dp), contentAlignment = Alignment.Center) {
                 val text = when {
@@ -251,11 +254,23 @@ fun LockScreen(
 }
 
 @Composable
-private fun PinDots(count: Int) {
+private fun PinDots(count: Int, shake: Int = 0) {
     val cs = MaterialTheme.colorScheme
     val desc = stringResource(R.string.lock_digits_entered, count)
+    val view = androidx.compose.ui.platform.LocalView.current
+    val motion = com.vraj.khetihisab.ui.components.LocalVkMotion.current.enabled
+    val dx = remember { androidx.compose.animation.core.Animatable(0f) }
+    LaunchedEffect(shake) {
+        if (shake <= 0) return@LaunchedEffect
+        view.performHapticFeedback(
+            if (android.os.Build.VERSION.SDK_INT >= 30) android.view.HapticFeedbackConstants.REJECT else android.view.HapticFeedbackConstants.LONG_PRESS,
+        )
+        if (motion) {
+            for (x in listOf(-14f, 12f, -9f, 6f, -3f, 0f)) dx.animateTo(x, androidx.compose.animation.core.tween(55))
+        }
+    }
     Row(
-        Modifier.clearAndSetSemantics {
+        Modifier.graphicsLayer { translationX = dx.value * density }.clearAndSetSemantics {
             // TalkBack: "4 માંથી 2 અંક દાખલ થયા". Digits are never spoken.
             contentDescription = desc
             liveRegion = LiveRegionMode.Polite

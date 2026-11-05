@@ -120,9 +120,10 @@ fun ProfilesScreen(vm: ProfilesViewModel, onBack: () -> Unit) {
 
     val photoFailed = stringResource(R.string.st_photo_failed)
     val saved = stringResource(R.string.st_saved)
+    val snackbar = com.vraj.khetihisab.ui.components.rememberVkSnackbar()
     LaunchedEffect(vm) {
         vm.events.collect { e ->
-            Toast.makeText(context, if (e == ProfileEvent.PhotoFailed) photoFailed else saved, Toast.LENGTH_SHORT).show()
+            if (e == ProfileEvent.PhotoFailed) snackbar.show(photoFailed) else snackbar.show(saved, success = true)
         }
     }
 
@@ -194,14 +195,11 @@ fun ProfilesScreen(vm: ProfilesViewModel, onBack: () -> Unit) {
 
     sheetRole?.let { role ->
         val card = if (role == ProfileRole.OWNER) u.owner else u.managers.firstOrNull { it.role == role }
-        val sheet = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-        ModalBottomSheet(onDismissRequest = { sheetRole = null }, sheetState = sheet) {
-        com.vraj.khetihisab.ui.components.VkSheetSystemBars()
+        com.vraj.khetihisab.ui.components.VkBottomSheet(stringResource(R.string.st_photo_sheet_title, roleLabel(role)), { sheetRole = null }) {
             Column(
-                Modifier.fillMaxWidth().navigationBarsPadding().padding(start = 16.dp, end = 16.dp, bottom = 24.dp),
+                Modifier.fillMaxWidth().padding(horizontal = 16.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
-                Text(stringResource(R.string.st_photo_sheet_title, roleLabel(role)), style = MaterialTheme.typography.headlineSmall)
                 VkCard(Modifier.fillMaxWidth(), contentPadding = 0.dp) {
                     VkListRow(
                         title = stringResource(R.string.st_photo_camera),
@@ -263,34 +261,14 @@ private fun ProfileAvatar(card: PersonCard, size: Dp, onClick: () -> Unit) {
     val cs = MaterialTheme.colorScheme
     val desc = stringResource(R.string.st_change_photo, roleLabel(card.role))
     Box(Modifier.semantics { contentDescription = desc }) {
-        if (card.photoPath != null) {
-            VkPhotoSlot(card.photoPath, desc, onClick, size = size)
-        } else {
-            Box(
-                Modifier
-                    .size(size)
-                    .clip(CircleShape)
-                    .background(cs.primaryContainer)
-                    .clickable(role = Role.Button, onClick = onClick),
-                contentAlignment = Alignment.Center,
-            ) {
-                val initial = ScreensFormat.initialOf(card.name).ifEmpty {
-                    when (card.role) {
-                        ProfileRole.OWNER -> stringResource(R.string.st_owner_initial)
-                        ProfileRole.MANAGER_1 -> stringResource(R.string.st_manager_initial_1)
-                        ProfileRole.MANAGER_2 -> stringResource(R.string.st_manager_initial_2)
-                    }
-                }
-                Text(
-                    initial,
-                    color = cs.onPrimaryContainer,
-                    style = MaterialTheme.typography.headlineSmall.copy(fontSize = (size.value * 0.36f).sp),
-                    maxLines = 1,
-                    softWrap = false,
-                    textAlign = TextAlign.Center,
-                )
-            }
-        }
+        // Same avatar as the Home header: the photo, or the 3D profile icon (audit #49).
+        com.vraj.khetihisab.ui.home.PersonAvatar(
+            photoPath = card.photoPath,
+            initial = "",
+            size = size,
+            onClick = onClick,
+            contentDescription = desc,
+        )
         val badge = if (size >= 100.dp) 42.dp else 32.dp
         Box(
             Modifier

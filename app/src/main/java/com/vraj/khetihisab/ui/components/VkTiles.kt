@@ -149,9 +149,19 @@ fun VkTile(
     ) {
         TileOrnament(ornament, x.ornament, cs.primaryContainer, Modifier.matchParentSize())
         Column(Modifier.fillMaxWidth().padding(14.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            // A3: when the red flag clears (e.g. backup taken) the flag fades and one ring pulses.
+            var hadAlert by remember { mutableStateOf(alert) }
+            var cleared by remember { mutableStateOf(0) }
+            LaunchedEffect(alert) {
+                if (hadAlert && !alert) cleared++
+                hadAlert = alert
+            }
             Box {
                 IconDisc(icon, breathe = alert)
-                if (alert) VkAlertFlag(Modifier.align(Alignment.TopEnd))
+                if (cleared > 0) VkPulseRing(cleared, Modifier.matchParentSize())
+                androidx.compose.animation.AnimatedVisibility(alert, Modifier.align(Alignment.TopEnd), enter = fadeIn(), exit = fadeOut() + androidx.compose.animation.scaleOut()) {
+                    VkAlertFlag()
+                }
             }
             Text(
                 title,

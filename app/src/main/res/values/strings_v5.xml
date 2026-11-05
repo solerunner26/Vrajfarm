@@ -41,4 +41,10 @@
     <string name="v5_priority_normal">સામાન્ય</string>
     <string name="v5_pin_wrong">ખોટો પિન</string>
     <string name="v5_net">ચોખ્ખું</string>
+    <string name="v5_bk_drive_title">1 · ગૂગલ ડ્રાઇવ (આપોઆપ)</string>
+    <string name="v5_bk_wa_title">2 · વોટ્સએપ</string>
+    <string name="v5_bk_mail_title">3 · ઈ-મેલ</string>
+    <string name="v5_provider_drive">ગૂગલ ડ્રાઇવ</string>
+    <string name="v5_provider_phone">ફોનમાં</string>
+    <string name="v5_provider_other">બીજી જગ્યા</string>
 </resources>

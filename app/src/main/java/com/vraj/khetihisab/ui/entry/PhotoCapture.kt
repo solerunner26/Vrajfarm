@@ -100,22 +100,15 @@ fun rememberPhotoCapture(prefix: String, onImage: (Uri, File?) -> Unit): PhotoCa
 
 @Composable
 private fun CameraDeniedDialog(context: Context, onDismiss: () -> Unit) {
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        shape = RoundedCornerShape(28.dp),
-        containerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
-        title = { Text(stringResource(R.string.scr_camera_denied_title)) },
-        text = { Text(stringResource(R.string.scr_camera_denied_body), style = MaterialTheme.typography.bodyLarge) },
-        confirmButton = {
-            Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                VkPrimaryButton(stringResource(R.string.scr_open_settings), {
-                    onDismiss()
-                    val i = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.fromParts("package", context.packageName, null))
-                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                    runCatching { context.startActivity(i) }
-                }, Modifier.fillMaxWidth())
-                VkTextButton(stringResource(R.string.scr_cancel), onDismiss, Modifier.fillMaxWidth())
-            }
+    com.vraj.khetihisab.ui.components.VkDialog(
+        title = stringResource(R.string.scr_camera_denied_title),
+        onDismiss = onDismiss,
+        confirmLabel = stringResource(R.string.scr_open_settings),
+        onConfirm = {
+            onDismiss()
+            val i = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.fromParts("package", context.packageName, null))
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            runCatching { context.startActivity(i) }
         },
-    )
+    ) { Text(stringResource(R.string.scr_camera_denied_body), style = MaterialTheme.typography.bodyLarge) }
 }

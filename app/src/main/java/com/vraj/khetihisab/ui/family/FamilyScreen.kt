@@ -8,6 +8,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import com.vraj.khetihisab.ui.components.vkAppear
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -105,12 +106,19 @@ fun FamilyScreen(
     var deleteId by rememberSaveable { mutableStateOf<Long?>(null) }
     var actionsFor by remember { mutableStateOf<com.vraj.khetihisab.ui.home.LedgerRowUi?>(null) }
 
+    Column(Modifier.fillMaxSize().background(cs.surface)) {
     LazyColumn(
-        Modifier.fillMaxSize().background(cs.surface).testTag("family_list"),
-        contentPadding = PaddingValues(bottom = PlainBottomPadding),
-        verticalArrangement = Arrangement.spacedBy(14.dp),
+        Modifier.weight(1f).fillMaxWidth().testTag("family_list"),
+        contentPadding = PaddingValues(bottom = 16.dp),
+        verticalArrangement = Arrangement.spacedBy(com.vraj.khetihisab.ui.theme.VkDimens.listGap),
     ) {
-        item(key = "header") { VkTopHeader(stringResource(R.string.scr_family_title), onBack = onBack) }
+        item(key = "header") {
+            VkTopHeader(
+                stringResource(R.string.scr_family_title),
+                onBack = onBack,
+                actions = { com.vraj.khetihisab.ui.components.VkMonthChip(ScreensFormat.monthYearGu(state.month), { pickMonth = true }) },
+            )
+        }
         item(key = "seg") {
             VkSegmented(
                 options = listOf(
@@ -123,7 +131,7 @@ fun FamilyScreen(
             )
         }
         item(key = "hero") {
-            VkCard(pad.fillMaxWidth().testTag("family_hero"), tone = VkTone.Primary) {
+            VkCard(pad.fillMaxWidth().vkAppear(0, "family_hero").testTag("family_hero"), tone = VkTone.Primary) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     PersonAvatar(photoPath = null, initial = if (state.code == FamilyLogic.CODE_B) "૨" else "૧", size = 56.dp, onClick = { askPhone = true })
                     Spacer(Modifier.width(12.dp))
@@ -144,34 +152,26 @@ fun FamilyScreen(
                     }
                 }
                 Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                    StatTile(
+                    com.vraj.khetihisab.ui.home.MoneyStat(
                         stringResource(R.string.scr_month_advance, ScreensFormat.monthGu(state.month)),
-                        ScreensFormat.signedRupees(state.monthTotal),
+                        state.monthTotal,
                         Modifier.weight(1f).testTag("family_month_total"),
                         cs.onSecondaryContainer,
-                        big = true,
                     )
-                    StatTile(
+                    com.vraj.khetihisab.ui.home.MoneyStat(
                         stringResource(R.string.scr_year_total, state.month.year),
-                        ScreensFormat.signedRupees(state.yearTotal),
+                        state.yearTotal,
                         Modifier.weight(1f).testTag("family_year_total"),
                         cs.onSecondaryContainer,
-                        big = true,
                     )
                 }
-                VkChip(ScreensFormat.monthYearGu(state.month) + " ▾", selected = false, onClick = { pickMonth = true })
             }
         }
         item(key = "list_title") { VkSectionTitle(stringResource(R.string.scr_this_month_list), pad) }
         item(key = "list") {
-            VkCard(pad.fillMaxWidth(), contentPadding = 0.dp) {
+            VkCard(pad.fillMaxWidth().vkAppear(1, "family_rows"), contentPadding = 0.dp) {
                 if (state.rows.isEmpty()) {
-                    Text(
-                        stringResource(R.string.scr_no_advance_month),
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = cs.onSurfaceVariant,
-                        modifier = Modifier.padding(16.dp),
-                    )
+                    com.vraj.khetihisab.ui.components.VkEmptyState(VkIcon.FAMILY, stringResource(R.string.scr_no_advance_month))
                 }
                 state.rows.forEachIndexed { i, r ->
                     if (i > 0) VkRowDivider()
@@ -195,7 +195,7 @@ fun FamilyScreen(
             }
         }
         item(key = "preview") {
-            VkCard(pad.fillMaxWidth()) {
+            VkCard(pad.fillMaxWidth().vkAppear(2, "family_preview")) {
                 Text(stringResource(R.string.scr_wa_preview), style = MaterialTheme.typography.titleMedium, maxLines = 1, overflow = TextOverflow.Ellipsis)
                 Box(
                     Modifier
@@ -224,7 +224,11 @@ fun FamilyScreen(
                 enabled = state.family != null,
             )
         }
-        item(key = "add") { VkTonalButton(stringResource(R.string.scr_add_advance), onAddAdvance, pad.fillMaxWidth()) }
+    }
+    // Add sits in the bottom action bar (audit #23).
+    com.vraj.khetihisab.ui.components.VkActionBar {
+        VkPrimaryButton(stringResource(R.string.scr_add_advance), onAddAdvance, Modifier.weight(1f), sign = "+")
+    }
     }
 
     if (pickMonth) {
@@ -255,15 +259,15 @@ fun FamilyScreen(
         )
     }
     deleteId?.let { id ->
-        ConfirmDialog(
+        com.vraj.khetihisab.ui.components.VkConfirmDeleteDialog(
+            what = "",
             title = stringResource(R.string.scr_delete_entry_title),
-            body = null,
-            confirmLabel = stringResource(R.string.scr_delete),
             onConfirm = {
                 onDelete(id)
                 deleteId = null
             },
             onDismiss = { deleteId = null },
+            undoable = false,
         )
     }
 }
@@ -272,40 +276,23 @@ fun FamilyScreen(
 private fun PhoneDialog(initial: String, sendAfter: Boolean, onSave: (String) -> Unit, onDismiss: () -> Unit) {
     var text by rememberSaveable { mutableStateOf(initial) }
     var error by rememberSaveable { mutableStateOf(false) }
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        shape = RoundedCornerShape(28.dp),
-        containerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
-        title = { Text(stringResource(R.string.scr_wa_add_number_title), maxLines = 1, overflow = TextOverflow.Ellipsis) },
-        text = {
-            OutlinedTextField(
-                value = text,
-                onValueChange = {
-                    text = it
-                    error = false
-                },
-                label = { Text(stringResource(R.string.scr_phone)) },
-                singleLine = true,
-                isError = error,
-                supportingText = if (error) {
-                    { Text(stringResource(R.string.hm_phone_invalid)) }
-                } else {
-                    null
-                },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone).gujarati(),
-                textStyle = MaterialTheme.typography.bodyLarge,
-                modifier = Modifier.fillMaxWidth().testTag("family_phone_input"),
-            )
-        },
-        confirmButton = {
-            Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                VkPrimaryButton(
-                    stringResource(if (sendAfter) R.string.hm_save_send else R.string.scr_save),
-                    { if (FamilyLogic.isValidPhone(text)) onSave(text.trim()) else error = true },
-                    Modifier.fillMaxWidth(),
-                )
-                VkTextButton(stringResource(R.string.scr_cancel), onDismiss, Modifier.fillMaxWidth())
-            }
-        },
-    )
+    com.vraj.khetihisab.ui.components.VkDialog(
+        title = stringResource(R.string.scr_wa_add_number_title),
+        onDismiss = onDismiss,
+        confirmLabel = stringResource(if (sendAfter) R.string.hm_save_send else R.string.scr_save),
+        onConfirm = { if (FamilyLogic.isValidPhone(text)) onSave(text.trim()) else error = true },
+    ) {
+        com.vraj.khetihisab.ui.components.VkTextField(
+            value = text,
+            onValueChange = {
+                text = it
+                error = false
+            },
+            label = stringResource(R.string.scr_phone),
+            isError = error,
+            supporting = if (error) stringResource(R.string.hm_phone_invalid) else null,
+            keyboardType = KeyboardType.Phone,
+            modifier = Modifier.testTag("family_phone_input"),
+        )
+    }
 }

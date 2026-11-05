@@ -49,6 +49,7 @@ import com.vraj.khetihisab.ui.home.HomeLogic
 import com.vraj.khetihisab.ui.home.ScreensDepsProvider
 import com.vraj.khetihisab.ui.home.ScreensFormat
 import com.vraj.khetihisab.ui.home.ThreeStats
+import com.vraj.khetihisab.ui.components.vkAppear
 import com.vraj.khetihisab.ui.home.TxnListRow
 import com.vraj.khetihisab.ui.theme.VkIcon
 import com.vraj.khetihisab.ui.theme.VkIconImage
@@ -82,16 +83,16 @@ fun FarmDetailScreen(
         LazyColumn(
             Modifier.weight(1f).fillMaxWidth(),
             contentPadding = PaddingValues(bottom = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(14.dp),
+            verticalArrangement = Arrangement.spacedBy(com.vraj.khetihisab.ui.theme.VkDimens.listGap),
         ) {
             item(key = "header") {
                 VkTopHeader(state.name, onBack = onBack, subtitle = periodLabel(state.choice)) {
                     state.cycle?.let { VkHeaderChip(it.crop.name) }
                 }
             }
-            item(key = "stats") { VkCard(pad.fillMaxWidth()) { ThreeStats(state.totals) } }
+            item(key = "stats") { VkCard(pad.fillMaxWidth().vkAppear(0, "fd_stats")) { ThreeStats(state.totals) } }
             item(key = "cycle") {
-                VkCard(pad.fillMaxWidth()) {
+                VkCard(pad.fillMaxWidth().vkAppear(1, "fd_cycle")) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         VkIconImage(VkIcon.FARM, size = 40.dp)
                         Spacer(Modifier.width(12.dp))
@@ -122,13 +123,13 @@ fun FarmDetailScreen(
             }
             item(key = "entries_title") { VkSectionTitle(stringResource(R.string.scr_all_entries), pad) }
             item(key = "entries") {
-                VkCard(pad.fillMaxWidth(), contentPadding = 0.dp) {
+                VkCard(pad.fillMaxWidth().vkAppear(2, "fd_entries"), contentPadding = 0.dp) {
                     if (state.entries.isEmpty()) {
-                        Text(
+                        com.vraj.khetihisab.ui.components.VkEmptyState(
+                            VkIcon.FARM,
                             stringResource(R.string.scr_no_entries_period),
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = cs.onSurfaceVariant,
-                            modifier = Modifier.padding(16.dp),
+                            actionLabel = stringResource(R.string.v5_no_entries_action),
+                            onAction = onAddEntry,
                         )
                     }
                     state.entries.forEachIndexed { i, t ->
@@ -150,33 +151,29 @@ fun FarmDetailScreen(
                 }
             }
         }
-        Box(Modifier.fillMaxWidth().background(cs.surfaceContainer).navigationBarsPadding().padding(16.dp)) {
-            VkPrimaryButton(stringResource(R.string.scr_entry_for_farm), onAddEntry, Modifier.fillMaxWidth())
+        com.vraj.khetihisab.ui.components.VkActionBar {
+            VkPrimaryButton(stringResource(R.string.scr_entry_for_farm), onAddEntry, Modifier.weight(1f))
         }
     }
 
     if (picking) {
-        AlertDialog(
-            onDismissRequest = { picking = false },
-            shape = RoundedCornerShape(28.dp),
-            containerColor = cs.surfaceContainerLowest,
-            title = { Text(stringResource(R.string.hm_change_crop_title), maxLines = 1, overflow = TextOverflow.Ellipsis) },
-            text = {
-                if (state.crops.isEmpty()) {
-                    Text(stringResource(R.string.hm_no_crops), style = MaterialTheme.typography.bodyLarge)
-                } else {
-                    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                        state.crops.forEach { crop ->
-                            VkChip(crop.name, selected = state.cycle?.crop?.id == crop.id, onClick = {
-                                picking = false
-                                if (state.cycle?.crop?.id != crop.id) onChangeCrop(crop.id)
-                            })
-                        }
+        com.vraj.khetihisab.ui.components.VkDialog(
+            title = stringResource(R.string.hm_change_crop_title),
+            onDismiss = { picking = false },
+        ) {
+            if (state.crops.isEmpty()) {
+                Text(stringResource(R.string.hm_no_crops), style = MaterialTheme.typography.bodyLarge)
+            } else {
+                FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    state.crops.forEach { crop ->
+                        VkChip(crop.name, selected = state.cycle?.crop?.id == crop.id, onClick = {
+                            picking = false
+                            if (state.cycle?.crop?.id != crop.id) onChangeCrop(crop.id)
+                        })
                     }
                 }
-            },
-            confirmButton = { VkTextButton(stringResource(R.string.scr_cancel), { picking = false }) },
-        )
+            }
+        }
     }
     actionsFor?.let { r ->
         com.vraj.khetihisab.ui.home.EntryActionsSheet(r, onEdit = { onEditEntry(r.id) }, onDismiss = { actionsFor = null })
