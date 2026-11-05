@@ -5,7 +5,7 @@
     <string name="v4_up_nt_body">આવૃત્તિ %s તૈયાર છે. અપડેટ કરવા દબાવો.</string>
 
     <string name="v4_assets_total">કુલ મિલકત</string>
-    <string name="v4_assets_out">ઉછીની આપેલ</string>
+    <string name="v4_assets_out">ઉછીની</string>
     <string name="v4_assets_late">મોડું</string>
     <string name="v4_assets_empty">હજી કોઈ મિલકત નથી. ઉપર "+ નવી મિલકત ઉમેરો" દબાવો.</string>
     <string name="v4_asset_add">નવી મિલકત ઉમેરો</string>
