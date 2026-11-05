@@ -15,4 +15,5 @@ class DataRepositories(
     val reminders = ReminderRepository(db.reminderDao(), clock, listener)
     val profiles = ProfileRepository(db.profileDao(), clock, listener, db.masterDao())
     val panchang = PanchangPrefRepository(db.panchangDao(), clock)
+    val milk = db.milkDao()
 }

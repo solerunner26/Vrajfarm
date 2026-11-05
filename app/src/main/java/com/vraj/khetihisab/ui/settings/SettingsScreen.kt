@@ -94,6 +94,7 @@ fun SettingsScreen(vm: SettingsViewModel, actions: SettingsActions) {
                         VkIcon.BACKUP, stringResource(R.string.st_backup_title), { actions.onOpen(SettingsRoutes.BACKUP) },
                         Modifier.weight(1f).fillMaxHeight(), subtitle = backupSub,
                         ornament = VkTileOrnament.SUN, index = 2, testTag = "st_tile_backup",
+                        alert = !s.backup.takenRecently(System.currentTimeMillis()),
                     )
                     VkTile(
                         VkIcon.PANCHANG, stringResource(R.string.st_panchang_alerts), { actions.onOpen(SettingsRoutes.PANCHANG_ALERTS) },
@@ -111,6 +112,18 @@ fun SettingsScreen(vm: SettingsViewModel, actions: SettingsActions) {
                         VkIcon.REPORT, stringResource(R.string.st_reports), { actions.onOpen(SettingsRoutes.reports()) },
                         Modifier.weight(1f).fillMaxHeight(), subtitle = stringResource(R.string.v2_reports_sub),
                         ornament = VkTileOrnament.RANGOLI, index = 5, testTag = "st_tile_reports",
+                    )
+                }
+                VkTileRow {
+                    VkTile(
+                        VkIcon.ASSET, stringResource(R.string.v3_assets_tile), { actions.onOpen("assets") },
+                        Modifier.weight(1f).fillMaxHeight(), subtitle = stringResource(R.string.v3_assets_sub),
+                        ornament = VkTileOrnament.WAVE, index = 6, testTag = "st_tile_assets",
+                    )
+                    VkTile(
+                        VkIcon.ANIMAL, stringResource(R.string.v3_milk_title), { actions.onOpen("milk") },
+                        Modifier.weight(1f).fillMaxHeight(), subtitle = stringResource(R.string.v3_milk_sub),
+                        ornament = VkTileOrnament.MOON, index = 7, testTag = "st_tile_milk",
                     )
                 }
                 VkTileRow {

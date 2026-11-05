@@ -1,5 +1,6 @@
 package com.vraj.khetihisab.ui.settings
 
+import com.vraj.khetihisab.ui.components.gujarati
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
@@ -95,7 +96,8 @@ internal fun StTextField(
         singleLine = singleLine,
         minLines = if (singleLine) 1 else minLines,
         isError = isError,
-        keyboardOptions = keyboard,
+        // Gujarati keyboard by default (owner request 2026-11-05); e-mail fields keep a Latin keyboard.
+        keyboardOptions = if (keyboard.keyboardType == androidx.compose.ui.text.input.KeyboardType.Email) keyboard else keyboard.gujarati(),
         visualTransformation = if (password) PasswordVisualTransformation() else VisualTransformation.None,
         supportingText = supporting?.let { { Text(it) } },
         shape = RoundedCornerShape(16.dp),

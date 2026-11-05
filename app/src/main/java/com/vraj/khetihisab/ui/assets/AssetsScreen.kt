@@ -39,6 +39,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -154,7 +157,14 @@ fun AssetsScreen(
 
     st.confirmReturn?.let { l -> ConfirmReturnDialog(l, onYes = vm::confirmReturned, onNo = vm::cancelReturn) }
     st.detail?.let { d ->
-        AssetDetailSheet(d, onDismiss = vm::closeDetail, onLend = { vm.closeDetail(); onLend(d.asset.id) }, onDelete = { vm.deleteAsset(d.asset.id) }, onPhoto = vm::showPhoto)
+        AssetDetailSheet(
+            d,
+            onDismiss = vm::closeDetail,
+            onLend = { vm.closeDetail(); onLend(d.asset.id) },
+            onDelete = { vm.deleteAsset(d.asset.id) },
+            onPhoto = vm::showPhoto,
+            onEdit = { n, p -> vm.editAsset(d.asset.id, n, p) },
+        )
     }
     st.fullPhoto?.let { p -> FullPhotoDialog(p, onDismiss = { vm.showPhoto(null) }) }
 }
@@ -305,8 +315,37 @@ private fun ConfirmReturnDialog(l: LoanWithAsset, onYes: () -> Unit, onNo: () ->
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun AssetDetailSheet(d: AssetDetail, onDismiss: () -> Unit, onLend: () -> Unit, onDelete: () -> Unit, onPhoto: (String) -> Unit) {
+private fun AssetDetailSheet(
+    d: AssetDetail,
+    onDismiss: () -> Unit,
+    onLend: () -> Unit,
+    onDelete: () -> Unit,
+    onPhoto: (String) -> Unit,
+    onEdit: (String, String) -> Unit = { _, _ -> },
+) {
     val sheet = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    var editing by remember { mutableStateOf(false) }
+    if (editing) {
+        var name by remember { mutableStateOf(d.asset.name) }
+        var price by remember { mutableStateOf(d.asset.pricePaise?.let(com.vraj.khetihisab.ui.shopping.MoneyInput::fromPaise).orEmpty()) }
+        androidx.compose.material3.AlertDialog(
+            onDismissRequest = { editing = false },
+            title = { Text(stringResource(R.string.v2_edit), style = MaterialTheme.typography.headlineSmall) },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                    AsTextField(value = name, onValueChange = { name = it.take(40) }, label = stringResource(R.string.v3_asset_name))
+                    AsTextField(
+                        value = price,
+                        onValueChange = { v -> price = v.filter { it.isDigit() || it == '.' } },
+                        label = stringResource(R.string.as_est_price),
+                        keyboard = androidx.compose.foundation.text.KeyboardOptions(keyboardType = androidx.compose.ui.text.input.KeyboardType.Decimal),
+                    )
+                }
+            },
+            confirmButton = { VkPrimaryButton(stringResource(R.string.scr_save), { onEdit(name, price); editing = false }, enabled = name.isNotBlank()) },
+            dismissButton = { VkTextButton(stringResource(R.string.scr_cancel), { editing = false }) },
+        )
+    }
     ModalBottomSheet(onDismissRequest = onDismiss, sheetState = sheet, containerColor = MaterialTheme.colorScheme.surfaceContainerLowest) {
         com.vraj.khetihisab.ui.components.VkSheetSystemBars()
         Column(
@@ -343,6 +382,7 @@ private fun AssetDetailSheet(d: AssetDetail, onDismiss: () -> Unit, onLend: () -
                 }
             }
             if (!d.isLent) VkPrimaryButton(stringResource(R.string.as_lend_fab), onLend, Modifier.fillMaxWidth(), icon = VkIcon.LEND)
+            VkTonalButton(stringResource(R.string.v2_edit), { editing = true }, Modifier.fillMaxWidth())
             VkTextButton(stringResource(R.string.as_delete), onDelete, Modifier.fillMaxWidth())
         }
     }

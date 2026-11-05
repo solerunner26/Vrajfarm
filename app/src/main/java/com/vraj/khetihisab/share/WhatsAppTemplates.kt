@@ -33,9 +33,19 @@ object WhatsAppTemplates {
     const val P_MONTH_TOTAL = "{monthTotal}"
     const val P_ENTRIES = "{entries}"
     const val P_YEAR_TOTAL = "{yearTotal}"
+    /** Today's date (loan reminder) — owner format 2026-11-05. */
+    const val P_TODAY = "{today}"
+    /** Date and amount of ONE ઉપાડ (ભાગિયા message) — owner format 2026-11-05. */
+    const val P_DATE = "{date}"
+    const val P_AMOUNT = "{amount}"
 
-    /** Default loan reminder (doc 12). The `{late}` line is dropped when the loan is not overdue. */
-    val DEFAULT_LOAN_REMINDER: String = listOf(
+    /** Default loan reminder — the owner's exact wording (2026-11-05). */
+    val DEFAULT_LOAN_REMINDER: String =
+        "નમસ્તે $P_BORROWER, તમે $P_HANDED_OVER ના રોજ અમારું $P_ASSET લઈ ગયેલ છો. " +
+            "જે આજે આજ $P_TODAY સુધી પાછું આપેલ નથી. કામ પૂરું થઈ ગયેલ હોય તો કૃપા કરીને સમયસર પરત કરશો. - $P_OWNER ."
+
+    /** The pre-2026-11-05 multi-line loan template (kept for templates users saved earlier). */
+    val OLD_LOAN_REMINDER: String = listOf(
         "નમસ્તે $P_BORROWER,",
         "તમે તા. $P_HANDED_OVER ના રોજ અમારું $P_ASSET લઈ ગયા છો.",
         "પરત આપવાની તારીખ: $P_EXPECTED_RETURN",
@@ -44,8 +54,16 @@ object WhatsAppTemplates {
         "— $P_OWNER, $P_VILLAGE",
     ).joinToString("\n")
 
-    /** Default family advance statement (doc 08). */
-    val DEFAULT_FAMILY_STATEMENT: String = listOf(
+    /**
+     * Default ભાગિયા ઉપાડ message — the owner's exact wording (2026-11-05): one advance, its date and
+     * amount, and the year's total. ({date}/{amount} = the newest advance in the list.)
+     */
+    val DEFAULT_FAMILY_STATEMENT: String =
+        "$P_DISPLAY_NAME, તારીખ $P_DATE ના રોજ $P_AMOUNT ઉપાડ રૂપે આપેલ છે. વર્ષ $P_YEAR માં કુલ ઉપાડ $P_YEAR_TOTAL, " +
+            "તમારી જાણ સારું. આ મેસેજ નોંધ માટે મોકલવામાં આવે છે. - $P_OWNER ."
+
+    /** The pre-2026-11-05 monthly statement template. */
+    val OLD_FAMILY_STATEMENT: String = listOf(
         "નમસ્તે $P_DISPLAY_NAME,",
         "$P_MONTH $P_YEAR નો ઉપાડ: $P_MONTH_TOTAL",
         P_ENTRIES,
@@ -82,7 +100,9 @@ object WhatsAppTemplates {
         var t = template
         t = when {
             late.isEmpty() -> dropPlaceholderLine(t, P_LATE)
-            !t.contains(P_LATE) -> insertBeforeSignature(t, P_LATE)
+            // Old multi-line templates get the late line before "— signature"; the owner's one-line
+            // format already says "આજ {today} સુધી પાછું આપેલ નથી", so nothing is added there.
+            !t.contains(P_LATE) && t.contains('\n') -> insertBeforeSignature(t, P_LATE)
             else -> t
         }
         val filled = t
@@ -90,6 +110,7 @@ object WhatsAppTemplates {
             .replace(P_HANDED_OVER, handedOver.format(DMY))
             .replace(P_ASSET, asset.trim())
             .replace(P_EXPECTED_RETURN, expectedReturn.format(DMY))
+            .replace(P_TODAY, today.format(DMY))
             .replace(P_OWNER, ownerName.trim())
             .replace(P_VILLAGE, village.trim())
             .replace(P_LATE, late)
@@ -124,7 +145,12 @@ object WhatsAppTemplates {
             val more = entries.size - FAMILY_MAX_ENTRIES
             (if (more > 0) shown + "…અને $more વધુ" else shown).joinToString("\n")
         }
+        val newest = entries.lastOrNull()
+        // The one-advance format makes no sense without an advance.
+        if (newest == null && template.contains(P_DATE)) return NO_ADVANCE_LINE
         val filled = template
+            .replace(P_DATE, newest?.date?.format(DMY).orEmpty())
+            .replace(P_AMOUNT, newest?.let { VkFormat.rupees(it.amountPaise) }.orEmpty())
             .replace(P_DISPLAY_NAME, displayName.trim())
             .replace(P_MONTH, PanchangNames.gregorianMonths[month.monthValue - 1])
             .replace(P_YEAR, yearLabel)

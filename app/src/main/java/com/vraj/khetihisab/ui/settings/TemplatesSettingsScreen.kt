@@ -64,10 +64,10 @@ class TemplatesViewModel(private val store: WhatsAppTemplateStore) : ViewModel()
     companion object {
         val LOAN_PLACEHOLDERS = listOf(
             WhatsAppTemplates.P_BORROWER, WhatsAppTemplates.P_ASSET, WhatsAppTemplates.P_HANDED_OVER,
-            WhatsAppTemplates.P_EXPECTED_RETURN, WhatsAppTemplates.P_LATE, WhatsAppTemplates.P_OWNER, WhatsAppTemplates.P_VILLAGE,
+            WhatsAppTemplates.P_EXPECTED_RETURN, WhatsAppTemplates.P_TODAY, WhatsAppTemplates.P_LATE, WhatsAppTemplates.P_OWNER, WhatsAppTemplates.P_VILLAGE,
         )
         val FAMILY_PLACEHOLDERS = listOf(
-            WhatsAppTemplates.P_DISPLAY_NAME, WhatsAppTemplates.P_MONTH, WhatsAppTemplates.P_YEAR,
+            WhatsAppTemplates.P_DISPLAY_NAME, WhatsAppTemplates.P_DATE, WhatsAppTemplates.P_AMOUNT, WhatsAppTemplates.P_MONTH, WhatsAppTemplates.P_YEAR,
             WhatsAppTemplates.P_MONTH_TOTAL, WhatsAppTemplates.P_ENTRIES, WhatsAppTemplates.P_YEAR_TOTAL,
             WhatsAppTemplates.P_OWNER, WhatsAppTemplates.P_VILLAGE,
         )

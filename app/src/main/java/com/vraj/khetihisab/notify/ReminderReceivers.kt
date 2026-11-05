@@ -16,6 +16,9 @@ object ReminderNotifier {
     fun notificationId(reminderId: Long): Int = BASE_ID + (reminderId % 1_000_000).toInt()
 
     suspend fun show(context: Context, r: ReminderEntity, now: Long = System.currentTimeMillis()): Boolean {
+        if (r.sourceType == com.vraj.khetihisab.data.entity.ReminderSource.LOAN && r.sourceId != null) {
+            showLoan(context, r, now)?.let { return it }
+        }
         val deadline = Deadline.of(r.dueAt, now).label { res, arg -> context.getString(res, arg) }
         val text = listOfNotNull(deadline, r.note?.takeIf { it.isNotBlank() }).joinToString(" · ")
         val done = VkNotify.broadcast(context, ReminderActionReceiver::class.java, ReminderActionReceiver.ACTION_DONE, "vraj-action://reminder/done/${r.id}") {
@@ -37,6 +40,43 @@ object ReminderNotifier {
         if (r.priority == Priority.HIGH) b.setCategory(NotificationCompat.CATEGORY_REMINDER)
         return VkNotify.post(context, notificationId(r.id), b.build())
     }
+}
+
+/**
+ * Borrowed-asset nudge (owner request 2026-11-05):
+ * "રમેશભાઈ પાસે આપણું પાવડો છે · 10 દિવસ માટે લઈ ગયા છે" with
+ * [પરત આવી ગયું] [1 અઠવાડિયા પછી] [1 મહિના પછી]. If ignored it comes back every week.
+ */
+private suspend fun showLoan(context: Context, r: ReminderEntity, now: Long): Boolean? {
+    val repos = NotifyGraph.repos(context)
+    val lw = repos.assets.loanById(r.sourceId ?: return null) ?: return null
+    if (lw.loan.returnedAt != null) return null
+    val days = java.time.temporal.ChronoUnit.DAYS.between(lw.loan.handedOverDate, lw.loan.expectedReturnDate).coerceAtLeast(1)
+    val title = context.getString(R.string.v3_loan_nt_title, lw.loan.borrowerName, lw.asset.name)
+    val text = context.getString(
+        R.string.v3_loan_nt_body,
+        lw.loan.handedOverDate.format(java.time.format.DateTimeFormatter.ofPattern("dd-MM-yyyy")),
+        days.toInt(),
+        lw.loan.expectedReturnDate.format(java.time.format.DateTimeFormatter.ofPattern("dd-MM-yyyy")),
+    )
+    fun action(a: String) = VkNotify.broadcast(context, ReminderActionReceiver::class.java, a, "vraj-action://loan/$a/${r.id}") {
+        putExtra(ReminderActionReceiver.EXTRA_ID, r.id)
+        putExtra(ReminderActionReceiver.EXTRA_LOAN, lw.loan.id)
+    }
+    val b = VkNotify.builder(context, NotificationChannels.REMINDERS, VkNotify.accent(context))
+        .setContentTitle(title)
+        .setContentText(text)
+        .setStyle(NotificationCompat.BigTextStyle().bigText(text))
+        .setContentIntent(VkDeepLinks.pending(context, VkDeepLinks.REMINDERS))
+        .addAction(0, context.getString(R.string.v3_loan_returned), action(ReminderActionReceiver.ACTION_LOAN_RETURNED))
+        .addAction(0, context.getString(R.string.v3_loan_week), action(ReminderActionReceiver.ACTION_LOAN_WEEK))
+        .addAction(0, context.getString(R.string.v3_loan_month), action(ReminderActionReceiver.ACTION_LOAN_MONTH))
+        .setPriority(NotificationCompat.PRIORITY_HIGH)
+        .setCategory(NotificationCompat.CATEGORY_REMINDER)
+    val posted = VkNotify.post(context, ReminderNotifier.notificationId(r.id), b.build())
+    // Ignored? It comes back in a week.
+    ReminderActions.loanLater(context, r.id, days = 7, cancelShown = false, now = now)
+    return posted
 }
 
 /** Shared by the notification actions, the widget DONE pill and the Reminders screen. */
@@ -75,6 +115,26 @@ object ReminderActions {
         WidgetRefresher.get(context).refreshNow()
     }
 
+    /** Loan nudge "1 અઠવાડિયા / 1 મહિના પછી": moves the reminder [days] ahead and re-arms it. */
+    suspend fun loanLater(context: Context, id: Long, days: Long, cancelShown: Boolean = true, now: Long = System.currentTimeMillis()) {
+        val repo = NotifyGraph.repos(context).reminders
+        val r = repo.byId(id) ?: return
+        val next = r.copy(dueAt = now + days * 24 * 60 * 60 * 1000L, updatedAt = now)
+        repo.update(next)
+        val scheduler = NotifyGraph.reminderScheduler(context)
+        scheduler.cancel(id)
+        scheduler.schedule(next)
+        if (cancelShown) VkNotify.cancel(context, ReminderNotifier.notificationId(id))
+    }
+
+    /** "પરત આવી ગયું": closes the loan (and its reminder) from the notification. */
+    suspend fun loanReturned(context: Context, reminderId: Long, loanId: Long) {
+        NotifyGraph.repos(context).assets.markReturned(loanId)
+        NotifyGraph.reminderScheduler(context).cancel(reminderId)
+        VkNotify.cancel(context, ReminderNotifier.notificationId(reminderId))
+        WidgetRefresher.get(context).refreshNow()
+    }
+
     suspend fun snooze(context: Context, id: Long) {
         NotifyGraph.reminderScheduler(context).snooze(id)
         VkNotify.cancel(context, ReminderNotifier.notificationId(id))
@@ -109,6 +169,12 @@ class ReminderActionReceiver : BroadcastReceiver() {
             when (intent.action) {
                 ACTION_DONE -> ReminderActions.markDone(app, id)
                 ACTION_SNOOZE -> ReminderActions.snooze(app, id)
+                ACTION_LOAN_WEEK -> ReminderActions.loanLater(app, id, days = 7)
+                ACTION_LOAN_MONTH -> ReminderActions.loanLater(app, id, days = 30)
+                ACTION_LOAN_RETURNED -> {
+                    val loan = intent.getLongExtra(EXTRA_LOAN, -1L)
+                    if (loan > 0) ReminderActions.loanReturned(app, id, loan)
+                }
             }
         }
     }
@@ -118,5 +184,9 @@ class ReminderActionReceiver : BroadcastReceiver() {
         const val ACTION_DONE = "com.vraj.khetihisab.action.REMINDER_DONE"
         const val ACTION_SNOOZE = "com.vraj.khetihisab.action.REMINDER_SNOOZE"
         const val EXTRA_ID = "id"
+        const val EXTRA_LOAN = "loan"
+        const val ACTION_LOAN_WEEK = "com.vraj.khetihisab.action.LOAN_WEEK"
+        const val ACTION_LOAN_MONTH = "com.vraj.khetihisab.action.LOAN_MONTH"
+        const val ACTION_LOAN_RETURNED = "com.vraj.khetihisab.action.LOAN_RETURNED"
     }
 }

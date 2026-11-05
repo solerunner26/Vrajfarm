@@ -28,6 +28,8 @@ data class FarmEdit(
     val name: String,
     val vighaText: String,
     val manager: ProfileRole?,
+    /** બંને ભાગિયા (joint farm, DB v2). */
+    val joint: Boolean = false,
     /** New active crop (null = keep the current cycle). */
     val cropId: Long?,
     val season: String,
@@ -82,8 +84,13 @@ class MasterSettingsViewModel(
                 if (old?.areaInVigha != vigha) master.updateFarmArea(e.farmId, vigha)
                 e.farmId
             }
-            val oldManager = farms.value.firstOrNull { it.id == id }?.managerRole
-            if (e.farmId == null || oldManager != e.manager) master.updateFarmManager(id, e.manager)
+            val old = farms.value.firstOrNull { it.id == id }
+            val wanted = when {
+                e.joint -> setOf(ProfileRole.MANAGER_1, ProfileRole.MANAGER_2)
+                e.manager != null -> setOf(e.manager)
+                else -> emptySet()
+            }
+            if (e.farmId == null || old?.managers != wanted) master.updateFarmManagers(id, wanted)
             if (e.cropId != null) {
                 val current = activeCycles.value.firstOrNull { it.cycle.farmId == id }?.cycle
                 val changed = current == null || current.cropId != e.cropId || current.season != e.season || current.year != e.year

@@ -22,7 +22,8 @@ class WhatsAppTemplateStore(private val prefs: SharedPreferences) {
 
     companion object {
         const val PREFS = "vk_wa_templates"
-        const val KEY_LOAN = "loan_reminder"
-        const val KEY_FAMILY = "family_statement"
+        // v2 keys (2026-11-05): the owner's new wording replaces anything saved before.
+        const val KEY_LOAN = "loan_reminder_v2"
+        const val KEY_FAMILY = "family_advance_v2"
     }
 }

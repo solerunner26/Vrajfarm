@@ -22,6 +22,20 @@ class BackupAlarmReceiver : BroadcastReceiver() {
         val scheduler = BackupScheduler(app)
         when (intent.action) {
             ACTION_RUN -> scheduler.enqueueBackup(BackupTrigger.NIGHTLY)
+            ACTION_REMIND -> {
+                val pending = goAsync()
+                scope.launch {
+                    try {
+                        val deps = BackupGraph.deps(app)
+                        val s = deps.status.current()
+                        if (!s.takenRecently(System.currentTimeMillis())) deps.notifier.notifyBackupDue()
+                        scheduler.scheduleReminder()
+                    } finally {
+                        pending.finish()
+                    }
+                }
+                return
+            }
             Intent.ACTION_BOOT_COMPLETED,
             Intent.ACTION_MY_PACKAGE_REPLACED,
             Intent.ACTION_TIME_CHANGED,
@@ -42,6 +56,7 @@ class BackupAlarmReceiver : BroadcastReceiver() {
 
     companion object {
         const val ACTION_RUN = "com.vraj.khetihisab.backup.RUN"
+        const val ACTION_REMIND = "com.vraj.khetihisab.backup.REMIND"
         private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
         /** Re-arms the alarm + safety net and stores the next run time for the Settings card. */

@@ -50,11 +50,16 @@ data class BackupStatus(
         }
     }
 
+    /** A backup reached Drive / WhatsApp / e-mail in the last 24 h (red button + 21:30 reminder use this). */
+    fun takenRecently(nowMillis: Long): Boolean = lastSuccessAt?.let { nowMillis - it < DAY_MS } == true
+
     val lastWasFailure: Boolean get() = lastFailure != BackupFailure.NOT_CONFIGURED &&
         lastFailureAt != null && (lastSuccessAt == null || lastFailureAt > lastSuccessAt)
 
     companion object {
-        const val STALE_AFTER_MS = 48L * 60 * 60 * 1000
+        // Owner 2026-11-05: a backup is expected every day, so it turns "old" (red) after 24 h.
+        const val STALE_AFTER_MS = 24L * 60 * 60 * 1000
+        const val DAY_MS = 24L * 60 * 60 * 1000
     }
 }
 

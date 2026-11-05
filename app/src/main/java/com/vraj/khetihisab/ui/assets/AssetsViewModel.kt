@@ -178,6 +178,11 @@ class AssetsViewModel(
         detailId.value = null
     }
 
+    fun editAsset(assetId: Long, name: String, priceText: String) {
+        if (name.isBlank()) return
+        viewModelScope.launch { store.updateAsset(assetId, name, com.vraj.khetihisab.ui.shopping.MoneyInput.toPaise(priceText)) }
+    }
+
     fun deleteAsset(assetId: Long) {
         viewModelScope.launch {
             if (store.deleteAsset(assetId)) detailId.value = null else events.send(AssetsEvent.DeleteBlocked)

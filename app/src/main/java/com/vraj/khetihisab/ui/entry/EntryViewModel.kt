@@ -31,6 +31,8 @@ data class EntryLists(
     val farms: List<EntryOption> = emptyList(),
     val families: List<EntryOption> = emptyList(),
     val categories: List<EntryOption> = emptyList(),
+    /** Every active type of every section, for whole-entry speech. */
+    val allCategories: List<VoiceCategory> = emptyList(),
 )
 
 class EntryViewModel(private val deps: ScreensDeps, private val handle: SavedStateHandle) : ViewModel() {
@@ -70,15 +72,17 @@ class EntryViewModel(private val deps: ScreensDeps, private val handle: SavedSta
         master.activeCycles(),
         master.families(),
         _form.map { it.section to it.txnType },
-    ) { farms, cycles, families, sel -> Triple(farms to cycles, families, sel) }
-        .flatMapLatest { (fc, families, sel) ->
-            val (farms, cycles) = fc
+        master.allCategories(),
+    ) { farms, cycles, families, sel, all -> Triple(Triple(farms, cycles, all), families, sel) }
+        .flatMapLatest { (fca, families, sel) ->
+            val (farms, cycles, all) = fca
+            val voiceCats = all.filter { it.isActive }.map { VoiceCategory(it.id, it.name, it.section, it.type) }
             val cropByFarm = cycles.associate { it.cycle.farmId to it.crop.name }
             val farmOpts = farms.map { EntryOption(it.id, it.name, cropByFarm[it.id]) }
             val famOpts = families.map { EntryOption(it.id, it.displayName) }
             val (section, type) = sel
             val cats = if (section == null) flowOf(emptyList()) else master.categories(section, type)
-            cats.map { list -> EntryLists(farmOpts, famOpts, list.map(::option)) }
+            cats.map { list -> EntryLists(farmOpts, famOpts, list.map(::option), voiceCats) }
         }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), EntryLists())
 
@@ -93,6 +97,34 @@ class EntryViewModel(private val deps: ScreensDeps, private val handle: SavedSta
         }
         if (e is EntryEvent.SetBill && cur.billPath != null && cur.billPath != e.path && cur.billPath != originalBill) BillPhotoHelper.discard(cur.billPath)
         set(next)
+    }
+
+    /**
+     * "+ નવો પ્રકાર" right inside Entry (owner request 2026-11-05): creates the type for the chosen
+     * section and આવક/ખર્ચ, then selects it. An existing name (any case) is just selected.
+     */
+    fun addCategory(name: String) {
+        val f = _form.value
+        val section = f.section ?: return
+        val n = name.trim().take(40)
+        if (n.isEmpty()) return
+        viewModelScope.launch {
+            val existing = master.categories(section, f.txnType).first().firstOrNull { it.name.equals(n, ignoreCase = true) }
+            val id = existing?.id ?: master.addCategory(CategoryMasterEntity(name = n, section = section, type = f.txnType))
+            onEvent(EntryEvent.PickCategory(id, n == CROP_SALE))
+        }
+    }
+
+    /** Whole-entry speech: farms, family and categories are matched by name. */
+    fun applyVoice(text: String) {
+        val l = lists.value
+        val parsed = VoiceEntryParser.parse(
+            text,
+            farms = l.farms.map { it.id to it.label },
+            families = l.families.map { it.id to it.label },
+            categories = l.allCategories,
+        )
+        onEvent(EntryEvent.ApplyVoice(parsed))
     }
 
     fun confirmApmc(accept: Boolean) {
@@ -131,8 +163,8 @@ class EntryViewModel(private val deps: ScreensDeps, private val handle: SavedSta
                 cycleId = cycleId,
                 familyId = f.familyId.takeIf { f.section == AccountSection.FAMILY },
                 categoryId = f.categoryId ?: familyDefaultCategory(f),
-                note = f.voiceNote,
-                voiceNote = f.voiceNote,
+                note = f.voiceNote?.trim()?.ifEmpty { null },
+                voiceNote = f.voiceNote?.trim()?.ifEmpty { null },
                 billPhotoPath = f.billPath,
                 mann = if (apmc) f.mann else null,
                 extraKg = if (apmc) f.extraKg else null,

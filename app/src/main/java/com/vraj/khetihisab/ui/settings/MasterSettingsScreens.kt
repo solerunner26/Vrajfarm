@@ -138,7 +138,7 @@ fun FarmsSettingsRoute(onBack: () -> Unit) {
                         val vigha = if (f.areaInVigha > 0) stringResource(R.string.st_vigha_value, SettingsFormat.vighaText(f.areaInVigha)) else stringResource(R.string.st_vigha_not_set)
                         VkListRow(
                             title = f.name,
-                            meta = listOfNotNull(vigha, f.managerRole?.let { managerLabel(it) }, crop).joinToString(" · "),
+                            meta = listOfNotNull(vigha, if (f.jointManagers) stringResource(R.string.v3_both_bhagiya) else f.managerRole?.let { managerLabel(it) }, crop).joinToString(" · "),
                             leadingIcon = VkIcon.FARM,
                             showChevron = true,
                             onClick = { editing = f },
@@ -193,7 +193,17 @@ private fun FarmEditDialog(
 ) {
     var name by rememberSaveable(farm?.id) { mutableStateOf(farm?.name.orEmpty()) }
     var vigha by rememberSaveable(farm?.id) { mutableStateOf(farm?.areaInVigha?.takeIf { it > 0 }?.let(SettingsFormat::vighaText).orEmpty()) }
-    var manager by rememberSaveable(farm?.id) { mutableStateOf(farm?.managerRole) }
+    // "none" | "m1" | "m2" | "both" — a farm can be run by one or BOTH ભાગિયા (2026-11-05).
+    var manager by rememberSaveable(farm?.id) {
+        mutableStateOf(
+            when {
+                farm?.jointManagers == true -> "both"
+                farm?.managerRole == ProfileRole.MANAGER_1 -> "m1"
+                farm?.managerRole == ProfileRole.MANAGER_2 -> "m2"
+                else -> "none"
+            },
+        )
+    }
     var cropId by rememberSaveable(farm?.id) { mutableStateOf(initialCropId) }
     var season by rememberSaveable(farm?.id) { mutableStateOf(initialSeason) }
     var year by rememberSaveable(farm?.id) { mutableStateOf(initialYear.toString()) }
@@ -203,7 +213,13 @@ private fun FarmEditDialog(
         title = farm?.name ?: stringResource(R.string.st_add_farm),
         confirmLabel = stringResource(R.string.st_save),
         onConfirm = {
-            error = onSave(FarmEdit(farm?.id, name, vigha, manager, cropId, season, year.toIntOrNull() ?: initialYear))
+            val role = when (manager) {
+                "m1" -> ProfileRole.MANAGER_1
+                "m2" -> ProfileRole.MANAGER_2
+                "both" -> ProfileRole.MANAGER_1
+                else -> null
+            }
+            error = onSave(FarmEdit(farm?.id, name, vigha, role, joint = manager == "both", cropId = cropId, season = season, year = year.toIntOrNull() ?: initialYear))
         },
         dismissLabel = stringResource(R.string.st_cancel),
         onDismiss = onDismiss,
@@ -217,15 +233,14 @@ private fun FarmEditDialog(
             supporting = stringResource(R.string.st_vigha_invalid),
         )
         Text(stringResource(R.string.st_manager), style = MaterialTheme.typography.labelLarge)
-        VkSegmented(
-            options = listOf<Pair<ProfileRole?, String>>(
-                null to stringResource(R.string.st_manager_none),
-                ProfileRole.MANAGER_1 to stringResource(R.string.st_manager_1),
-                ProfileRole.MANAGER_2 to stringResource(R.string.st_manager_2),
-            ),
-            selected = manager,
-            onSelect = { manager = it },
-        )
+        FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+            listOf(
+                "none" to stringResource(R.string.st_manager_none),
+                "m1" to stringResource(R.string.st_manager_1),
+                "m2" to stringResource(R.string.st_manager_2),
+                "both" to stringResource(R.string.v3_both_bhagiya),
+            ).forEach { (k, label) -> VkChip(label, selected = manager == k, onClick = { manager = k }) }
+        }
         Text(stringResource(R.string.st_active_crop), style = MaterialTheme.typography.labelLarge)
         FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
             crops.forEach { c -> VkChip(c.name, selected = cropId == c.id, onClick = { cropId = c.id }) }

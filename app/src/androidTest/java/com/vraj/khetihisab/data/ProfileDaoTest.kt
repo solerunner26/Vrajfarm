@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -66,16 +67,18 @@ class ProfileDaoTest {
         }
     }
 
-    @Test fun managerFarmAssignmentIsExclusive() = runBlocking<Unit> {
+    /** Owner 2026-11-05: a big farm can be run by BOTH ભાગિયા, so ticking it for one no longer removes the other. */
+    @Test fun managerFarmAssignmentCanBeJoint() = runBlocking<Unit> {
         val seeded = TestDb.create(seed = true)
         try {
             val master = seeded.masterDao()
             val farms = master.farmsNow()
-            // Give farms 1..5 to MANAGER_1 — farm 5 moves away from MANAGER_2.
+            // Give farms 1..5 to MANAGER_1 — farm 5 becomes joint (MANAGER_2 keeps it too).
             master.setManagerFarms(ProfileRole.MANAGER_1, farms.take(5).map { it.id }.toSet(), NOW)
 
             assertEquals(5, master.farmsForManager(ProfileRole.MANAGER_1).first().size)
-            assertEquals(listOf("ખેતર 6", "ખેતર 7", "ખેતર 8"), master.farmsForManager(ProfileRole.MANAGER_2).first().map { it.name })
+            assertEquals(listOf("ખેતર 5", "ખેતર 6", "ખેતર 7", "ખેતર 8"), master.farmsForManager(ProfileRole.MANAGER_2).first().map { it.name })
+            assertTrue(master.farmsNow().first { it.name == "ખેતર 5" }.jointManagers)
         } finally {
             seeded.close()
         }

@@ -45,6 +45,7 @@ import com.vraj.khetihisab.ui.components.VkOutlinedButton
 import com.vraj.khetihisab.ui.components.VkPrimaryButton
 import com.vraj.khetihisab.ui.components.VkSectionTitle
 import com.vraj.khetihisab.ui.components.VkTonalButton
+import com.vraj.khetihisab.ui.components.VkTextButton
 import com.vraj.khetihisab.ui.components.VkTone
 import com.vraj.khetihisab.ui.components.VkTopHeader
 import com.vraj.khetihisab.ui.theme.VkIcon
@@ -74,6 +75,24 @@ fun BackupSettingsRoute(onBack: () -> Unit) {
     var driveSet by remember { mutableStateOf(deps.prefs.driveConfigured) }
     var driveLabel by remember { mutableStateOf(deps.prefs.driveLabel) }
     var email by remember { mutableStateOf(deps.prefs.email) }
+    // Gmail one-tap sending (encrypted settings; read off the main thread below).
+    var mailReady by remember { mutableStateOf(false) }
+    var mailUser by remember { mutableStateOf(deps.prefs.email) }
+    var mailPass by remember { mutableStateOf("") }
+    var mailNightly by remember { mutableStateOf(false) }
+    var editMail by remember { mutableStateOf(false) }
+    var mailError by remember { mutableStateOf<Int?>(null) }
+    LaunchedEffect(Unit) {
+        withContext(Dispatchers.IO) { runCatching { deps.mail } }.getOrNull()?.let { m ->
+            mailReady = m.configured
+            if (m.gmail.isNotBlank()) mailUser = m.gmail
+            mailNightly = m.nightly
+        }
+    }
+    val msgMailSent = stringResource(R.string.v3_mail_sent)
+    val msgMailAuth = stringResource(R.string.v3_mail_err_auth)
+    val msgMailNet = stringResource(R.string.v3_mail_err_net)
+    val msgMailFail = stringResource(R.string.v3_mail_err_fail)
     var busy by remember { mutableStateOf(false) }
     var message by remember { mutableStateOf<String?>(null) }
     var restoreUri by remember { mutableStateOf<Uri?>(null) }
@@ -193,19 +212,70 @@ fun BackupSettingsRoute(onBack: () -> Unit) {
 
             // ---- 3. E-mail ----
             VkSectionTitle(stringResource(R.string.v2_bk_mail_title))
-            VkCard(Modifier.fillMaxWidth()) {
-                StTextField(
-                    email,
-                    { email = it; deps.prefs.email = it },
-                    stringResource(R.string.v2_bk_mail_to),
-                    keyboard = KeyboardOptions(keyboardType = KeyboardType.Email),
-                    placeholder = "name@gmail.com",
-                )
-                VkTonalButton(stringResource(R.string.v2_bk_mail_send), {
-                    withFreshFile { f ->
-                        if (BackupShare.email(ctx, f, email)) deps.status.recordSuccess(f.length(), "email") else message = msgNoApp
-                    }
-                }, Modifier.fillMaxWidth().testTag("backup_email"), enabled = !busy)
+            VkCard(Modifier.fillMaxWidth().testTag("backup_mail_card")) {
+                if (mailReady && !editMail) {
+                    // One tap: built + sent in the background, no Gmail screen (owner request 2026-11-05).
+                    StNote(stringResource(R.string.v3_mail_ready, mailUser))
+                    VkPrimaryButton(stringResource(R.string.v3_mail_send_now), {
+                        withFreshFile { f ->
+                            val r = withContext(Dispatchers.IO) { deps.email(f) }
+                            message = when (r) {
+                                com.vraj.khetihisab.backup.GmailSender.Result.Sent -> { deps.status.recordSuccess(f.length(), "email"); msgMailSent }
+                                com.vraj.khetihisab.backup.GmailSender.Result.AuthFailed -> msgMailAuth
+                                com.vraj.khetihisab.backup.GmailSender.Result.NoNetwork -> msgMailNet
+                                is com.vraj.khetihisab.backup.GmailSender.Result.Failed -> msgMailFail
+                            }
+                        }
+                    }, Modifier.fillMaxWidth().testTag("backup_email"), enabled = !busy)
+                    StSwitchRow(
+                        title = stringResource(R.string.v3_mail_nightly),
+                        meta = stringResource(R.string.v3_mail_nightly_sub),
+                        checked = mailNightly,
+                        onCheckedChange = { mailNightly = it; deps.mail.nightly = it },
+                        onLabel = stringResource(R.string.st_on),
+                        offLabel = stringResource(R.string.st_off),
+                    )
+                    VkTextButton(stringResource(R.string.v3_mail_change), { editMail = true }, Modifier.fillMaxWidth())
+                } else {
+                    StNote(stringResource(R.string.v3_mail_how))
+                    StTextField(
+                        mailUser,
+                        { mailUser = it.trim(); mailError = null },
+                        stringResource(R.string.v3_mail_gmail),
+                        keyboard = KeyboardOptions(keyboardType = KeyboardType.Email),
+                        placeholder = "name@gmail.com",
+                        isError = mailError == 1,
+                    )
+                    StTextField(
+                        mailPass,
+                        { mailPass = it; mailError = null },
+                        stringResource(R.string.v3_mail_app_password),
+                        keyboard = KeyboardOptions(keyboardType = KeyboardType.Password),
+                        password = true,
+                        placeholder = "abcd efgh ijkl mnop",
+                        isError = mailError == 2,
+                    )
+                    mailError?.let { StError(stringResource(if (it == 1) R.string.v3_mail_err_gmail else R.string.v3_mail_err_pass)) }
+                    VkPrimaryButton(stringResource(R.string.v3_mail_save), {
+                        val keepOld = mailPass.isBlank() && deps.mail.hasPassword
+                        when {
+                            !com.vraj.khetihisab.backup.MailSettings.isGmail(mailUser) -> mailError = 1
+                            !keepOld && !com.vraj.khetihisab.backup.MailSettings.isAppPassword(mailPass) -> mailError = 2
+                            else -> {
+                                deps.mail.save(mailUser, if (keepOld) null else mailPass)
+                                mailPass = ""
+                                mailReady = true
+                                editMail = false
+                            }
+                        }
+                    }, Modifier.fillMaxWidth().testTag("mail_save"))
+                    // Old way still works without setup: opens Gmail with the file attached.
+                    VkTextButton(stringResource(R.string.v3_mail_draft), {
+                        withFreshFile { f ->
+                            if (BackupShare.email(ctx, f, mailUser.ifBlank { email })) deps.status.recordSuccess(f.length(), "email") else message = msgNoApp
+                        }
+                    }, Modifier.fillMaxWidth(), enabled = !busy)
+                }
             }
 
             // ---- restore ----

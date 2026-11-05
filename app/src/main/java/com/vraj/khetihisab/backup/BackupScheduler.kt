@@ -99,6 +99,31 @@ class BackupScheduler(
         alarms?.cancel(alarmPendingIntent())
     }
 
+    /**
+     * 21:30 daily "બેકઅપ લો" reminder (owner request 2026-11-05). The receiver checks the status and
+     * only notifies when no backup was taken in the last 24 h.
+     */
+    fun scheduleReminder(): ZonedDateTime {
+        val at = BackupTime.nextRun(clock(), at = REMIND_AT, minLead = java.time.Duration.ofMinutes(1))
+        val am = alarms ?: return at
+        val pi = PendingIntent.getBroadcast(
+            ctx,
+            REMIND_REQUEST_CODE,
+            Intent(ctx, BackupAlarmReceiver::class.java).setAction(BackupAlarmReceiver.ACTION_REMIND),
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+        )
+        val t = at.toInstant().toEpochMilli()
+        if (canScheduleExact()) {
+            try {
+                am.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, t, pi)
+                return at
+            } catch (_: SecurityException) {
+            }
+        }
+        am.setWindow(AlarmManager.RTC_WAKEUP, t, 10 * 60_000L, pi)
+        return at
+    }
+
     fun canScheduleExact(): Boolean {
         val am = alarms ?: return false
         return Build.VERSION.SDK_INT < Build.VERSION_CODES.S || am.canScheduleExactAlarms()
@@ -134,6 +159,7 @@ class BackupScheduler(
     /** Alarm + safety net. Call at app start, on boot / time change and after saving backup settings. */
     fun ensureScheduled(): Scheduled {
         ensureSafetyNet()
+        scheduleReminder()
         return scheduleNextAlarm()
     }
 
@@ -150,6 +176,8 @@ class BackupScheduler(
         const val TAG = "vk_backup"
         const val SAFETY_PERIOD_HOURS = 12L
         private const val REQUEST_CODE = 2345
+        private const val REMIND_REQUEST_CODE = 2346
+        val REMIND_AT: java.time.LocalTime = java.time.LocalTime.of(21, 30)
 
         fun oneTimeRequest(trigger: BackupTrigger): OneTimeWorkRequest =
             OneTimeWorkRequestBuilder<NightlyBackupWorker>()

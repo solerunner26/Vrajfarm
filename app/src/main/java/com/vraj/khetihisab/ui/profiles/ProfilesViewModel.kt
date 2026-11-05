@@ -25,7 +25,7 @@ interface ProfilesStore {
     suspend fun byRole(role: ProfileRole): PersonProfileEntity?
     suspend fun upsert(p: PersonProfileEntity)
     suspend fun updatePhoto(role: ProfileRole, path: String?)
-    /** Exclusive: assigning a farm to one manager unassigns it from the other (MasterDao.setManagerFarms). */
+    /** Not exclusive: a farm ticked for both ભાગિયા becomes a joint farm (MasterDao.setManagerFarms). */
     suspend fun setManagerFarms(role: ProfileRole, farmIds: Set<Long>)
 }
 
@@ -93,7 +93,7 @@ class ProfilesViewModel(
                 address = p?.address,
                 photoPath = p?.photoPath,
                 updatedAt = p?.updatedAt ?: 0L,
-                farms = farms.filter { it.managerRole == role }.sortedBy { it.sortOrder },
+                farms = farms.filter { it.managedBy(role) }.sortedBy { it.sortOrder },
             )
         }
         ProfilesUi(

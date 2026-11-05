@@ -40,17 +40,36 @@ import kotlin.math.min
  * Layout is two-pass: content is measured and paginated first (see [TablePagination]), then each page is
  * drawn with its header and the "પાનું N / M" footer, so the total page count is known.
  */
+/** Owner details printed in the letterhead of every report (owner request 2026-11-05). */
+data class Letterhead(val ownerName: String, val address: String, val phone: String?) {
+    companion object {
+        val DEFAULT = Letterhead("ગિરવાનસિંહ વાળા", "મુ. પો. થોરાળા, તા. મહુવા, જિ. ભાવનગર", null)
+    }
+}
+
 class GujaratiPdfGenerator(
     context: Context,
     private val dataSource: ReportDataSource,
     private val now: () -> ZonedDateTime = { ZonedDateTime.now(LedgerMath.IST) },
     /** Output folder; default `filesDir/reports` (FileProvider path "reports"). */
     private val outputDir: File = File(context.applicationContext.filesDir, REPORTS_DIR),
+    private val letterhead: suspend () -> Letterhead = { Letterhead.DEFAULT },
 ) {
     private val appContext: Context = context.applicationContext
 
-    /** Convenience constructor reading Room. */
-    constructor(context: Context, db: AppDatabase) : this(context, RoomReportDataSource(db))
+    /** Convenience constructor reading Room (letterhead from the OWNER profile). */
+    constructor(context: Context, db: AppDatabase) : this(
+        context,
+        RoomReportDataSource(db),
+        letterhead = {
+            val o = db.profileDao().byRoleNow(com.vraj.khetihisab.data.entity.ProfileRole.OWNER)
+            Letterhead(
+                ownerName = o?.name?.takeIf { it.isNotBlank() } ?: Letterhead.DEFAULT.ownerName,
+                address = o?.address?.takeIf { it.isNotBlank() } ?: Letterhead.DEFAULT.address,
+                phone = o?.phone?.takeIf { it.isNotBlank() },
+            )
+        },
+    )
 
     data class Result(val file: File, val pageCount: Int)
 
@@ -61,15 +80,15 @@ class GujaratiPdfGenerator(
         val at = now()
         val doc = dataSource.load(type, range, at.toLocalDate())
         val file = File(outputDir, fileName(type, at))
-        val pages = render(doc, file, at)
+        val pages = render(doc, file, at, runCatching { letterhead() }.getOrDefault(Letterhead.DEFAULT))
         pruneOld(outputDir)
         Result(file, pages)
     }
 
     /** Renders an already-built [doc] into [out]. Returns the page count. Blocking; call off the main thread. */
-    fun render(doc: ReportDoc, out: File, at: ZonedDateTime = now()): Int {
+    fun render(doc: ReportDoc, out: File, at: ZonedDateTime = now(), head: Letterhead = Letterhead.DEFAULT): Int {
         out.parentFile?.mkdirs()
-        val r = Renderer(appContext, doc, at)
+        val r = Renderer(appContext, doc, at, head)
         val pdf = PdfDocument()
         try {
             val pageCount = r.drawAll(pdf)
@@ -106,7 +125,7 @@ class GujaratiPdfGenerator(
 }
 
 /** One render pass over a [ReportDoc]. Not thread-safe; create per document. */
-private class Renderer(private val ctx: Context, private val doc: ReportDoc, private val at: ZonedDateTime) {
+private class Renderer(private val ctx: Context, private val doc: ReportDoc, private val at: ZonedDateTime, private val head: Letterhead) {
     private val pageW = GujaratiPdfGenerator.PAGE_W.toFloat()
     private val pageH = GujaratiPdfGenerator.PAGE_H.toFloat()
     private val m = GujaratiPdfGenerator.MARGIN
@@ -128,7 +147,11 @@ private class Renderer(private val ctx: Context, private val doc: ReportDoc, pri
     private val pHeading = paint(12.5f, BRAND, bold)
     private val pPara = paint(10f, INK)
     private val pMuted = paint(9.5f, MUTED)
-    private val pTitle = paint(16f, BRAND, bold)
+    private val pTitle = paint(18f, BRAND, bold)
+    private val pLhName = paint(21f, BRAND, bold)
+    private val pLhOwner = paint(11.5f, INK, bold)
+    private val pLhLine = paint(10f, INK)
+    private val pDate = paint(10.5f, INK)
     private val pRange = paint(10f, MUTED)
     private val pBandName = paint(12f, Color.WHITE, bold)
     private val pBandMeta = paint(8.5f, Color.WHITE)
@@ -139,14 +162,25 @@ private class Renderer(private val ctx: Context, private val doc: ReportDoc, pri
 
     private val bitmaps = mutableMapOf<String, Bitmap?>()
     private val logo: Bitmap? = runCatching {
-        ContextCompat.getDrawable(ctx, R.mipmap.ic_launcher)?.toBitmap(LOGO_PX, LOGO_PX, Bitmap.Config.ARGB_8888)
+        ContextCompat.getDrawable(ctx, R.mipmap.ic_launcher)?.toBitmap(LOGO_BIG_PX, LOGO_BIG_PX, Bitmap.Config.ARGB_8888)
     }.getOrNull()
 
-    // Header measurements (same on every page).
-    private val bandH = 28f
-    private val titleLayout = layout(doc.title, pTitle, contentWInt)
-    private val rangeLayout = doc.rangeLabel.takeIf { it.isNotBlank() }?.let { layout(it, pRange, contentWInt) }
-    private val contentTop = m + bandH + 8f + titleLayout.height + (rangeLayout?.height ?: 0) + 10f
+    // Letterhead measurements (same on every page): logo square on the left, text centred on the right,
+    // a rule, the date on the right, then the bold title.
+    private val logoSide = 86f
+    private val textX = m + logoSide + 18f
+    private val textW = (pageW - m - textX).toInt()
+    private val lhLines: List<StaticLayout> = listOfNotNull(
+        layout(ReportLabels.APP_NAME, pLhName, textW, Align.CENTER),
+        layout(head.ownerName, pLhOwner, textW, Align.CENTER),
+        layout(head.address, pLhLine, textW, Align.CENTER),
+        head.phone?.let { layout(ReportLabels.LH_PHONE.format(it), pLhLine, textW, Align.CENTER) },
+    )
+    private val bandH = maxOf(logoSide, lhLines.sumOf { it.height }.toFloat() + 6f)
+    private val dateLayout = layout(ReportLabels.LH_DATE.format(dateText()), pDate, contentWInt, Align.END)
+    private val titleLayout = layout(doc.title, pTitle, contentWInt, Align.CENTER)
+    private val rangeLayout = doc.rangeLabel.takeIf { it.isNotBlank() }?.let { layout(it, pRange, contentWInt, Align.CENTER) }
+    private val contentTop = m + bandH + 10f + 12f + dateLayout.height + 10f + titleLayout.height + (rangeLayout?.height ?: 0) + 12f
     private val contentBottom = pageH - m - 22f
 
     private val pages: MutableList<MutableList<(Canvas) -> Unit>> = mutableListOf()
@@ -316,26 +350,40 @@ private class Renderer(private val ctx: Context, private val doc: ReportDoc, pri
 
     // ------------------------------------------------------------------ header / footer
     private fun drawHeader(c: Canvas) {
-        fill.color = BAND
-        c.drawRect(m, m, pageW - m, m + bandH, fill)
-        var x = m + 6f
-        logo?.let {
-            c.drawBitmap(it, null, RectF(x, m + 3f, x + 22f, m + 25f), imagePaint)
-            x += 28f
-        }
-        val name = layout(ReportLabels.APP_NAME, pBandName, 200)
-        c.drawLayout(name, x, m + (bandH - name.height) / 2f)
-        val metaW = 300
-        val meta = layout(generatedLine(), pBandMeta, metaW, Align.END)
-        c.drawLayout(meta, pageW - m - 6f - metaW, m + (bandH - meta.height) / 2f)
-
-        var ty = m + bandH + 8f
-        c.drawLayout(titleLayout, m, ty)
-        ty += titleLayout.height
-        rangeLayout?.let { c.drawLayout(it, m, ty) }
+        // Logo in a square on the left.
+        val box = RectF(m, m, m + logoSide, m + logoSide)
+        fill.color = BAND_SOFT
+        c.drawRoundRect(box, 10f, 10f, fill)
         line.color = BRAND
-        c.drawLine(m, contentTop - 4f, pageW - m, contentTop - 4f, line)
+        line.strokeWidth = 1.2f
+        c.drawRoundRect(box, 10f, 10f, line)
+        logo?.let { c.drawBitmap(it, null, RectF(box.left + 5f, box.top + 5f, box.right - 5f, box.bottom - 5f), imagePaint) }
+
+        // Name, owner, address, phone — centred in the right block, vertically centred on the logo.
+        var ty = m + (bandH - lhLines.sumOf { it.height }) / 2f
+        lhLines.forEach { l -> c.drawLayout(l, textX, ty); ty += l.height }
+
+        // Rule under the letterhead.
+        val ruleY = m + bandH + 10f
+        line.strokeWidth = 1.6f
+        c.drawLine(m, ruleY, pageW - m, ruleY, line)
+
+        // Date on the right, then the bold title.
+        var y2 = ruleY + 12f
+        c.drawLayout(dateLayout, m, y2)
+        y2 += dateLayout.height + 10f
+        c.drawLayout(titleLayout, m, y2)
+        y2 += titleLayout.height
+        rangeLayout?.let { c.drawLayout(it, m, y2) }
+        line.strokeWidth = 0.6f
         line.color = GRID
+        c.drawLine(m, contentTop - 5f, pageW - m, contentTop - 5f, line)
+    }
+
+    private fun dateText(): String {
+        val d = at.format(DateTimeFormatter.ofPattern("dd-MM-yyyy", Locale.ROOT))
+        val tithi = runCatching { GujaratiPanchangHelper.shortLabel(at.toLocalDate()) }.getOrNull()
+        return if (tithi.isNullOrBlank()) d else "$d · $tithi"
     }
 
     private fun drawFooter(c: Canvas, n: Int, total: Int) {
@@ -400,6 +448,7 @@ private class Renderer(private val ctx: Context, private val doc: ReportDoc, pri
     }.getOrNull()
 
     companion object {
+        private const val LOGO_BIG_PX = 360
         private const val PAD_X = 4f
         private const val PAD_Y = 3.5f
         /** Thumbnail box in pt (decoded at ≥ [THUMB_PX] px for print sharpness). */
@@ -410,6 +459,7 @@ private class Renderer(private val ctx: Context, private val doc: ReportDoc, pri
 
         // Print palette: flat brand green (no gradients in PDFs, doc 15).
         private val BAND = Color.parseColor("#1F5C45")
+        private val BAND_SOFT = Color.parseColor("#EEF5F1")
         private val BRAND = Color.parseColor("#1F5C45")
         private val BRAND_DARK = Color.parseColor("#174A37")
         private val INK = Color.parseColor("#1B1F1D")

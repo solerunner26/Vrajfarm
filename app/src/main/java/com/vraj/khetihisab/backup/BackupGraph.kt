@@ -15,6 +15,22 @@ class BackupDeps(
     val notifier: BackupNotifier,
     val clock: () -> ZonedDateTime = { ZonedDateTime.now(LedgerMath.IST) },
 ) {
+    /** Gmail one-tap / nightly e-mail (encrypted). Lazy: Keystore is slow on first touch. */
+    val mail: MailSettings by lazy { MailSettings.create(app) }
+
+    /** Sends [file] to the saved address now. */
+    fun email(file: File): GmailSender.Result {
+        val m = mail
+        val pass = m.password() ?: return GmailSender.Result.AuthFailed
+        return GmailSender.send(
+            user = m.gmail,
+            appPassword = pass,
+            to = m.to,
+            subject = app.getString(com.vraj.khetihisab.R.string.v2_bk_mail_subject, file.name),
+            body = app.getString(com.vraj.khetihisab.R.string.v2_bk_mail_body),
+            attachment = file,
+        )
+    }
     /** filesDir/backup/ — shared through the FileProvider (`backup` path). Only the newest file is kept. */
     val dir: File get() = File(app.filesDir, "backup").apply { mkdirs() }
 
@@ -38,6 +54,7 @@ class BackupDeps(
         driveUri = { prefs.driveUri },
         makeFile = ::makeBackupFile,
         toDrive = { uri, f -> BackupShare.writeToDrive(app, uri, f) },
+        toEmail = { f -> runCatching { mail.configured && mail.nightly && email(f) == GmailSender.Result.Sent }.getOrDefault(false) },
         clock = clock,
         onReadyToSend = notifier::notifyReadyToSend,
         onFinalFailure = notifier::notifyFailed,

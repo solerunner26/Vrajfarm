@@ -57,6 +57,13 @@ class AssetRepository(
     fun previousBorrowers(limit: Int = 10): Flow<List<BorrowerSuggestion>> = dao.previousBorrowers(limit)
     suspend fun loanById(id: Long): LoanWithAsset? = dao.loanById(id)
 
+    /** Asset management "સુધારો": name / price. */
+    suspend fun renameAsset(assetId: Long, name: String, pricePaise: Long?) {
+        val a = dao.assetById(assetId) ?: return
+        dao.updateAsset(a.copy(name = name.trim(), pricePaise = pricePaise, updatedAt = clock()))
+        listener.onDataChanged()
+    }
+
     /** For the "પહેલેથી ઉછીનું આપેલ છે" confirm dialog. */
     suspend fun isCurrentlyLent(assetId: Long): Boolean = dao.activeLoanCountFor(assetId) > 0
 
@@ -81,13 +88,15 @@ class AssetRepository(
             val loanId = dao.insertLoan(loan.copy(createdAt = now, updatedAt = now))
             if (loan.notifyOnDue) {
                 val assetName = dao.assetById(loan.assetId)?.name.orEmpty()
+                // Owner 2026-11-05: first nudge after a week (or on the return date if sooner),
+                // then weekly until returned; the notification offers 1 week / 1 month / પરત આવી ગયું.
                 reminderDao.insert(
                     ReminderEntity(
                         title = "$assetName પાછું લાવવું",
                         note = loan.borrowerName,
                         imagePath = null,
                         priority = Priority.HIGH,
-                        dueAt = LedgerMath.istMillis(loan.expectedReturnDate, LocalTime.of(9, 0)),
+                        dueAt = LedgerMath.istMillis(firstLoanReminder(loan.handedOverDate, loan.expectedReturnDate), LocalTime.of(9, 0)),
                         sourceType = ReminderSource.LOAN,
                         sourceId = loanId,
                         createdAt = now,
@@ -109,6 +118,12 @@ class AssetRepository(
             reminderDao.markDoneBySource(ReminderSource.LOAN, loanId, now)
         }
         listener.onDataChanged()
+    }
+
+    companion object {
+        /** Handover + 7 days, or the return date when the loan is shorter than a week. */
+        fun firstLoanReminder(handedOver: java.time.LocalDate, expectedReturn: java.time.LocalDate): java.time.LocalDate =
+            minOf(handedOver.plusDays(7), expectedReturn)
     }
 
     suspend fun markReminded(loanId: Long) {
