@@ -1,122 +1,98 @@
 <!doctype html>
-<html lang="en">
+<html lang="gu" data-theme="mati">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#8f3e1e">
-  <meta name="description" content="A multilingual, feature-led preview of an offline-first farm ledger app for everyday farm operations.">
-  <title>Farm Ledger — A clearer view of farm life</title>
-  <link rel="icon" href="assets/farm-ledger-mark.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="styles.css">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kheti Hisab</title>
+<meta name="description" content="Kheti Hisab – offline farm accounting app for Android in Gujarati, Hindi and English. Interactive screen-by-screen demo.">
+<meta name="theme-color" content="#7A3218">
+<link rel="icon" href="assets/icons/farm.svg" type="image/svg+xml">
+<link rel="stylesheet" href="site.css?v=2">
 </head>
 <body>
-  <a class="skip-link" href="#main">Skip to content</a>
-  <header class="site-header">
-    <a class="brand" href="#top" aria-label="Farm ledger home">
-      <span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 40 40"><path d="M7 27c8-1 13-7 14-16 7 5 10 13 6 20-4 7-14 7-20-4Z"/><path d="M9 31c7-8 12-12 21-16"/><path d="M6 34h28"/></svg></span>
-      <span><b data-i18n="brand">Farm Ledger</b><small data-i18n="brandSub">FARM ACCOUNTS, IN FOCUS</small></span>
-    </a>
-    <nav class="top-nav" aria-label="Primary navigation">
-      <a href="#capabilities" data-campaign="navFeatures">Features</a>
-      <a href="#customize" data-campaign="navCustomization">Customization</a>
-      <a href="#tour" data-campaign="navTour">App tour</a>
-      <a href="#how-it-works" data-campaign="navHow">How it works</a>
-      <a href="#trust" data-campaign="navPrivacy">Security &amp; privacy</a>
-    </nav>
-    <div class="header-actions">
-      <label class="language-wrap"><span class="sr-only" data-i18n="languageLabel">Choose language</span>
-        <select id="language" aria-label="Choose language"><option value="en">English</option><option value="gu">ગુજરાતી</option><option value="hi">हिन्दी</option></select>
-      </label>
-      <a class="button button-dark header-cta" href="#tour" data-i18n="navExplore">Explore the app <span aria-hidden="true">↗</span></a>
-      <button class="menu-toggle" id="menuToggle" aria-label="Open navigation" aria-expanded="false"><span></span><span></span></button>
+<a class="skip" href="#main">Skip</a>
+<header class="top">
+  <a class="brand" href="#top"><img src="assets/icons/farm.svg" alt=""><span class="brand-name">Kheti Hisab</span></a>
+  <nav class="nav"><a href="#why" data-s="navWhy"></a><a href="#features" data-s="navFeatures"></a><a href="#tour" data-s="navTour"></a><a href="#choose" data-s="navChoose"></a></nav>
+  <div class="tools">
+    <label class="sel"><span class="sr" data-s="lang"></span><select id="langSel"><option value="gu">ગુજરાતી</option><option value="hi">हिन्दी</option><option value="en">English</option></select></label>
+    <label class="sel sw-sel"><span class="sr" data-s="themeLbl"></span><select id="themeSel"></select></label>
+    <button class="menu" id="menuBtn" aria-label="Menu">☰</button>
+  </div>
+</header>
+
+<main id="main">
+<section class="hero" id="top">
+  <div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div>
+  <div class="hero-copy rv">
+    <p class="kicker" data-s="kicker"></p>
+    <h1><span data-s="h1a"></span><br><em data-s="h1b"></em></h1>
+    <p class="lead" data-s="sub"></p>
+    <div class="ctas"><a class="cta" href="#tour" data-s="ctaTour"></a><a class="cta ghost" href="#choose" data-s="ctaChoose"></a></div>
+    <dl class="stats"><div><dt data-count="30">30</dt><dd data-s="stScreens"></dd></div><div><dt data-count="5">5</dt><dd data-s="stThemes"></dd></div><div><dt data-count="3">3</dt><dd data-s="stLangs"></dd></div><div><dt data-count="7">7</dt><dd data-s="stReports"></dd></div></dl>
+  </div>
+  <div class="film anim" id="film" aria-live="polite">
+    <div class="film-tag"><i></i><span data-s="filmTag"></span></div>
+    <div class="film-cap"><span class="film-count" id="filmCount"></span><h2 id="filmH"></h2><p id="filmP"></p><div class="film-dots" id="filmDots"></div></div>
+    <div class="film-phone"><div class="halo"></div><div class="device phone small"><div class="notch"></div><div class="d-screen" id="filmScreen"></div></div>
+      <span class="float f1"><img src="assets/icons/panchang.svg" alt=""></span><span class="float f2"><img src="assets/icons/report.svg" alt=""></span><span class="float f3"><img src="assets/icons/lock.svg" alt=""></span></div>
+    <div class="film-ctl">
+      <div class="film-track"><i id="filmBar"></i></div>
+      <button id="filmPrev" data-sa="prev">‹</button><button id="filmPlay" class="wide"></button><button id="filmNext" data-sa="next">›</button><button id="filmReplay" data-sa="replay">↻</button><button id="filmFull" data-sa="full">⛶</button>
     </div>
-  </header>
-  <main id="main">
-    <section class="hero section-wrap" id="top">
-      <div class="hero-copy">
-        <div class="eyebrow"><span class="eyebrow-dot"></span><span data-i18n="heroEyebrow">A practical companion for farm families</span></div>
-        <h1 data-i18n="heroTitle">Every part of farm life,<br><em>in one clear view.</em></h1>
-        <p class="hero-lede" data-i18n="heroLede">Keep farm accounts, daily work, family advances and seasonal insights together — designed for real-world farm routines.</p>
-        <div class="hero-actions"><a class="button button-primary" href="#tour"><span data-i18n="heroButton">Take the guided tour</span><span aria-hidden="true">↗</span></a><button type="button" class="button button-play" id="launchAdOpen"><span class="play-disc" aria-hidden="true">▶</span><span data-campaign="playAd">Play the launch story</span></button></div><a href="#capabilities" class="text-link hero-secondary-link"><span data-i18n="heroSecondary">See what it covers</span><span aria-hidden="true">↓</span></a>
-        <div class="hero-proof"><div class="proof-avatars" aria-hidden="true"><i>ખે</i><i>🌾</i><i>⌂</i></div><span data-i18n="heroProof">Thoughtful tools for everyday farm decisions</span></div>
-      </div>
-      <div class="hero-art" aria-label="Illustration of a farm ledger dashboard">
-        <div class="sun-orbit"></div><div class="field-lines" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span></div>
-        <div class="hero-note note-top"><span class="note-icon">↗</span><span><b data-i18n="heroNote1">Season at a glance</b><small data-i18n="heroNote1s">Income and outgoings together</small></span></div>
-        <div class="hero-note note-bottom"><span class="note-icon leaf-icon">✳</span><span><b data-i18n="heroNote2">Built for the field</b><small data-i18n="heroNote2s">Large, readable, familiar</small></span></div>
-        <div class="hero-phone" aria-hidden="true"><div class="phone-status"><span>9:41</span><span>●●● ▰</span></div><div class="phone-greeting"><div class="mini-brand"><span>⌂</span><span data-i18n="demoBrand">Farm ledger</span><b>•••</b></div><small data-i18n="demoHello">Good morning</small><strong data-i18n="demoDate">Today at the farm</strong><span class="panchang-pill">☼ <span data-i18n="demoDay">A day to plan</span></span></div><div class="phone-balance"><span data-i18n="demoSnapshot">Farm snapshot</span><b>₹ 2,48,600</b><small><span>↗ 12.4%</span> <i data-i18n="demoPeriod">this season</i></small><div class="sparkline"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div></div><div class="phone-quick"><div><span>＋</span><small data-i18n="demoIncome">Income</small></div><div><span>−</span><small data-i18n="demoExpense">Expense</small></div><div><span>▤</span><small data-i18n="demoReports">Reports</small></div></div><div class="phone-row"><span class="row-icon green-icon">↗</span><span><b data-i18n="demoRecent1">Crop sale</b><small data-i18n="demoRecent1s">Farm 02 · today</small></span><strong>+ ₹ 18,400</strong></div><div class="phone-row"><span class="row-icon orange-icon">⌁</span><span><b data-i18n="demoRecent2">Field supplies</b><small data-i18n="demoRecent2s">Farm 01 · yesterday</small></span><strong>− ₹ 3,250</strong></div><div class="phone-bottom"><span>⌂</span><span>▦</span><span>◷</span><span>⚙</span></div></div>
-        <div class="art-caption"><span class="caption-line"></span><span data-i18n="artCaption">A sample view · illustrative information</span></div>
-      </div>
-      <div class="hero-scroll"><span class="scroll-dot"></span><span data-i18n="scrollHint">Scroll to explore</span></div>
-    </section>
+  </div>
+</section>
 
-    <section class="ribbon" aria-label="Highlights"><div class="ribbon-track"><span data-i18n="ribbon1">FARM ACCOUNTS</span><i>✳</i><span data-i18n="ribbon2">SEASONAL CLARITY</span><i>✳</i><span data-i18n="ribbon3">MADE FOR EVERYDAY USE</span><i>✳</i><span data-i18n="ribbon4">GUJARATI · HINDI · ENGLISH</span><i>✳</i><span data-i18n="ribbon1">FARM ACCOUNTS</span><i>✳</i><span data-i18n="ribbon2">SEASONAL CLARITY</span><i>✳</i></div></section>
+<div class="marquee" aria-hidden="true"><div id="marquee"></div></div>
 
-    <section class="capabilities section-wrap" id="capabilities">
-      <div class="section-heading"><div><div class="eyebrow"><span class="eyebrow-dot"></span><span data-i18n="featuresEyebrow">A complete toolkit</span></div><h2 data-i18n="featuresTitle">The farm has many moving parts.<br><em>Your view of them can be simple.</em></h2></div><p data-i18n="featuresLede">From a quick entry to a season-end report, each part has a place. Browse the capabilities, then open any screen in the interactive tour.</p></div>
-      <div class="feature-grid" id="featureGrid"></div>
-      <div class="coverage-note"><span class="coverage-icon">✳</span><p><b data-i18n="coverageTitle">Every screen, one guided tour.</b> <span data-i18n="coverageBody">The screen selector below includes the dashboard, account views, farm tools, calendar, inventory, reports, settings and support screens.</span></p><a href="#tour" class="text-link" data-i18n="coverageLink">Open the screen tour ↗</a></div>
-    </section>
+<section class="sec" id="why">
+  <header class="sec-h rv"><p class="kicker leaf" data-s="whyKicker"></p><h2 data-s="whyTitle"></h2></header>
+  <div class="usp-tabs rv" id="uspTabs">
+    <button data-u="0"><img src="assets/icons/settings.svg" alt=""><b data-s="u1t"></b><span data-s="u1b"></span></button>
+    <button data-u="1"><img src="assets/icons/lock.svg" alt=""><b data-s="u2t"></b><span data-s="u2b"></span></button>
+    <button data-u="2"><img src="assets/icons/report.svg" alt=""><b data-s="u3t"></b><span data-s="u3b"></span></button>
+    <button data-u="3"><img src="assets/icons/asset.svg" alt=""><b data-s="u4t"></b><span data-s="u4b"></span></button>
+  </div>
+  <div class="usp-panel rv" id="uspPanel"></div>
+</section>
 
-    <section class="usp-section" id="customize">
-      <div class="section-wrap">
-        <div class="section-heading usp-heading"><div><div class="eyebrow"><span class="eyebrow-dot"></span><span data-campaign="uspEyebrow">Built around your requirements</span></div><h2 data-campaign="uspTitle">A strong starting point.<br><em>Your needs shape what comes next.</em></h2></div><p data-campaign="uspIntro">Start with the farm tools that matter today. Discuss the workflow you need; agree the scope before any tailored feature is promised.</p></div>
-        <div class="usp-cards" id="uspCards"></div>
-        <p class="security-caveat" data-campaign="securityNote">These controls are useful safeguards, not a promise of absolute security. Keep the device updated and protect backup files.</p>
-        <div class="feature-builder">
-          <div class="builder-copy"><span class="builder-kicker" data-campaign="builderKicker">MAKE IT YOURS</span><h3 data-campaign="builderTitle">Choose the features you need.</h3><p data-campaign="builderIntro">Try the selector to shape a sample feature set. This preview stays in your browser; it is not sent as a request.</p><div class="builder-counter"><span class="builder-count" id="builderCount">0</span><span data-campaign="builderSelected">features selected</span></div><button id="copyWishlist" class="button button-cream" type="button"><span data-campaign="copyWishlist">Copy my feature list</span><span aria-hidden="true">⧉</span></button><small class="builder-privacy" data-campaign="builderPrivacy">No data leaves this page.</small></div>
-          <div class="builder-options"><div id="featureOptions" class="feature-options"></div><div class="builder-result"><span class="result-icon">✳</span><p id="builderSummary" aria-live="polite" data-campaign="builderEmpty">Select capabilities to create a discussion list.</p></div></div>
-        </div>
-        <div class="custom-process"><div class="process-heading"><span data-campaign="processEyebrow">A CLEAR CUSTOMIZATION PATH</span><h3 data-campaign="processTitle">From your need to a considered build.</h3></div><div class="process-steps" id="customSteps"></div></div>
-      </div>
-    </section>
+<section class="sec alt" id="features">
+  <header class="sec-h rv"><p class="kicker leaf" data-s="featKicker"></p><h2 data-s="featTitle"></h2><p class="lead" data-s="featSub"></p></header>
+  <div class="feat-grid" id="featGrid"></div>
+</section>
 
-    <section class="tour-section" id="tour">
-      <div class="tour-head section-wrap"><div><div class="eyebrow eyebrow-light"><span class="eyebrow-dot"></span><span data-i18n="tourEyebrow">A closer look</span></div><h2 data-i18n="tourTitle">Explore the app,<br><em>screen by screen.</em></h2></div><p data-i18n="tourLede">Choose a screen to see how its feature is organised. This is a multilingual, illustrative product demo — not a live account.</p></div>
-      <div class="tour-layout section-wrap">
-        <aside class="screen-picker" aria-label="App screen selector">
-          <div class="picker-head"><span data-i18n="pickerTitle">APP SCREENS</span><span id="screenCount" class="count-pill">33</span></div>
-          <div id="screenList" class="screen-list"></div>
-          <div class="picker-foot"><span class="status-dot"></span><span data-i18n="pickerFoot">Sample data · no account connected</span></div>
-        </aside>
-        <div class="tour-display">
-          <div class="tour-screen-info"><div><span class="screen-kicker" id="screenCategory">DASHBOARD</span><h3 id="screenTitle">Home dashboard</h3></div><p id="screenDescription"></p></div>
-          <div class="device-stage"><div class="stage-glow"></div><div class="device"><div class="device-notch"></div><div class="device-top"><span id="demoTime">9:41</span><span>●●● ▰</span></div><div class="device-screen" id="deviceScreen" aria-live="polite"></div><div class="device-nav" id="deviceNav"></div></div><div class="stage-side-note"><span class="side-note-mark">✳</span><span data-i18n="stageNote">Designed around the way farm work is recorded, reviewed and shared.</span></div></div>
-          <div class="tour-controls"><div class="tour-progress"><span id="tourProgressFill"></span></div><span id="tourPosition">01 / 23</span><div class="tour-arrows"><button id="prevScreen" aria-label="Previous screen">←</button><button id="nextScreen" aria-label="Next screen">→</button></div></div>
-        </div>
-      </div>
-    </section>
+<section class="sec" id="tour">
+  <header class="sec-h rv"><p class="kicker leaf" data-s="tourKicker"></p><h2 data-s="tourTitle"></h2><p class="lead" data-s="tourSub"></p></header>
+  <div class="tour-bar">
+    <div class="seg" id="viewSeg"><button class="on" data-v="m" data-s="viewMobile"></button><button data-v="w" data-s="viewWeb"></button></div>
+    <label class="sel tour-sel"><span class="sr" data-s="jump"></span><select id="tourSelect"></select></label>
+    <button class="switch" id="autoTg"><i></i><span data-s="auto"></span></button>
+  </div>
+  <div class="tour">
+    <aside class="tour-list" id="tourList"></aside>
+    <div class="tour-stage"><div class="device phone" id="device"></div></div>
+    <article class="tour-info">
+      <img id="stIcon" src="assets/icons/farm.svg" alt="">
+      <h3 id="stTitle"></h3><p id="stPurpose" class="lead"></p>
+      <p class="kicker" data-s="stepsLbl"></p><ol id="stSteps" class="steps"></ol>
+      <div class="pager"><button id="stPrev" data-sa="prev">‹</button><span id="stCount"></span><button id="stNext" data-sa="next">›</button></div>
+    </article>
+  </div>
+</section>
 
-    <section class="workflow-section section-wrap" id="how-it-works">
-      <div class="workflow-heading"><div><div class="eyebrow"><span class="eyebrow-dot"></span><span data-campaign="workflowEyebrow">THE EVERYDAY FLOW</span></div><h2 data-campaign="workflowTitle">Step by step,<br><em>screen by screen.</em></h2></div><p data-campaign="workflowIntro">Follow a task from its first screen to its useful outcome. Pick a flow; open any step in the interactive screen tour.</p></div>
-      <div class="workflow-tabs" id="workflowTabs" role="tablist" aria-label="Guided workflows"></div>
-      <div class="workflow-board"><div class="workflow-summary"><span class="workflow-index" id="workflowIndex">01</span><div><h3 id="workflowTitleLive"></h3><p id="workflowDescLive"></p></div><span class="workflow-decoration" aria-hidden="true">↗</span></div><div class="workflow-steps" id="workflowSteps"></div></div>
-    </section>
+<section class="sec alt" id="choose">
+  <header class="sec-h rv"><p class="kicker leaf" data-s="chooseKicker"></p><h2 data-s="chooseTitle"></h2><p class="lead" data-s="chooseSub"></p></header>
+  <div class="choose">
+    <div><div class="mod-grid" id="modGrid"></div><textarea id="customReq" rows="3" data-sp="customPh"></textarea></div>
+    <aside class="summary"><p class="kicker" data-s="yourList"></p><p class="count"><b id="pickCount">0</b> <span data-s="selected"></span></p><ul id="pickList"></ul>
+      <button class="cta" id="copyList" data-s="copy"></button><a class="cta ghost" id="waShare" target="_blank" rel="noopener" data-s="waShare"></a></aside>
+  </div>
+</section>
+</main>
 
-    <section class="principles section-wrap" id="trust">
-      <div class="principle-intro"><div class="eyebrow"><span class="eyebrow-dot"></span><span data-i18n="trustEyebrow">Made with care</span></div><h2 data-i18n="trustTitle">Tools that respect<br><em>your way of working.</em></h2><p data-i18n="trustLede">Built around the practical details of farm accounts, while keeping personal information out of this public showcase.</p></div>
-      <div class="principle-cards">
-        <article class="principle-card"><span class="principle-num">01</span><div class="principle-icon">⌂</div><h3 data-i18n="trust1Title">Your data stays yours</h3><p data-i18n="trust1Body">The Android app is designed around on-device records and user-controlled backup options. This website does not collect or connect to account data.</p><span class="principle-rule"></span></article>
-        <article class="principle-card"><span class="principle-num">02</span><div class="principle-icon">Aa</div><h3 data-i18n="trust2Title">Three languages</h3><p data-i18n="trust2Body">Switch between Gujarati, Hindi and English across the website and every screen preview in the tour.</p><span class="principle-rule"></span></article>
-        <article class="principle-card"><span class="principle-num">03</span><div class="principle-icon">◌</div><h3 data-i18n="trust3Title">Useful at a glance</h3><p data-i18n="trust3Body">Clear summaries, privacy-aware amount display, readable cards and practical entry flows help keep everyday records approachable.</p><span class="principle-rule"></span></article>
-      </div>
-    </section>
-
-    <section class="closing section-wrap"><div class="closing-card"><div class="closing-orbit"></div><div class="closing-content"><div class="eyebrow eyebrow-light"><span class="eyebrow-dot"></span><span data-i18n="closingEyebrow">See the whole picture</span></div><h2 data-i18n="closingTitle">From the first entry<br>to the season's story.</h2><p data-i18n="closingBody">Explore every part of the farm ledger in your language.</p><a class="button button-cream" href="#tour"><span data-i18n="closingButton">Start exploring</span><span aria-hidden="true">↗</span></a></div><div class="closing-stamp" aria-hidden="true"><span>⌂</span><small data-i18n="closingStamp">FOR FARM LIFE</small></div></div></section>
-  </main>
-  <footer class="site-footer"><a class="brand footer-brand" href="#top"><span class="brand-mark"><svg viewBox="0 0 40 40"><path d="M7 27c8-1 13-7 14-16 7 5 10 13 6 20-4 7-14 7-20-4Z"/><path d="M9 31c7-8 12-12 21-16"/><path d="M6 34h28"/></svg></span><span><b data-i18n="brand">Farm Ledger</b><small data-i18n="brandSub">FARM ACCOUNTS, IN FOCUS</small></span></a><p data-i18n="footerNote">A generic, feature-led showcase. All names and sample records are illustrative.</p><span class="footer-copy">© <span id="year"></span> · <span data-i18n="footerRights">Made for the work that grows.</span></span></footer>
-  <dialog class="launch-ad" id="launchAd" aria-labelledby="adTitle">
-    <div class="ad-shell">
-      <header class="ad-header"><div class="ad-brand"><span class="ad-brand-mark">✳</span><span data-campaign="adLabel">THE FARM LEDGER · LAUNCH STORY</span></div><button id="closeAd" class="ad-close" type="button" aria-label="Close launch ad">×</button></header>
-      <div class="ad-main">
-        <div class="ad-story"><span class="ad-time" data-campaign="adDuration">A 30-second interactive preview</span><h2 id="adTitle" data-campaign="adTitle">A season has many stories.<br><em>Keep the useful parts together.</em></h2><p class="ad-caption" id="adCaption" aria-live="polite"></p><div class="ad-progress" role="progressbar" aria-label="Ad progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span id="adProgress"></span></div><div class="ad-control-row"><span id="adCounter" class="ad-counter">01 / 06</span><div class="ad-controls"><button id="adPrev" type="button" aria-label="Previous scene">←</button><button id="adPlayPause" class="ad-play-pause" type="button" aria-label="Pause ad"><span id="adPlayIcon">Ⅱ</span><span id="adPlayText" data-campaign="adPause">Pause</span></button><button id="adNext" type="button" aria-label="Next scene">→</button></div></div><div class="ad-footer-note"><span class="status-dot"></span><span data-campaign="adDisclosure">Illustrative screens · no live data · no audio</span></div><a href="#customize" class="ad-custom-link" id="adCustomLink"><span data-campaign="adCustomLink">Want a different feature set? Explore customization</span><span aria-hidden="true">↗</span></a></div>
-        <div class="ad-visual"><div class="ad-orbit"></div><div class="ad-device"><div class="device-notch"></div><div class="device-top"><span>9:41</span><span>●●● ▰</span></div><div class="device-screen" id="adScreen" aria-live="off"></div><div class="device-nav"><span class="active">⌂</span><span>▦</span><span>◷</span><span>⚙</span></div></div><span class="ad-visual-caption" data-campaign="adVisualCaption">A feature-led product story</span></div>
-      </div>
-      <button class="ad-replay" id="adReplay" type="button"><span aria-hidden="true">↻</span> <span data-campaign="adReplay">Replay the story</span></button>
-    </div>
-  </dialog>
-  <div class="toast" id="toast" role="status" aria-live="polite"></div>
-  <script src="campaign.js"></script>
-  <script src="app.js"></script>
+<footer class="foot"><img src="assets/icons/farm.svg" alt=""><h2 data-s="footCta"></h2><a class="cta" href="#choose" data-s="ctaChoose"></a><p data-s="foot"></p></footer>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script src="i18n.js?v=2"></script>
+<script src="app.js?v=2"></script>
 </body>
 </html>

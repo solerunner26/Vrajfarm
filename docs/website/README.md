@@ -1,34 +1,31 @@
-# Generic farm ledger showcase
+# Kheti Hisab launch website
 
-A static, responsive, multilingual product showcase for presenting the Android app's documented features. The public-facing demo uses generic branding and fictional sample records; it does not include owner, family, farm, or borrower names from the app/repository.
+A static, interactive showcase of the Kheti Hisab Android app for client events. English, Gujarati and Hindi; the app's five themes; generic sample data only (no owner, family or borrower names).
 
-## Included
+## What it contains
 
-- English, Gujarati and Hindi translations for the landing page, feature cards, screen selector and all screen previews.
-- 33 interactive screen previews: PIN setup and lock; dashboard; entry; farm list/detail; manager advances; personal and general accounts; milk register; Panchang alert, calendar, alert settings and guidance; shopping; asset register and lending; reminders and widgets; profiles; settings, themes, security, master data and sub-settings; WhatsApp templates; reports; backup/restore; help; and update notice.
-- Responsive mobile layout, animated presentation, keyboard navigation through the tour, and sample-only preview actions.
-- A single 30-second, playable launch story that auto-starts on page load and loops until paused or closed: timed screen scenes, captions in all three languages, previous/next and replay. It is an interactive HTML ad, not a video or audio recording.
-- Six guided workflows—entry, farm-season review, asset lending, PDF reporting, milk/payment comparison and app security—with step-by-step instructions and links to the matching screens.
-- A feature-set picker to prepare a local discussion list. It does not submit or store a request on a server.
-- Customization, security safeguards and shareable built-in PDF reports are highlighted. Security claims are limited to the controls documented in the Android source; no absolute-security or certification claim is made. The current app has seven built-in PDF report types; other requested reports/features require an agreed custom scope.
-- Locally bundled fonts and favicon. No build step, server-side code, API, database, analytics, or external runtime dependency is required.
+- **Launch film** – plays automatically on load and loops: 8 scenes of real app screens with captions, pause/play, previous/next, replay, scene dots and full screen. It is an animated HTML "film", not a video file, so it needs no player and stays sharp on any screen.
+- **Four promises** – interactive panels: made-to-measure (tap modules to add them to a live phone), security (six real safeguards plus a working PIN-lock demo), PDF reports (pick any of the 7 reports to preview it, share buttons) and "you choose, we build".
+- **Features grid** – 12 module cards; each opens its screen in the tour.
+- **Screen-by-screen tour** – all 30 app screens, grouped, each with purpose and three steps. Glowing parts inside the screen are tappable and move through the app like the real thing. Mobile and web (desktop) views, auto play, keyboard arrows.
+- **Feature chooser** – 16 modules plus free text; copy the list or share it on WhatsApp (opens WhatsApp ready, never sends by itself). Kept in the visitor's browser only.
+- **Theme and language switchers** – the whole site and every mock screen re-colour with the app's exact theme tokens (`design/vk-theme.css`).
 
-## GoDaddy cPanel launch
+## Files
 
-This is a static website. It does **not** need Node, PHP, a database, or a GoDaddy backup endpoint.
+| File | Purpose |
+|---|---|
+| `index.html` | Page structure |
+| `site.css` | Theme tokens, site layout and the mock app components (`m-*`) |
+| `i18n.js` | All copy in three languages |
+| `app.js` | Screen specs (30 screens as compact data), one renderer, film, tour, chooser |
+| `assets/icons/` | The app's own 25 two-tone icons |
+| `assets/fonts/` | Noto Sans Gujarati, Noto Sans Devanagari, Baloo Bhai 2 (OFL licences included) |
 
-1. Download [`Farm-Ledger-Website.zip`](../Farm-Ledger-Website.zip) from GitHub (or the repository's ZIP), then open cPanel **File Manager** and the domain's document root (commonly `public_html/`; an addon domain may have a different document root).
-2. Upload `Farm-Ledger-Website.zip` and extract its contents directly into that document root so `index.html` is at the root. The archive already includes `assets/` and its font subfolders. Do not upload the Android source repository as the website.
-3. Enable the domain's SSL certificate, then visit the HTTPS URL on a phone and desktop. The page adapts to narrow screens and honors the device's reduced-motion setting.
-4. If replacing an existing site, keep a copy of its files first. A browser/CDN cache may need clearing after deployment.
+To add or change a screen, edit its entry in `S` in `app.js` and its texts in `sc` in `i18n.js`.
 
-## Scope and accuracy
+## GoDaddy cPanel upload
 
-- Preview totals, dates, records and labels are illustrative sample data, not claims about a real farm or live account.
-- The tour demonstrates interface concepts only. Save, WhatsApp, report, backup, restore and update controls show an explanatory sample response; they do not run those app functions or send data.
-- The Android app's backup destinations and automatic backup require their own in-app configuration. This showcase does not configure or provide an app backup server.
-- Supported app functionality is described from this repository's README, navigation/screens, feature specs and report types. Keep public content aligned with the app if those capabilities change.
+Static only: no PHP, database or server code. Upload `docs/Farm-Ledger-Website.zip` in cPanel File Manager to the domain's document root and extract it there so `index.html` is at the top level. Check the HTTPS address on a phone and a desktop afterwards.
 
-## Local check
-
-Open `index.html` in a modern browser, or run a static server from this directory (for example `python3 -m http.server 8080`). The site requires no compilation.
+Open `index.html` locally, or run `python -m http.server` in this folder, to preview.
