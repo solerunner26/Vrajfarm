@@ -533,7 +533,7 @@ private fun SectionTiles(state: HomeUiState, shown: Boolean, onOpen: (String) ->
         }
         VkTileRow {
             VkTile(
-                VkIcon.ASSET, stringResource(R.string.v3_assets_tile), { onOpen(HomeRoutes.ASSETS) },
+                VkIcon.ASSET, stringResource(R.string.v3_assets_tile), { onOpen(HomeRoutes.ASSETS + "?tab=all") },
                 Modifier.weight(1f).fillMaxHeight(),
                 subtitle = stringResource(R.string.v3_assets_lent, state.assetsLent),
                 ornament = VkTileOrnament.WAVE, index = 5, testTag = "home_tile_assets",

@@ -1,5 +1,11 @@
 package com.vraj.khetihisab.ui.assets
 
+import androidx.compose.ui.platform.testTag
+
+import androidx.compose.foundation.shape.RoundedCornerShape
+
+import androidx.compose.runtime.remember
+
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -130,11 +136,17 @@ fun LendScreen(vm: LendViewModel, onBack: () -> Unit, onDone: () -> Unit) {
                 keyboard = KeyboardOptions(keyboardType = KeyboardType.Phone),
             )
 
-            // 3 · asset
+            // 3 · asset — pick from the list of existing assets, or add a new one (owner 2026-11-05).
             AsLabel(stringResource(R.string.as_step_asset))
-            FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                st.assets.forEach { a -> VkChip(a.name, selected = a.id == f.assetId, onClick = { vm.onAsset(a.id) }) }
-                VkChip(stringResource(R.string.as_new_asset), selected = false, onClick = vm::showNewAsset)
+            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                AssetDropdown(
+                    names = st.assets.map { it.id to it.name },
+                    selectedId = f.assetId,
+                    isError = LendError.ASSET in st.errors,
+                    onPick = vm::onAsset,
+                    modifier = Modifier.weight(1f),
+                )
+                VkTonalButton(stringResource(R.string.v4_asset_new_short), vm::showNewAsset, sign = "+")
             }
             if (LendError.ASSET in st.errors) Text(stringResource(R.string.as_err_asset), color = MaterialTheme.colorScheme.error)
 
@@ -146,7 +158,7 @@ fun LendScreen(vm: LendViewModel, onBack: () -> Unit, onDone: () -> Unit) {
                 Spacer(Modifier.height(8.dp))
                 Text(stringResource(R.string.as_return_after), style = MaterialTheme.typography.labelLarge)
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    listOf(1, 3, 7, 15).forEach { d -> VkChip("$d", selected = f.returnDays == d, onClick = { vm.onReturnDays(d) }) }
+                    listOf(1, 3, 7, 15, 30).forEach { d -> VkChip(stringResource(R.string.v4_days_n, d), selected = f.returnDays == d, onClick = { vm.onReturnDays(d) }) }
                     VkChip(stringResource(R.string.as_pick_date), selected = f.customReturn != null, onClick = { pickReturn = true })
                 }
                 Text(
@@ -178,30 +190,69 @@ fun LendScreen(vm: LendViewModel, onBack: () -> Unit, onDone: () -> Unit) {
     if (pickReturn) AsDatePickerDialog(f.expectedReturn, onDismiss = { pickReturn = false }, onPicked = vm::onCustomReturn)
 
     when (st.dialog) {
+        // Same dialog shape and button order everywhere: primary action right, text button left.
         LendDialog.NO_PHOTO -> AlertDialog(
             onDismissRequest = vm::dismissDialog,
-            title = { Text(stringResource(R.string.as_no_photo_confirm)) },
-            text = { Text(stringResource(R.string.as_no_photo_body)) },
-            confirmButton = { VkTextButton(stringResource(R.string.as_save_anyway), onClick = vm::confirmDialog) },
-            dismissButton = { VkTextButton(stringResource(R.string.as_take_photo), onClick = { vm.dismissDialog(); camera.launch() }) },
+            shape = RoundedCornerShape(28.dp),
+            title = { Text(stringResource(R.string.as_no_photo_confirm), style = MaterialTheme.typography.headlineSmall) },
+            text = { Text(stringResource(R.string.as_no_photo_body), style = MaterialTheme.typography.bodyLarge) },
+            confirmButton = { VkPrimaryButton(stringResource(R.string.as_take_photo), onClick = { vm.dismissDialog(); camera.launch() }) },
+            dismissButton = { VkTextButton(stringResource(R.string.as_save_anyway), onClick = vm::confirmDialog) },
         )
         LendDialog.ALREADY_LENT -> AlertDialog(
             onDismissRequest = vm::dismissDialog,
-            title = { Text(stringResource(R.string.as_already_lent)) },
-            text = { Text(stringResource(R.string.as_already_lent_body, st.selectedAsset?.name.orEmpty())) },
-            confirmButton = { VkTextButton(stringResource(R.string.as_continue), onClick = vm::confirmDialog) },
+            shape = RoundedCornerShape(28.dp),
+            title = { Text(stringResource(R.string.as_already_lent), style = MaterialTheme.typography.headlineSmall) },
+            text = { Text(stringResource(R.string.as_already_lent_body, st.selectedAsset?.name.orEmpty()), style = MaterialTheme.typography.bodyLarge) },
+            confirmButton = { VkPrimaryButton(stringResource(R.string.as_continue), onClick = vm::confirmDialog) },
             dismissButton = { VkTextButton(stringResource(R.string.as_cancel), onClick = vm::dismissDialog) },
         )
-        LendDialog.NEW_ASSET -> {
-            var name by rememberSaveable { mutableStateOf("") }
-            AlertDialog(
-                onDismissRequest = vm::dismissDialog,
-                title = { Text(stringResource(R.string.as_new_asset_title)) },
-                text = { AsTextField(name, { name = it }, stringResource(R.string.as_asset_name)) },
-                confirmButton = { VkTextButton(stringResource(R.string.as_ok), onClick = { vm.addAsset(name) }) },
-                dismissButton = { VkTextButton(stringResource(R.string.as_cancel), onClick = vm::dismissDialog) },
-            )
-        }
+        LendDialog.NEW_ASSET -> AssetFormDialog(
+            title = stringResource(R.string.v4_asset_add_title),
+            initialName = "", initialPrice = "", initialNote = "",
+            onDismiss = vm::dismissDialog,
+            onSave = { n, _, _ -> vm.addAsset(n) },
+        )
         null -> Unit
+    }
+}
+
+/** Dropdown of existing assets (standard M3 exposed menu). */
+@OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
+@Composable
+private fun AssetDropdown(
+    names: List<Pair<Long, String>>,
+    selectedId: Long?,
+    isError: Boolean,
+    onPick: (Long) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    var open by remember { mutableStateOf(false) }
+    val selected = names.firstOrNull { it.first == selectedId }?.second.orEmpty()
+    androidx.compose.material3.ExposedDropdownMenuBox(expanded = open, onExpandedChange = { open = it && names.isNotEmpty() }, modifier = modifier) {
+        androidx.compose.material3.OutlinedTextField(
+            value = selected,
+            onValueChange = {},
+            readOnly = true,
+            singleLine = true,
+            isError = isError,
+            label = { Text(stringResource(if (names.isEmpty()) R.string.v4_asset_none_yet else R.string.v4_asset_pick), maxLines = 1) },
+            trailingIcon = { androidx.compose.material3.ExposedDropdownMenuDefaults.TrailingIcon(expanded = open) },
+            textStyle = MaterialTheme.typography.bodyLarge,
+            modifier = Modifier
+                .menuAnchor(androidx.compose.material3.MenuAnchorType.PrimaryNotEditable)
+                .fillMaxWidth()
+                .heightIn(min = 60.dp)
+                .testTag("asset_dropdown"),
+        )
+        ExposedDropdownMenu(expanded = open, onDismissRequest = { open = false }) {
+            names.forEach { (id, name) ->
+                androidx.compose.material3.DropdownMenuItem(
+                    text = { Text(name, style = MaterialTheme.typography.bodyLarge, maxLines = 1) },
+                    onClick = { onPick(id); open = false },
+                    modifier = Modifier.heightIn(min = 56.dp),
+                )
+            }
+        }
     }
 }

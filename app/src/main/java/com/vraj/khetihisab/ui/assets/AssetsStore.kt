@@ -28,6 +28,8 @@ interface AssetsStore {
     suspend fun deleteAsset(assetId: Long): Boolean
     /** Asset management "સુધારો" (default no-op keeps test fakes simple). */
     suspend fun updateAsset(assetId: Long, name: String, pricePaise: Long?) {}
+    /** Asset management "+ નવી મિલકત": name, price and a note (defaults to name only for fakes). */
+    suspend fun addAssetFull(name: String, pricePaise: Long?, note: String?): Long = addAsset(name)
 }
 
 class RepoAssetsStore(
@@ -54,4 +56,13 @@ class RepoAssetsStore(
     override suspend fun markReminded(loanId: Long) = assets.markReminded(loanId)
     override suspend fun deleteAsset(assetId: Long) = assets.deleteAsset(assetId) == AssetRepository.DeleteResult.Deleted
     override suspend fun updateAsset(assetId: Long, name: String, pricePaise: Long?) = assets.renameAsset(assetId, name, pricePaise)
+    override suspend fun addAssetFull(name: String, pricePaise: Long?, note: String?): Long {
+        val now = clock()
+        return assets.addAsset(
+            AssetEntity(
+                name = name.trim(), iconKey = "asset", purchaseDate = null, pricePaise = pricePaise, photoPath = null,
+                note = note?.trim()?.ifEmpty { null }, createdAt = now, updatedAt = now,
+            ),
+        )
+    }
 }

@@ -34,8 +34,23 @@ import kotlinx.coroutines.launch
 /** Shared so the Settings "એપ અપડેટ" tile can trigger the same dialog. */
 object UpdateState {
     val available = MutableStateFlow<UpdateInfo?>(null)
-    /** Checked once per app start (not on every Home visit). */
-    @Volatile var checkedThisRun = false
+    /**
+     * Last GitHub check (ms). Android keeps the process alive for days, so "once per process" missed
+     * updates on real phones (owner, Pixel 10 Pro, 2026-11-05): now every time the app comes to the
+     * front, at most once per [MIN_GAP_MS].
+     */
+    @Volatile var lastCheckAt = 0L
+    const val MIN_GAP_MS = 10 * 60 * 1000L
+
+    /** One check; safe to call from anywhere. Returns the newer release or null. */
+    suspend fun refresh(force: Boolean = false): UpdateInfo? {
+        val now = System.currentTimeMillis()
+        if (!force && now - lastCheckAt < MIN_GAP_MS) return available.value
+        lastCheckAt = now
+        val u = AppUpdater.check()
+        available.value = u
+        return u
+    }
 }
 
 /**
@@ -48,15 +63,17 @@ fun UpdateHost() {
     val scope = rememberCoroutineScope()
     val info by UpdateState.available.collectAsStateWithLifecycle()
     var dismissed by remember { mutableStateOf(false) }
-    LaunchedEffect(info) { dismissed = false }
     var progress by remember { mutableFloatStateOf(-1f) }
     var failed by remember { mutableStateOf(false) }
     var waitingForPermission by remember { mutableStateOf(false) }
 
-    LaunchedEffect(Unit) {
-        if (!UpdateState.checkedThisRun) {
-            UpdateState.checkedThisRun = true
-            AppUpdater.check()?.let { UpdateState.available.value = it }
+    // Every time the app is opened / brought back: ask GitHub again, and show the dialog again
+    // (a "પછી" only hides it until the next time the app is opened).
+    val owner = LocalLifecycleOwner.current
+    LaunchedEffect(owner) {
+        owner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+            dismissed = false
+            UpdateState.refresh()
         }
     }
 

@@ -33,7 +33,6 @@ import com.vraj.khetihisab.ui.components.VkTopHeader
 import com.vraj.khetihisab.ui.components.themeFullNameRes
 import com.vraj.khetihisab.ui.home.screenViewModel
 import com.vraj.khetihisab.ui.theme.VkIcon
-import com.vraj.khetihisab.update.AppUpdater
 import com.vraj.khetihisab.update.UpdateState
 import kotlinx.coroutines.launch
 import java.time.LocalDate
@@ -116,7 +115,7 @@ fun SettingsScreen(vm: SettingsViewModel, actions: SettingsActions) {
                 }
                 VkTileRow {
                     VkTile(
-                        VkIcon.ASSET, stringResource(R.string.v3_assets_tile), { actions.onOpen("assets") },
+                        VkIcon.ASSET, stringResource(R.string.v3_assets_tile), { actions.onOpen("assets?tab=all") },
                         Modifier.weight(1f).fillMaxHeight(), subtitle = stringResource(R.string.v3_assets_sub),
                         ornament = VkTileOrnament.WAVE, index = 6, testTag = "st_tile_assets",
                     )
@@ -138,9 +137,9 @@ fun SettingsScreen(vm: SettingsViewModel, actions: SettingsActions) {
                                 checking = true
                                 upToDate = false
                                 scope.launch {
-                                    val u = AppUpdater.check()
+                                    val u = UpdateState.refresh(force = true)
                                     checking = false
-                                    if (u == null) upToDate = true else UpdateState.available.value = u
+                                    if (u == null) upToDate = true
                                 }
                             }
                         },

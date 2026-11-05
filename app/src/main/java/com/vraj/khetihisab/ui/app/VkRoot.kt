@@ -50,7 +50,7 @@ object VkRoutes {
     const val HOME = "home"
     const val ENTRY = "entry?kind={kind}&section={section}&farm={farm}&family={family}&date={date}&edit={edit}"
     const val SHOPPING = "shopping"
-    const val ASSETS = "assets?remind={remind}"
+    const val ASSETS = "assets?remind={remind}&tab={tab}"
     const val LEND = "lend?assetId={assetId}"
 
     fun entry(kind: String) = "entry?kind=$kind"
@@ -133,12 +133,16 @@ fun VkRoot(
 
         composable(
             VkRoutes.ASSETS,
-            arguments = listOf(navArgument("remind") { type = NavType.LongType; defaultValue = -1L }),
+            arguments = listOf(
+                navArgument("remind") { type = NavType.LongType; defaultValue = -1L },
+                navArgument("tab") { type = NavType.StringType; nullable = true; defaultValue = null },
+            ),
         ) { entry ->
             val deps = AssetsModule.get(LocalContext.current)
             val remind = entry.arguments?.getLong("remind")?.takeIf { it > 0 }
+            val tab = if (entry.arguments?.getString("tab") == "all") com.vraj.khetihisab.ui.assets.AssetsTab.ALL else com.vraj.khetihisab.ui.assets.AssetsTab.LENT
             val vm: AssetsViewModel = viewModel(
-                factory = AssetsViewModel.factory(RepoAssetsStore(deps.assets, deps.profiles), container.whatsAppTemplates::loanTemplate, remind),
+                factory = AssetsViewModel.factory(RepoAssetsStore(deps.assets, deps.profiles), container.whatsAppTemplates::loanTemplate, remind, tab),
             )
             AssetsScreen(vm, onBack = { nav.popBackStack() }, onLend = { id -> nav.navigate(VkRoutes.lend(id)) })
         }
