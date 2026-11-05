@@ -217,39 +217,23 @@ fun LockScreen(
     }
 
     if (showForgot) {
-        AlertDialog(
-            onDismissRequest = { showForgot = false },
-            title = { Text(stringResource(R.string.lock_forgot_title), style = MaterialTheme.typography.headlineSmall) },
-            text = { Text(stringResource(R.string.lock_forgot_body), style = MaterialTheme.typography.bodyLarge) },
-            confirmButton = { VkPrimaryButton(stringResource(R.string.lock_forgot_ok), onClick = { showForgot = false }) },
-            shape = RoundedCornerShape(28.dp),
-            containerColor = cs.surfaceContainerLowest,
-        )
+        com.vraj.khetihisab.ui.components.VkDialog(
+            title = stringResource(R.string.lock_forgot_title),
+            onDismiss = { showForgot = false },
+            confirmLabel = stringResource(R.string.lock_forgot_ok),
+            onConfirm = { showForgot = false },
+            dismissLabel = null,
+        ) { Text(stringResource(R.string.lock_forgot_body), style = MaterialTheme.typography.bodyLarge) }
     }
 
     if (askBiometric) {
-        AlertDialog(
-            onDismissRequest = { askBiometric = false; onUnlocked() },
-            title = { Text(stringResource(R.string.lock_bio_enable_title), style = MaterialTheme.typography.headlineSmall) },
-            text = { Text(stringResource(R.string.lock_bio_enable_body), style = MaterialTheme.typography.bodyLarge) },
-            confirmButton = {
-                // Stacked full-width actions (doc 01 §8.5).
-                Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    VkPrimaryButton(
-                        stringResource(R.string.lock_bio_enable_yes),
-                        onClick = { pinStore.biometricEnabled = true; askBiometric = false; onUnlocked() },
-                        modifier = Modifier.fillMaxWidth(),
-                    )
-                    VkTonalButton(
-                        stringResource(R.string.lock_bio_enable_no),
-                        onClick = { pinStore.biometricEnabled = false; askBiometric = false; onUnlocked() },
-                        modifier = Modifier.fillMaxWidth(),
-                    )
-                }
-            },
-            shape = RoundedCornerShape(28.dp),
-            containerColor = cs.surfaceContainerLowest,
-        )
+        com.vraj.khetihisab.ui.components.VkDialog(
+            title = stringResource(R.string.lock_bio_enable_title),
+            onDismiss = { pinStore.biometricEnabled = false; askBiometric = false; onUnlocked() },
+            confirmLabel = stringResource(R.string.lock_bio_enable_yes),
+            onConfirm = { pinStore.biometricEnabled = true; askBiometric = false; onUnlocked() },
+            dismissLabel = stringResource(R.string.lock_bio_enable_no),
+        ) { Text(stringResource(R.string.lock_bio_enable_body), style = MaterialTheme.typography.bodyLarge) }
     }
 }
 

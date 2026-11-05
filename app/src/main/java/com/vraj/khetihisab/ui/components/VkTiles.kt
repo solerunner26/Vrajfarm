@@ -148,7 +148,7 @@ fun VkTile(
             .then(if (testTag != null) Modifier.testTag(testTag) else Modifier),
     ) {
         TileOrnament(ornament, x.ornament, cs.primaryContainer, Modifier.matchParentSize())
-        Column(Modifier.fillMaxWidth().padding(14.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Column(Modifier.fillMaxWidth().padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             // A3: when the red flag clears (e.g. backup taken) the flag fades and one ring pulses.
             var hadAlert by remember { mutableStateOf(alert) }
             var cleared by remember { mutableStateOf(0) }
@@ -325,7 +325,7 @@ fun VkHeroTile(
                 drawLine(x.onGradient.copy(alpha = 0.10f), Offset(w * 0.55f + i * 10.dp.toPx(), y), Offset(w, y - 18.dp.toPx()), strokeWidth = 2.dp.toPx(), cap = StrokeCap.Round)
             }
         }
-        Column(Modifier.fillMaxWidth().padding(14.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        Column(Modifier.fillMaxWidth().padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 IconDisc(icon, size = 48.dp, onGradient = true)
                 Spacer(Modifier.width(12.dp))

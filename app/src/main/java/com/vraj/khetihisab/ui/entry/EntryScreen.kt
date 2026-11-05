@@ -191,7 +191,11 @@ fun EntryContent(
                         ) { VkIconImage(VkIcon.MIC, size = 30.dp) }
                     },
                 ) {
-                    VkHeaderChip(todayLabel, Modifier.clickable(role = Role.Button) { showDate = true })
+                    // 60dp touch box around the date pill (audit #13).
+                    Box(
+                        Modifier.heightIn(min = 60.dp).clip(RoundedCornerShape(30.dp)).clickable(role = Role.Button) { showDate = true },
+                        contentAlignment = Alignment.CenterStart,
+                    ) { VkHeaderChip(todayLabel) }
                 }
             }
             item {
