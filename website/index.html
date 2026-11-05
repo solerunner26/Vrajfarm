@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#8f3e1e">
+  <meta name="description" content="A multilingual, feature-led preview of an offline-first farm ledger app for everyday farm operations.">
+  <title>Farm Ledger — A clearer view of farm life</title>
+  <link rel="icon" href="assets/farm-ledger-mark.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="site-header">
+    <a class="brand" href="#top" aria-label="Farm ledger home">
+      <span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 40 40"><path d="M7 27c8-1 13-7 14-16 7 5 10 13 6 20-4 7-14 7-20-4Z"/><path d="M9 31c7-8 12-12 21-16"/><path d="M6 34h28"/></svg></span>
+      <span><b data-i18n="brand">Farm Ledger</b><small data-i18n="brandSub">FARM ACCOUNTS, IN FOCUS</small></span>
+    </a>
+    <nav class="top-nav" aria-label="Primary navigation">
+      <a href="#capabilities" data-i18n="navFeatures">Features</a>
+      <a href="#tour" data-i18n="navTour">App tour</a>
+      <a href="#trust" data-i18n="navPrivacy">Privacy</a>
+    </nav>
+    <div class="header-actions">
+      <label class="language-wrap"><span class="sr-only" data-i18n="languageLabel">Choose language</span>
+        <select id="language" aria-label="Choose language"><option value="en">English</option><option value="gu">ગુજરાતી</option><option value="hi">हिन्दी</option></select>
+      </label>
+      <a class="button button-dark header-cta" href="#tour" data-i18n="navExplore">Explore the app <span aria-hidden="true">↗</span></a>
+      <button class="menu-toggle" id="menuToggle" aria-label="Open navigation" aria-expanded="false"><span></span><span></span></button>
+    </div>
+  </header>
+  <main id="main">
+    <section class="hero section-wrap" id="top">
+      <div class="hero-copy">
+        <div class="eyebrow"><span class="eyebrow-dot"></span><span data-i18n="heroEyebrow">A practical companion for farm families</span></div>
+        <h1 data-i18n="heroTitle">Every part of farm life,<br><em>in one clear view.</em></h1>
+        <p class="hero-lede" data-i18n="heroLede">Keep farm accounts, daily work, family advances and seasonal insights together — designed for real-world farm routines.</p>
+        <div class="hero-actions"><a class="button button-primary" href="#tour"><span data-i18n="heroButton">Take the guided tour</span><span aria-hidden="true">↗</span></a><a href="#capabilities" class="text-link"><span data-i18n="heroSecondary">See what it covers</span><span aria-hidden="true">↓</span></a></div>
+        <div class="hero-proof"><div class="proof-avatars" aria-hidden="true"><i>ખે</i><i>🌾</i><i>⌂</i></div><span data-i18n="heroProof">Thoughtful tools for everyday farm decisions</span></div>
+      </div>
+      <div class="hero-art" aria-label="Illustration of a farm ledger dashboard">
+        <div class="sun-orbit"></div><div class="field-lines" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span></div>
+        <div class="hero-note note-top"><span class="note-icon">↗</span><span><b data-i18n="heroNote1">Season at a glance</b><small data-i18n="heroNote1s">Income and outgoings together</small></span></div>
+        <div class="hero-note note-bottom"><span class="note-icon leaf-icon">✳</span><span><b data-i18n="heroNote2">Built for the field</b><small data-i18n="heroNote2s">Large, readable, familiar</small></span></div>
+        <div class="hero-phone" aria-hidden="true"><div class="phone-status"><span>9:41</span><span>●●● ▰</span></div><div class="phone-greeting"><div class="mini-brand"><span>⌂</span><span data-i18n="demoBrand">Farm ledger</span><b>•••</b></div><small data-i18n="demoHello">Good morning</small><strong data-i18n="demoDate">Today at the farm</strong><span class="panchang-pill">☼ <span data-i18n="demoDay">A day to plan</span></span></div><div class="phone-balance"><span data-i18n="demoSnapshot">Farm snapshot</span><b>₹ 2,48,600</b><small><span>↗ 12.4%</span> <i data-i18n="demoPeriod">this season</i></small><div class="sparkline"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div></div><div class="phone-quick"><div><span>＋</span><small data-i18n="demoIncome">Income</small></div><div><span>−</span><small data-i18n="demoExpense">Expense</small></div><div><span>▤</span><small data-i18n="demoReports">Reports</small></div></div><div class="phone-row"><span class="row-icon green-icon">↗</span><span><b data-i18n="demoRecent1">Crop sale</b><small data-i18n="demoRecent1s">Farm 02 · today</small></span><strong>+ ₹ 18,400</strong></div><div class="phone-row"><span class="row-icon orange-icon">⌁</span><span><b data-i18n="demoRecent2">Field supplies</b><small data-i18n="demoRecent2s">Farm 01 · yesterday</small></span><strong>− ₹ 3,250</strong></div><div class="phone-bottom"><span>⌂</span><span>▦</span><span>◷</span><span>⚙</span></div></div>
+        <div class="art-caption"><span class="caption-line"></span><span data-i18n="artCaption">A sample view · illustrative information</span></div>
+      </div>
+      <div class="hero-scroll"><span class="scroll-dot"></span><span data-i18n="scrollHint">Scroll to explore</span></div>
+    </section>
+
+    <section class="ribbon" aria-label="Highlights"><div class="ribbon-track"><span data-i18n="ribbon1">FARM ACCOUNTS</span><i>✳</i><span data-i18n="ribbon2">SEASONAL CLARITY</span><i>✳</i><span data-i18n="ribbon3">MADE FOR EVERYDAY USE</span><i>✳</i><span data-i18n="ribbon4">GUJARATI · HINDI · ENGLISH</span><i>✳</i><span data-i18n="ribbon1">FARM ACCOUNTS</span><i>✳</i><span data-i18n="ribbon2">SEASONAL CLARITY</span><i>✳</i></div></section>
+
+    <section class="capabilities section-wrap" id="capabilities">
+      <div class="section-heading"><div><div class="eyebrow"><span class="eyebrow-dot"></span><span data-i18n="featuresEyebrow">A complete toolkit</span></div><h2 data-i18n="featuresTitle">The farm has many moving parts.<br><em>Your view of them can be simple.</em></h2></div><p data-i18n="featuresLede">From a quick entry to a season-end report, each part has a place. Browse the capabilities, then open any screen in the interactive tour.</p></div>
+      <div class="feature-grid" id="featureGrid"></div>
+      <div class="coverage-note"><span class="coverage-icon">✳</span><p><b data-i18n="coverageTitle">Every screen, one guided tour.</b> <span data-i18n="coverageBody">The screen selector below includes the dashboard, account views, farm tools, calendar, inventory, reports, settings and support screens.</span></p><a href="#tour" class="text-link" data-i18n="coverageLink">Open the screen tour ↗</a></div>
+    </section>
+
+    <section class="tour-section" id="tour">
+      <div class="tour-head section-wrap"><div><div class="eyebrow eyebrow-light"><span class="eyebrow-dot"></span><span data-i18n="tourEyebrow">A closer look</span></div><h2 data-i18n="tourTitle">Explore the app,<br><em>screen by screen.</em></h2></div><p data-i18n="tourLede">Choose a screen to see how its feature is organised. This is a multilingual, illustrative product demo — not a live account.</p></div>
+      <div class="tour-layout section-wrap">
+        <aside class="screen-picker" aria-label="App screen selector">
+          <div class="picker-head"><span data-i18n="pickerTitle">APP SCREENS</span><span id="screenCount" class="count-pill">23</span></div>
+          <div id="screenList" class="screen-list"></div>
+          <div class="picker-foot"><span class="status-dot"></span><span data-i18n="pickerFoot">Sample data · no account connected</span></div>
+        </aside>
+        <div class="tour-display">
+          <div class="tour-screen-info"><div><span class="screen-kicker" id="screenCategory">DASHBOARD</span><h3 id="screenTitle">Home dashboard</h3></div><p id="screenDescription"></p></div>
+          <div class="device-stage"><div class="stage-glow"></div><div class="device"><div class="device-notch"></div><div class="device-top"><span id="demoTime">9:41</span><span>●●● ▰</span></div><div class="device-screen" id="deviceScreen" aria-live="polite"></div><div class="device-nav" id="deviceNav"></div></div><div class="stage-side-note"><span class="side-note-mark">✳</span><span data-i18n="stageNote">Designed around the way farm work is recorded, reviewed and shared.</span></div></div>
+          <div class="tour-controls"><div class="tour-progress"><span id="tourProgressFill"></span></div><span id="tourPosition">01 / 23</span><div class="tour-arrows"><button id="prevScreen" aria-label="Previous screen">←</button><button id="nextScreen" aria-label="Next screen">→</button></div></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="principles section-wrap" id="trust">
+      <div class="principle-intro"><div class="eyebrow"><span class="eyebrow-dot"></span><span data-i18n="trustEyebrow">Made with care</span></div><h2 data-i18n="trustTitle">Tools that respect<br><em>your way of working.</em></h2><p data-i18n="trustLede">Built around the practical details of farm accounts, while keeping personal information out of this public showcase.</p></div>
+      <div class="principle-cards">
+        <article class="principle-card"><span class="principle-num">01</span><div class="principle-icon">⌂</div><h3 data-i18n="trust1Title">Your data stays yours</h3><p data-i18n="trust1Body">The Android app is designed around on-device records and user-controlled backup options. This website does not collect or connect to account data.</p><span class="principle-rule"></span></article>
+        <article class="principle-card"><span class="principle-num">02</span><div class="principle-icon">Aa</div><h3 data-i18n="trust2Title">Three languages</h3><p data-i18n="trust2Body">Switch between Gujarati, Hindi and English across the website and every screen preview in the tour.</p><span class="principle-rule"></span></article>
+        <article class="principle-card"><span class="principle-num">03</span><div class="principle-icon">◌</div><h3 data-i18n="trust3Title">Useful at a glance</h3><p data-i18n="trust3Body">Clear summaries, privacy-aware amount display, readable cards and practical entry flows help keep everyday records approachable.</p><span class="principle-rule"></span></article>
+      </div>
+    </section>
+
+    <section class="closing section-wrap"><div class="closing-card"><div class="closing-orbit"></div><div class="closing-content"><div class="eyebrow eyebrow-light"><span class="eyebrow-dot"></span><span data-i18n="closingEyebrow">See the whole picture</span></div><h2 data-i18n="closingTitle">From the first entry<br>to the season's story.</h2><p data-i18n="closingBody">Explore every part of the farm ledger in your language.</p><a class="button button-cream" href="#tour"><span data-i18n="closingButton">Start exploring</span><span aria-hidden="true">↗</span></a></div><div class="closing-stamp" aria-hidden="true"><span>⌂</span><small data-i18n="closingStamp">FOR FARM LIFE</small></div></div></section>
+  </main>
+  <footer class="site-footer"><a class="brand footer-brand" href="#top"><span class="brand-mark"><svg viewBox="0 0 40 40"><path d="M7 27c8-1 13-7 14-16 7 5 10 13 6 20-4 7-14 7-20-4Z"/><path d="M9 31c7-8 12-12 21-16"/><path d="M6 34h28"/></svg></span><span><b data-i18n="brand">Farm Ledger</b><small data-i18n="brandSub">FARM ACCOUNTS, IN FOCUS</small></span></a><p data-i18n="footerNote">A generic, feature-led showcase. All names and sample records are illustrative.</p><span class="footer-copy">© <span id="year"></span> · <span data-i18n="footerRights">Made for the work that grows.</span></span></footer>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script src="app.js"></script>
+</body>
+</html>
