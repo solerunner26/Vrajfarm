@@ -41,6 +41,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -120,7 +121,7 @@ fun EntryScreen(onBack: () -> Unit, onSaved: (Long) -> Unit) {
         }
     }
     val voice = rememberGujaratiVoiceInput(
-        onText = { vm.onEvent(EntryEvent.SetVoiceNote(it)) },
+        onText = { vm.applyVoice(it) },
         onUnavailable = { scope.launch { snackbar.showSnackbar("$voiceUnavailable. $voiceTip") } },
     )
 
@@ -134,6 +135,7 @@ fun EntryScreen(onBack: () -> Unit, onSaved: (Long) -> Unit) {
             onTakePhoto = capture.takePhoto,
             onVoice = voice,
             onViewBill = { viewer = it },
+            onAddCategory = vm::addCategory,
         )
         SnackbarHost(snackbar, Modifier.align(Alignment.BottomCenter).padding(bottom = 110.dp))
     }
@@ -162,6 +164,7 @@ fun EntryContent(
     onTakePhoto: () -> Unit,
     onVoice: () -> Unit,
     onViewBill: (String) -> Unit,
+    onAddCategory: ((String) -> Unit)? = null,
 ) {
     val cs = MaterialTheme.colorScheme
     var showDate by remember { mutableStateOf(false) }
@@ -233,7 +236,7 @@ fun EntryContent(
             }
             // ---- Tap 2 ----
             if (form.section != null) {
-                item { Tap2(form, lists, onEvent) }
+                item { Tap2(form, lists, onEvent, onAddCategory) }
             }
             // ---- Amount ----
             item { AmountArea(form, onEvent) }
@@ -292,6 +295,18 @@ fun EntryContent(
                     VkOutlinedButton(stringResource(R.string.scr_voice_note), onVoice, Modifier.weight(1f))
                 }
             }
+            // Typed note (owner request 2026-11-05): speech fills it too, and it can be edited by hand.
+            item {
+                OutlinedTextField(
+                    value = form.voiceNote.orEmpty(),
+                    onValueChange = { onEvent(EntryEvent.SetNoteText(it)) },
+                    label = { Text(stringResource(R.string.v3_note), maxLines = 1) },
+                    minLines = 1,
+                    maxLines = 3,
+                    keyboardOptions = com.vraj.khetihisab.ui.components.VkGujaratiKeyboard,
+                    modifier = Modifier.padding(horizontal = 16.dp).fillMaxWidth().testTag("entry_note"),
+                )
+            }
             if (form.billPath != null || form.voiceNote != null) {
                 item {
                     FlowRow(
@@ -314,7 +329,6 @@ fun EntryContent(
                             }
                         }
                         form.voiceNote?.let { note ->
-                            RemoveChip(note) { onEvent(EntryEvent.SetVoiceNote(null)) }
                             val suggestion = VoiceAmountParser.parseRupees(note)
                             if (suggestion != null && !form.apmcMode && form.amountPaise != suggestion * 100) {
                                 VkChip(
@@ -381,7 +395,11 @@ private fun RemoveChip(label: String, onRemove: () -> Unit) {
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun Tap2(form: EntryForm, lists: EntryLists, onEvent: (EntryEvent) -> Unit) {
+private fun Tap2(form: EntryForm, lists: EntryLists, onEvent: (EntryEvent) -> Unit, onAddCategory: ((String) -> Unit)? = null) {
+    var addingType by rememberSaveable { mutableStateOf(false) }
+    if (addingType && onAddCategory != null) {
+        NewTypeDialog(onDismiss = { addingType = false }) { name -> onAddCategory(name); addingType = false }
+    }
     Column(Modifier.padding(horizontal = 16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         when (form.section) {
             AccountSection.FARM -> {
@@ -400,12 +418,11 @@ private fun Tap2(form: EntryForm, lists: EntryLists, onEvent: (EntryEvent) -> Un
                         repeat(4 - row.size) { Spacer(Modifier.weight(1f)) }
                     }
                 }
-                if (lists.categories.isNotEmpty()) {
-                    Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        lists.categories.forEach { c ->
-                            VkChip(c.label, form.categoryId == c.id, { onEvent(EntryEvent.PickCategory(c.id, c.isCropSale)) })
-                        }
+                Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    lists.categories.forEach { c ->
+                        VkChip(c.label, form.categoryId == c.id, { onEvent(EntryEvent.PickCategory(c.id, c.isCropSale)) })
                     }
+                    if (onAddCategory != null) VkChip(stringResource(R.string.v3_new_type), false, { addingType = true })
                 }
             }
             AccountSection.FAMILY -> {
@@ -428,6 +445,7 @@ private fun Tap2(form: EntryForm, lists: EntryLists, onEvent: (EntryEvent) -> Un
                     lists.categories.forEach { c ->
                         VkChip(c.label, form.categoryId == c.id, { onEvent(EntryEvent.PickCategory(c.id, c.isCropSale)) })
                     }
+                    if (onAddCategory != null) VkChip(stringResource(R.string.v3_new_type), false, { addingType = true })
                 }
             }
             null -> Unit
@@ -590,4 +608,26 @@ private fun groupTyped(text: String): String {
     val whole = if (dot < 0) text else text.substring(0, dot)
     val grouped = whole.toLongOrNull()?.let(com.vraj.khetihisab.ui.components.VkFormat::groupIndian) ?: whole
     return if (dot < 0) grouped else grouped + text.substring(dot)
+}
+
+/** "+ નવો પ્રકાર": name the new type; it is saved for this section and આવક/ખર્ચ and selected. */
+@Composable
+private fun NewTypeDialog(onDismiss: () -> Unit, onSave: (String) -> Unit) {
+    var name by rememberSaveable { mutableStateOf("") }
+    androidx.compose.material3.AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(stringResource(R.string.v3_new_type_title), style = MaterialTheme.typography.headlineSmall) },
+        text = {
+            OutlinedTextField(
+                value = name,
+                onValueChange = { name = it.take(40) },
+                label = { Text(stringResource(R.string.st_display_name)) },
+                singleLine = true,
+                keyboardOptions = com.vraj.khetihisab.ui.components.VkGujaratiKeyboard,
+                modifier = Modifier.fillMaxWidth().testTag("new_type_name"),
+            )
+        },
+        confirmButton = { VkPrimaryButton(stringResource(R.string.scr_save), { onSave(name) }, enabled = name.isNotBlank()) },
+        dismissButton = { com.vraj.khetihisab.ui.components.VkTextButton(stringResource(R.string.scr_cancel), onDismiss) },
+    )
 }

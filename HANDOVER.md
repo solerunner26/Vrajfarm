@@ -1,7 +1,7 @@
 # HANDOVER — live status board
 
 > Every AI or human working on this repo updates this file **before stopping** (see `AGENTS.md` §5).
-> Last updated: **2026-11-04 by Claude (Opus): owner feedback round 2 (tiles, ભાગિયા, JSON backup, self-update, 3D icons) — release v0.2.x**
+> Last updated: **2026-11-05 by Claude (Opus): owner feedback round 3 (DB v2: joint ભાગિયા farms + milk register, Gmail one-tap, voice entry, letterhead PDFs) — release v0.2.x**
 
 ## Snapshot
 - **Phase:** Wave 1 done. Wave 2 code compiles, is integrated, and `assembleDebug` + `testDebugUnitTest` pass (2026-11-04). Several Wave 2 screens were never written (see task board).
@@ -109,6 +109,17 @@
 - The GoDaddy URL is still a placeholder (open question 6).
 
 ## Change log
+- **2026-11-05 (Claude, owner feedback round 3):** 15 points; 175 unit + 56 instrumented tests green; v0.2.14 → new build upgrade tested on the emulator (data kept, 0 crashes).
+  - **DB v2** (`AppDatabase.MIGRATION_1_2`, `MigrationTest`): `farm.jointManagers` (a farm run by BOTH ભાગિયા; use `FarmEntity.managedBy/managers/encode`) + new `milk_entry` table (14 entities). Profiles farm ticks are no longer exclusive; Settings farm dialog: કોઈ નહીં / ભાગિયા 1 / ભાગિયા 2 / બંને.
+  - **Milk register** (`ui/milk/MilkScreen.kt`, `MilkDao`): AM/PM litres, fat %, rate per litre per animal; month shows litres, what the dairy should pay, what it paid (= ANIMAL INCOME in categories containing "દૂધ"), and the difference. Money stays in the ledger, so nothing double-counts.
+  - **Gmail one-tap** (`backup/GmailSender.kt`): direct SMTP to smtp.gmail.com:465 (TLS + hostname check) with a Google App Password kept in EncryptedSharedPreferences (`MailSettings`). Optional nightly e-mail. The old "open Gmail" draft stays as a fallback.
+  - **Backup nag:** red pill + pulsing "!" flag on Home and the Settings tile when no backup in 24 h (`BackupStatus.takenRecently`); 21:30 daily notification (`BackupScheduler.scheduleReminder`, `BackupAlarmReceiver.ACTION_REMIND`).
+  - **Home privacy:** the one eye hides/reveals every Home amount (Hisab, section tiles, Udhaar card, recent rows). Date taps open the calendar. Avatar = photo or 3D profile icon (no letter).
+  - **WhatsApp:** owner's exact formats as default templates (store keys bumped to `*_v2`): ભાગિયા = one advance `{date}`/`{amount}` + year total (per-row send in the ઉપાડ screen); borrowed asset = `{today}` "સુધી પાછું આપેલ નથી".
+  - **Entry:** typed નોંધ field; "+ નવો પ્રકાર" chip creates and selects a type; whole-sentence voice (`VoiceEntryParser`: section, farm N, ભાગિયા name, type, amount, ઉધાર <name>).
+  - **Gujarati keyboard:** every text field sends `hintLocales = gu-IN` (`VkGujaratiKeyboard`); Help explains adding Gujarati to Gboard once.
+  - **Assets:** "મિલકત વ્યવસ્થા" tile in Settings + Home; edit name/price; loan reminder first after a week (or the return date), then weekly, with notification buttons પરત આવી ગયું / 1 અઠવાડિયા પછી / 1 મહિના પછી.
+  - **Reports:** letterhead on every page (logo square, name/owner/address/phone centred, rule, date right, bold centred title).
 - **2026-11-04 (Claude, owner feedback round 2):** all 12 owner points + 3D request done; 170 unit + 51 instrumented tests green; release APK 7.5 MB (was 74 MB debug).
   - **ભાગિયા (Bhagiya) = farm manager = old પરિવાર A/B — one person.** Edited only in Profiles (MANAGER_1/2). `ProfileRepository.syncBhagiya()` mirrors name + phone into the `family` rows (A↔MANAGER_1, B↔MANAGER_2), runs at app start and on every profile save. The separate "પરિવાર WhatsApp નંબર" settings screen was deleted. All copy says ભાગિયા.
   - **Default theme = માટી (Mati)** (`VkThemeId.DEFAULT`).

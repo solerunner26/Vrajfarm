@@ -70,7 +70,27 @@ class HomeScreenUiTest {
         val routes = mutableListOf<String>()
         show(state(UdhaarSummary(18_400_00, 62_000_00, 5)), routes)
         rule.onNodeWithTag("home_udhaar").assertIsDisplayed()
+        // Hidden like every Home amount until the eye is tapped (owner 2026-11-05).
+        rule.onAllNodesWithText("₹18,400").assertCountEquals(0)
+        rule.onNodeWithTag("home_list").performScrollToNode(hasTestTag("eye_toggle"))
+        rule.onNodeWithTag("eye_toggle").performClick()
+        rule.waitForIdle()
+        rule.onNodeWithTag("home_list").performScrollToNode(hasTestTag("home_udhaar"))
         rule.onNodeWithText("₹18,400").assertIsDisplayed()
+    }
+
+    @Test fun sectionTileAmountsAreHiddenToo() {
+        show(state().copy(familyMonth = 7_000_00, generalMonth = 1_850_00), mutableListOf())
+        rule.onNodeWithTag("home_list").performScrollToNode(hasTestTag("home_tile_general"))
+        rule.onAllNodesWithText("₹7,000").assertCountEquals(0)
+        rule.onAllNodesWithText("₹1,850").assertCountEquals(0)
+    }
+
+    @Test fun todaysDateOpensCalendar() {
+        val routes = mutableListOf<String>()
+        show(state(), routes)
+        rule.onNodeWithTag("home_date").performClick()
+        assertEquals(HomeRoutes.PANCHANG, routes.lastOrNull())
     }
 
     @Test fun farmCardOpensFarms() {

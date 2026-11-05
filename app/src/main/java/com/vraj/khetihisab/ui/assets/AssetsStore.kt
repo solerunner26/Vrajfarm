@@ -26,6 +26,8 @@ interface AssetsStore {
     suspend fun markReminded(loanId: Long)
     /** false = blocked by an active loan ("પહેલાં પરત મળ્યું કરો"). */
     suspend fun deleteAsset(assetId: Long): Boolean
+    /** Asset management "સુધારો" (default no-op keeps test fakes simple). */
+    suspend fun updateAsset(assetId: Long, name: String, pricePaise: Long?) {}
 }
 
 class RepoAssetsStore(
@@ -51,4 +53,5 @@ class RepoAssetsStore(
     override suspend fun markReturned(loanId: Long) = assets.markReturned(loanId)
     override suspend fun markReminded(loanId: Long) = assets.markReminded(loanId)
     override suspend fun deleteAsset(assetId: Long) = assets.deleteAsset(assetId) == AssetRepository.DeleteResult.Deleted
+    override suspend fun updateAsset(assetId: Long, name: String, pricePaise: Long?) = assets.renameAsset(assetId, name, pricePaise)
 }

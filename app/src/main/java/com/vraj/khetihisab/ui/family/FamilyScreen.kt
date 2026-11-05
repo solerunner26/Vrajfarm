@@ -1,5 +1,6 @@
 package com.vraj.khetihisab.ui.family
 
+import com.vraj.khetihisab.ui.components.gujarati
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -246,7 +247,12 @@ fun FamilyScreen(
         )
     }
     actionsFor?.let { r ->
-        com.vraj.khetihisab.ui.home.EntryActionsSheet(r, onEdit = { onEditEntry(r.id) }, onDismiss = { actionsFor = null })
+        com.vraj.khetihisab.ui.home.EntryActionsSheet(
+            r,
+            onEdit = { onEditEntry(r.id) },
+            onDismiss = { actionsFor = null },
+            onWhatsApp = state.rowReceipts[r.id]?.let { text -> { onSend(state.phone, text) } },
+        )
     }
     deleteId?.let { id ->
         ConfirmDialog(
@@ -286,7 +292,7 @@ private fun PhoneDialog(initial: String, sendAfter: Boolean, onSave: (String) ->
                 } else {
                     null
                 },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone).gujarati(),
                 textStyle = MaterialTheme.typography.bodyLarge,
                 modifier = Modifier.fillMaxWidth().testTag("family_phone_input"),
             )

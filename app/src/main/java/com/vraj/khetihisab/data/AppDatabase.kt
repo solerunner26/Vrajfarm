@@ -28,7 +28,8 @@ import com.vraj.khetihisab.data.entity.TransactionEntity
 import com.vraj.khetihisab.data.seed.SeedCallback
 
 /**
- * Single local source of truth — 13 entities, version 1.
+ * Single local source of truth — 14 entities, version 2.
+ * v2 (2026-11-05): farm.jointManagers (farm run by both ભાગિયા) + milk_entry (દૂધ રજીસ્ટર).
  *
  * Migration policy (doc 03): every schema change bumps [VERSION], adds an explicit
  * Migration(n, n+1) to [MIGRATIONS] and a MigrationTestHelper test.
@@ -49,6 +50,7 @@ import com.vraj.khetihisab.data.seed.SeedCallback
         AssetLoanEntity::class,
         PanchangAlertPrefEntity::class,
         CustomFestivalEntity::class,
+        com.vraj.khetihisab.data.entity.MilkEntryEntity::class,
     ],
     version = AppDatabase.VERSION,
     exportSchema = true,
@@ -62,13 +64,28 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun masterDao(): MasterDao
     abstract fun profileDao(): ProfileDao
     abstract fun panchangDao(): PanchangDao
+    abstract fun milkDao(): com.vraj.khetihisab.data.dao.MilkDao
 
     companion object {
         const val NAME = "vraj_kheti.db"
-        const val VERSION = 1
+        const val VERSION = 2
 
-        /** Explicit migrations only. Empty for v1. */
-        val MIGRATIONS: Array<androidx.room.migration.Migration> = emptyArray()
+        /** v1 → v2: additive only (a column with a default + a new table), no data is touched. */
+        val MIGRATION_1_2 = object : androidx.room.migration.Migration(1, 2) {
+            override fun migrate(db: androidx.sqlite.db.SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE `farm` ADD COLUMN `jointManagers` INTEGER NOT NULL DEFAULT 0")
+                db.execSQL(MILK_TABLE_SQL)
+                db.execSQL("CREATE INDEX IF NOT EXISTS `index_milk_entry_date` ON `milk_entry` (`date`)")
+            }
+        }
+
+        /** Must equal Room's createSql in schemas/…/2.json (checked by MigrationTest). */
+        const val MILK_TABLE_SQL = "CREATE TABLE IF NOT EXISTS `milk_entry` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
+            "`date` INTEGER NOT NULL, `session` TEXT NOT NULL, `animal` TEXT NOT NULL, `litres` REAL NOT NULL, " +
+            "`fatPercent` REAL, `ratePaise` INTEGER NOT NULL, `createdAt` INTEGER NOT NULL, `updatedAt` INTEGER NOT NULL)"
+
+        /** Explicit migrations only. */
+        val MIGRATIONS: Array<androidx.room.migration.Migration> = arrayOf(MIGRATION_1_2)
 
         @Volatile private var instance: AppDatabase? = null
 

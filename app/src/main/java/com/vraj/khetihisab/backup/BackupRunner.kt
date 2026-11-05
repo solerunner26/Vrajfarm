@@ -18,6 +18,8 @@ class BackupRunner(
     private val driveUri: () -> Uri?,
     private val makeFile: suspend (ZonedDateTime) -> File,
     private val toDrive: (Uri, File) -> Boolean,
+    /** Nightly Gmail (only when the owner switched it on); true = sent. */
+    private val toEmail: (File) -> Boolean = { false },
     private val clock: () -> ZonedDateTime,
     private val onReadyToSend: () -> Unit = {},
     private val onFinalFailure: (BackupFailure) -> Unit = {},
@@ -44,8 +46,11 @@ class BackupRunner(
             onFinalFailure(BackupFailure.LOCAL)
             return@withLock Outcome.Failed(BackupFailure.LOCAL)
         }
+        val mailed = trigger != BackupTrigger.MANUAL && withContext(Dispatchers.IO) { toEmail(file) }
+        if (mailed) status.recordSuccess(file.length(), "email")
         val drive = driveUri()
         if (drive == null) {
+            if (mailed) return@withLock Outcome.Success(file, drive = false)
             // Nothing automatic to send to: the file is ready; remind the user once a night.
             status.recordFailure(BackupFailure.NOT_CONFIGURED)
             if (trigger == BackupTrigger.NIGHTLY) onReadyToSend()

@@ -154,10 +154,11 @@ internal fun BusinessBreakdownSheet(business: BusinessUi, onDismiss: () -> Unit)
 
 /** Animal husbandry this month: totals + spend by category (`animalByCategory`). */
 @Composable
-internal fun AnimalSheet(today: LocalDate, animal: Totals, categories: List<CategoryTotal>, onDismiss: () -> Unit) {
+internal fun AnimalSheet(today: LocalDate, animal: Totals, categories: List<CategoryTotal>, onDismiss: () -> Unit, onMilk: () -> Unit = {}) {
     HomeBottomSheet(stringResource(R.string.hm_animal_sheet_title, ScreensFormat.monthYearGu(YearMonth.from(today))), onDismiss) {
         Column(Modifier.fillMaxWidth().padding(horizontal = 16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             ThreeStats(animal)
+            com.vraj.khetihisab.ui.components.VkTonalButton(stringResource(R.string.v3_milk_title), { onDismiss(); onMilk() }, Modifier.fillMaxWidth())
         }
         categories.forEach { c ->
             VkListRow(title = c.name, leadingIcon = VkIcon.ANIMAL, trailing = { VkAmount(c.total, AmountKind.EXPENSE) })

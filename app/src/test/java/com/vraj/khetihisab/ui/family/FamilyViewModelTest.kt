@@ -113,17 +113,12 @@ class FamilyViewModelTest {
         assertTrue(vm.state.value.receipt.contains(WhatsAppTemplates.NO_ADVANCE_LINE))
     }
 
-    @Test fun receiptIsTheExactStatementOldestFirst() = runTest {
+    @Test fun receiptIsTheOwnersOneAdvanceFormat() = runTest {
         val vm = FamilyViewModel(FakeSource(data), SavedStateHandle(), today = LocalDate.of(2026, 11, 4))
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { vm.state.collect {} }
-        val expected = listOf(
-            "નમસ્તે પરિવાર A,",
-            "નવેમ્બર 2026 નો ઉપાડ: ₹12,000",
-            "• 02-11 — ₹5,000 (રોકડ ઉપાડ)",
-            "• 03-11 — ₹7,000",
-            "વર્ષ 2026 કુલ: ₹16,000",
-            "— ગિરવાનસિંહ વાળા, વ્રજ ખેતી હિસાબ, થોરાળા",
-        ).joinToString("\n")
+        // Owner format 2026-11-05: the newest advance, its date and amount, and the year's total.
+        val expected = "પરિવાર A, તારીખ 03-11-2026 ના રોજ ₹7,000 ઉપાડ રૂપે આપેલ છે. વર્ષ 2026 માં કુલ ઉપાડ ₹16,000, " +
+            "તમારી જાણ સારું. આ મેસેજ નોંધ માટે મોકલવામાં આવે છે. - ગિરવાનસિંહ વાળા ."
         assertEquals(expected, vm.state.value.receipt)
         assertEquals("9876543210", vm.state.value.phone)
     }

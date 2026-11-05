@@ -153,3 +153,43 @@ class RoundTwoTest {
         assertTrue(r is JsonBackup.RestoreResult.NotABackup)
     }
 }
+
+/** DB v2 (2026-11-05): joint farms + milk register queries. */
+@RunWith(AndroidJUnit4::class)
+class RoundThreeDaoTest {
+    private lateinit var db: AppDatabase
+
+    @Before fun setUp() { db = TestDb.create(seed = true) }
+    @After fun tearDown() = db.close()
+
+    @Test fun jointFarmShowsForBothBhagiya() = runBlocking<Unit> {
+        val m = db.masterDao()
+        val f1 = m.farmsNow().first()
+        m.setManagerFarms(com.vraj.khetihisab.data.entity.ProfileRole.MANAGER_2, setOf(f1.id), TestDb.NOW)
+        val after = m.farmsNow().first { it.id == f1.id }
+        assertTrue(after.jointManagers)
+        assertTrue(m.farmsForManager(com.vraj.khetihisab.data.entity.ProfileRole.MANAGER_1).first().any { it.id == f1.id })
+        assertTrue(m.farmsForManager(com.vraj.khetihisab.data.entity.ProfileRole.MANAGER_2).first().any { it.id == f1.id })
+        // Untick ભાગિયા 1 → only ભાગિયા 2 is left.
+        val m1Farms = m.farmsForManager(com.vraj.khetihisab.data.entity.ProfileRole.MANAGER_1).first().map { it.id }.toSet() - f1.id
+        m.setManagerFarms(com.vraj.khetihisab.data.entity.ProfileRole.MANAGER_1, m1Farms, TestDb.NOW)
+        val last = m.farmsNow().first { it.id == f1.id }
+        assertEquals(com.vraj.khetihisab.data.entity.ProfileRole.MANAGER_2, last.managerRole)
+        assertTrue(!last.jointManagers)
+    }
+
+    @Test fun milkTotalsAndDairyPaid() = runBlocking<Unit> {
+        val d = LocalDate.of(2026, 11, 3)
+        val milk = db.milkDao()
+        milk.insert(com.vraj.khetihisab.data.entity.MilkEntryEntity(date = d, session = "AM", animal = "ગંગા", litres = 6.5, fatPercent = 6.8, ratePaise = 5500, createdAt = 0, updatedAt = 0))
+        milk.insert(com.vraj.khetihisab.data.entity.MilkEntryEntity(date = d, session = "PM", animal = "ગંગા", litres = 5.0, fatPercent = null, ratePaise = 5500, createdAt = 0, updatedAt = 0))
+        val t = milk.totals(d.withDayOfMonth(1), d.withDayOfMonth(30)).first()
+        assertEquals(11.5, t.litres, 0.001)
+        assertEquals(63_250L, t.amountPaise)
+        val milkCat = db.masterDao().allCategories().first().first { it.name == "દૂધ વેચાણ" }.id
+        db.txnDao().insert(TestDb.txn(AccountSection.ANIMAL, TxnType.INCOME, 600, date = d, categoryId = milkCat))
+        db.txnDao().insert(TestDb.txn(AccountSection.PERSONAL, TxnType.INCOME, 900, date = d))
+        assertEquals(60_000L, milk.dairyPaid(d.withDayOfMonth(1), d.withDayOfMonth(30)).first())
+        assertEquals(listOf("ગંગા"), milk.animals().first())
+    }
+}

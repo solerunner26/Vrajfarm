@@ -17,7 +17,34 @@ data class FarmEntity(
     val sortOrder: Int,
     val createdAt: Long,
     val updatedAt: Long,
-)
+    /**
+     * DB v2 (2026-11-05): big farms are run by BOTH ભાગિયા. When true the farm belongs to MANAGER_1
+     * and MANAGER_2 ([managerRole] is then MANAGER_1). Use [managedBy], never compare managerRole alone.
+     */
+    @androidx.room.ColumnInfo(defaultValue = "0") val jointManagers: Boolean = false,
+) {
+    fun managedBy(role: ProfileRole): Boolean = jointManagers && role != ProfileRole.OWNER || managerRole == role
+
+    /** Who runs this farm: empty, one ભાગિયા, or both. */
+    val managers: Set<ProfileRole>
+        get() = when {
+            jointManagers -> setOf(ProfileRole.MANAGER_1, ProfileRole.MANAGER_2)
+            managerRole != null -> setOf(managerRole)
+            else -> emptySet()
+        }
+
+    companion object {
+        /** (managerRole, jointManagers) for a set of managers. */
+        fun encode(managers: Set<ProfileRole>): Pair<ProfileRole?, Boolean> {
+            val m = managers - ProfileRole.OWNER
+            return when {
+                m.size >= 2 -> ProfileRole.MANAGER_1 to true
+                m.size == 1 -> m.first() to false
+                else -> null to false
+            }
+        }
+    }
+}
 
 @Entity(tableName = "family")
 data class FamilyEntity(

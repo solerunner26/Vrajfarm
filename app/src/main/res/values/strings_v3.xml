@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Owner feedback round 3 (2026-11-05). Button / chip labels stay one line. -->
+<resources>
+    <!-- Farms: one or both ભાગિયા -->
+    <string name="v3_both_bhagiya">બંને ભાગિયા</string>
+
+    <!-- Home -->
+    <string name="v3_expense_this_month">આ મહિને ખર્ચ</string>
+    <string name="v3_assets_tile">મિલકત વ્યવસ્થા</string>
+    <string name="v3_assets_lent">%d ઉછીની આપેલ</string>
+    <string name="v3_assets_sub">ઉમેરો, સુધારો, ઉછીની</string>
+
+    <!-- Entry -->
+    <string name="v3_note">નોંધ (લખો અથવા બોલો)</string>
+    <string name="v3_new_type">+ નવો પ્રકાર</string>
+    <string name="v3_new_type_title">નવો પ્રકાર ઉમેરો</string>
+
+    <!-- Assets -->
+    <string name="v3_asset_name">મિલકતનું નામ</string>
+    <string name="v3_loan_nt_title">%1$s પાસે આપણું %2$s છે</string>
+    <string name="v3_loan_nt_body">%1$s ના રોજ %2$d દિવસ માટે લઈ ગયા છે · પરત તારીખ %3$s</string>
+    <string name="v3_loan_returned">પરત આવી ગયું</string>
+    <string name="v3_loan_week">1 અઠવાડિયા પછી</string>
+    <string name="v3_loan_month">1 મહિના પછી</string>
+
+    <!-- Backup reminder -->
+    <string name="v3_bk_due_channel">બેકઅપ યાદ</string>
+    <string name="v3_bk_due_title">આજનો બેકઅપ બાકી છે</string>
+    <string name="v3_bk_due_body">હિસાબ સુરક્ષિત રાખવા હમણાં બેકઅપ લો: Drive, WhatsApp કે ઈમેલ. દબાવો.</string>
+
+    <!-- Gmail one-tap -->
+    <string name="v3_mail_how">એક વાર સેટઅપ: Google ખાતું › સુરક્ષા › 2-Step Verification ચાલુ કરો › App passwords › "Vraj Kheti" નામે બનાવો. જે 16 અક્ષર મળે તે અહીં લખો. પછી એક જ બટનથી ઈમેલ આપોઆપ જશે.</string>
+    <string name="v3_mail_gmail">Gmail સરનામું</string>
+    <string name="v3_mail_app_password">App Password (16 અક્ષર)</string>
+    <string name="v3_mail_save">સેટઅપ સાચવો</string>
+    <string name="v3_mail_err_gmail">સાચું Gmail સરનામું લખો (…@gmail.com)</string>
+    <string name="v3_mail_err_pass">App Password 16 અક્ષરનો હોય છે</string>
+    <string name="v3_mail_ready">તૈયાર: %s પર એક બટનથી બેકઅપ જશે.</string>
+    <string name="v3_mail_send_now">ઈમેલ મોકલો</string>
+    <string name="v3_mail_sent">ઈમેલ મોકલાઈ ગયો.</string>
+    <string name="v3_mail_err_auth">Gmail એ લૉગિન ન સ્વીકાર્યું. App Password ફરી તપાસો.</string>
+    <string name="v3_mail_err_net">ઇન્ટરનેટ નથી. પછી ફરી પ્રયાસ કરો.</string>
+    <string name="v3_mail_err_fail">ઈમેલ ન ગયો. થોડી વાર પછી ફરી પ્રયાસ કરો.</string>
+    <string name="v3_mail_nightly">દરરોજ રાત્રે ઈમેલ</string>
+    <string name="v3_mail_nightly_sub">11:45 એ બેકઅપ આપોઆપ ઈમેલ થશે</string>
+    <string name="v3_mail_change">Gmail બદલો</string>
+    <string name="v3_mail_draft">Gmail એપથી મોકલો</string>
+
+    <!-- Milk register -->
+    <string name="v3_milk_title">દૂધ રજીસ્ટર</string>
+    <string name="v3_milk_sub">સવાર-સાંજ લિટર, ફેટ</string>
+    <string name="v3_milk_litres">લિટર</string>
+    <string name="v3_milk_litres_value">%s લિ.</string>
+    <string name="v3_milk_fat">ફેટ %</string>
+    <string name="v3_milk_fat_value">ફેટ %s%%</string>
+    <string name="v3_milk_rate">ભાવ ₹ / લિટર</string>
+    <string name="v3_milk_animal">પશુનું નામ</string>
+    <string name="v3_milk_am">સવાર</string>
+    <string name="v3_milk_pm">સાંજ</string>
+    <string name="v3_milk_add">દૂધ નોંધો</string>
+    <string name="v3_milk_amount_line">રકમ: %s</string>
+    <string name="v3_milk_should">ડેરીએ આપવાના</string>
+    <string name="v3_milk_paid">ડેરીએ આપ્યા</string>
+    <string name="v3_milk_diff">ફરક</string>
+    <string name="v3_milk_diff_none">આ મહિને દૂધ નોંધાયું નથી.</string>
+    <string name="v3_milk_diff_less">ડેરીએ ઓછા પૈસા આપ્યા છે. ડેરીની પાવતી તપાસો.</string>
+    <string name="v3_milk_diff_more">ડેરીએ ગણતરી કરતાં વધુ આપ્યા છે.</string>
+    <string name="v3_milk_diff_equal">ડેરીનો હિસાબ બરાબર છે.</string>
+    <string name="v3_milk_record_payment">ડેરી ચુકવણી નોંધો</string>
+    <string name="v3_milk_entries">આ મહિનાની નોંધ</string>
+    <string name="v3_milk_empty">હજી કોઈ નોંધ નથી. "દૂધ નોંધો" દબાવો.</string>
+</resources>

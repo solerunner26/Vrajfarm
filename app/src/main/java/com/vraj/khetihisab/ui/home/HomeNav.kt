@@ -64,6 +64,13 @@ fun NavGraphBuilder.homeGraph(
         )
     }
 
+    composable(HomeRoutes.MILK) {
+        com.vraj.khetihisab.ui.milk.MilkRoute(
+            onBack = back,
+            onDairyPayment = { open(HomeRoutes.entry(HomeRoutes.KIND_INCOME, AccountSection.ANIMAL)) },
+        )
+    }
+
     composable(HomeRoutes.FAMILY) {
         FamilyRoute(
             onBack = back,

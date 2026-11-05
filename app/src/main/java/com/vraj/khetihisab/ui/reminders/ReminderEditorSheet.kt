@@ -1,5 +1,6 @@
 package com.vraj.khetihisab.ui.reminders
 
+import com.vraj.khetihisab.ui.components.gujarati
 import android.app.Activity
 import android.content.Intent
 import android.speech.RecognizerIntent
@@ -255,7 +256,7 @@ private fun RemTextField(
         minLines = 1,
         maxLines = if (singleLine) 1 else 4,
         isError = isError,
-        keyboardOptions = KeyboardOptions(imeAction = if (singleLine) ImeAction.Next else ImeAction.Default),
+        keyboardOptions = KeyboardOptions(imeAction = if (singleLine) ImeAction.Next else ImeAction.Default).gujarati(),
         supportingText = supporting?.let { { Text(it, maxLines = 1, overflow = TextOverflow.Ellipsis) } },
         shape = RoundedCornerShape(16.dp),
         textStyle = MaterialTheme.typography.bodyLarge,

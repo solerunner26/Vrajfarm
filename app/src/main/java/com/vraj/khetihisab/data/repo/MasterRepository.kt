@@ -46,6 +46,12 @@ class MasterRepository(
         listener.onDataChanged()
     }
 
+    suspend fun updateFarmManagers(farmId: Long, managers: Set<ProfileRole>) {
+        val (r, joint) = FarmEntity.encode(managers)
+        dao.updateFarmManagers(farmId, r, joint, clock())
+        listener.onDataChanged()
+    }
+
     suspend fun setManagerFarms(role: ProfileRole, farmIds: Set<Long>) {
         dao.setManagerFarms(role, farmIds, clock())
         listener.onDataChanged()

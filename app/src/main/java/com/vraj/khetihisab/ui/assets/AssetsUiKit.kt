@@ -1,5 +1,6 @@
 package com.vraj.khetihisab.ui.assets
 
+import com.vraj.khetihisab.ui.components.gujarati
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -91,7 +92,7 @@ internal fun AsTextField(
         label = { Text(label, maxLines = 1, overflow = TextOverflow.Ellipsis) },
         singleLine = true,
         isError = isError,
-        keyboardOptions = keyboard,
+        keyboardOptions = keyboard.gujarati(),
         leadingIcon = leading,
         supportingText = supporting?.let { { Text(it, maxLines = 1, overflow = TextOverflow.Ellipsis) } },
         shape = RoundedCornerShape(16.dp),
@@ -115,6 +116,7 @@ internal fun AsSearchField(value: String, onValueChange: (String) -> Unit, place
         placeholder = { Text(placeholder, maxLines = 1, overflow = TextOverflow.Ellipsis) },
         leadingIcon = { Icon(Icons.Rounded.Search, contentDescription = null) },
         singleLine = true,
+        keyboardOptions = com.vraj.khetihisab.ui.components.VkGujaratiKeyboard,
         shape = RoundedCornerShape(28.dp),
         textStyle = MaterialTheme.typography.bodyLarge,
         colors = OutlinedTextFieldDefaults.colors(

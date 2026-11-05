@@ -5,6 +5,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.semantics.Role
@@ -51,6 +52,7 @@ import com.vraj.khetihisab.data.model.LoanWithAsset
 import com.vraj.khetihisab.data.model.Totals
 import com.vraj.khetihisab.panchang.SpecialDay
 import com.vraj.khetihisab.ui.components.VkEyeToggle
+import com.vraj.khetihisab.ui.components.VK_MASK
 import com.vraj.khetihisab.ui.components.VkHeroTile
 import com.vraj.khetihisab.ui.components.VkMaskedRupees
 import com.vraj.khetihisab.ui.components.VkSubTile
@@ -131,7 +133,7 @@ fun HomeScreen(
             if (state.hasAlerts) {
                 item(key = "attention") { VkSectionTitle(stringResource(R.string.scr_home_attention), pad) }
                 if (state.showUdhaar) {
-                    item(key = "udhaar") { UdhaarCard(state, { sheet = HomeSheet.UDHAAR }, pad) }
+                    item(key = "udhaar") { UdhaarCard(state, shown, { sheet = HomeSheet.UDHAAR }, pad) }
                 }
                 state.overdue.forEach { card ->
                     item(key = "loan_${card.loan.loan.id}") { OverdueLoanCard(card, onLoanWhatsApp, { onOpen(HomeRoutes.ASSETS) }, pad) }
@@ -158,7 +160,7 @@ fun HomeScreen(
                     modifier = pad,
                 )
             }
-            item(key = "grid") { SectionTiles(state, onOpen, pad) }
+            item(key = "grid") { SectionTiles(state, shown, onOpen, pad) }
 
             item(key = "recent_title") {
                 VkSectionTitle(
@@ -168,7 +170,7 @@ fun HomeScreen(
                     onAction = { onOpen(HomeRoutes.FARMS) },
                 )
             }
-            item(key = "recent") { RecentCard(state.recent, { billPath = it }, { actionsFor = it }, pad) }
+            item(key = "recent") { RecentCard(state.recent, shown, { billPath = it }, { actionsFor = it }, pad) }
         }
 
         VkBottomDock(
@@ -180,7 +182,7 @@ fun HomeScreen(
     when (sheet) {
         HomeSheet.UDHAAR -> PendingUdhaarSheet(state.pending, onSettle, { billPath = it }, { sheet = HomeSheet.NONE })
         HomeSheet.BUSINESS -> BusinessBreakdownSheet(state.business, { sheet = HomeSheet.NONE })
-        HomeSheet.ANIMAL -> AnimalSheet(state.today, state.animal, state.animalCategories, { sheet = HomeSheet.NONE })
+        HomeSheet.ANIMAL -> AnimalSheet(state.today, state.animal, state.animalCategories, { sheet = HomeSheet.NONE }, onMilk = { onOpen(HomeRoutes.MILK) })
         HomeSheet.NONE -> Unit
     }
     billPath?.let { BillViewer(it) { billPath = null } }
@@ -200,7 +202,8 @@ private fun HomeHeader(state: HomeUiState, onOpen: (String) -> Unit) {
         actions = {
             PersonAvatar(
                 photoPath = state.ownerPhoto,
-                initial = ScreensFormat.initialOf(state.ownerName),
+                // No letter: the owner's photo, or the 3D profile icon (owner request 2026-11-05).
+                initial = "",
                 size = 44.dp,
                 onClick = { onOpen(HomeRoutes.PROFILES) },
                 contentDescription = stringResource(R.string.scr_cd_profile),
@@ -209,12 +212,19 @@ private fun HomeHeader(state: HomeUiState, onOpen: (String) -> Unit) {
         },
     ) {
         val day = state.panchang
+        // Tap today's date → Panchang calendar (owner request 2026-11-05).
         Text(
             if (day != null) stringResource(R.string.hm_date_weekday, ScreensFormat.longDate(state.today), day.weekdayGu) else ScreensFormat.longDate(state.today),
             color = x.onGradient,
             style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold, fontSize = 18.sp),
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
+            modifier = Modifier
+                .heightIn(min = 48.dp)
+                .clip(RoundedCornerShape(12.dp))
+                .clickable(role = Role.Button) { onOpen(HomeRoutes.PANCHANG) }
+                .testTag("home_date")
+                .wrapContentHeight(),
         )
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             if (day != null) {
@@ -244,6 +254,7 @@ private fun BackupPill(status: BackupUiStatus, onOpenSettings: () -> Unit) {
         },
     )
     val cs = MaterialTheme.colorScheme
+    // Not taken today (or failed) → red pill with a flag, so it cannot be missed (owner 2026-11-05).
     Box(
         Modifier
             .heightIn(min = 48.dp)
@@ -252,7 +263,15 @@ private fun BackupPill(status: BackupUiStatus, onOpenSettings: () -> Unit) {
             .testTag("home_backup"),
         contentAlignment = Alignment.Center,
     ) {
-        if (status == BackupUiStatus.FAILED) VkBadge(label, cs.errorContainer, cs.onErrorContainer) else VkHeaderChip(label)
+        if (status == BackupUiStatus.OK) {
+            VkHeaderChip(label)
+        } else {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                com.vraj.khetihisab.ui.components.VkAlertFlag(size = 22.dp)
+                Spacer(Modifier.width(6.dp))
+                VkBadge(label, cs.error, cs.onError)
+            }
+        }
     }
 }
 
@@ -303,7 +322,7 @@ private fun UpcomingCard(today: LocalDate, upcoming: List<SpecialDay>, onClick: 
 // ---------------------------------------------------------------- alerts
 
 @Composable
-private fun UdhaarCard(state: HomeUiState, onSettle: () -> Unit, modifier: Modifier) {
+private fun UdhaarCard(state: HomeUiState, shown: Boolean, onSettle: () -> Unit, modifier: Modifier) {
     val cs = MaterialTheme.colorScheme
     VkCard(modifier.fillMaxWidth().testTag("home_udhaar"), tone = VkTone.Error, onClick = onSettle) {
         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -320,8 +339,8 @@ private fun UdhaarCard(state: HomeUiState, onSettle: () -> Unit, modifier: Modif
             VkBadge(stringResource(R.string.scr_udhaar_count, state.udhaar.count), cs.error, cs.onError)
         }
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            StatTile(stringResource(R.string.scr_udhaar_payable), ScreensFormat.signedRupees(state.udhaar.payable), Modifier.weight(1f), cs.onErrorContainer, big = true)
-            StatTile(stringResource(R.string.scr_udhaar_receivable), ScreensFormat.signedRupees(state.udhaar.receivable), Modifier.weight(1f), cs.onErrorContainer, big = true)
+            StatTile(stringResource(R.string.scr_udhaar_payable), if (shown) ScreensFormat.signedRupees(state.udhaar.payable) else VK_MASK, Modifier.weight(1f), cs.onErrorContainer, big = true)
+            StatTile(stringResource(R.string.scr_udhaar_receivable), if (shown) ScreensFormat.signedRupees(state.udhaar.receivable) else VK_MASK, Modifier.weight(1f), cs.onErrorContainer, big = true)
         }
         VkTonalButton(stringResource(R.string.scr_udhaar_settle), onSettle, Modifier.fillMaxWidth())
     }
@@ -475,28 +494,35 @@ private fun HisabHero(
 
 /** [ભાગિયા ઉપાડ] [અંગત / ઘર] / [સામાન્ય ખર્ચ] [ખરીદી, મિલકત] — the same tile as Settings. */
 @Composable
-private fun SectionTiles(state: HomeUiState, onOpen: (String) -> Unit, modifier: Modifier) {
+private fun SectionTiles(state: HomeUiState, shown: Boolean, onOpen: (String) -> Unit, modifier: Modifier) {
+    @Composable
+    fun money(label: String, paise: Long): @Composable () -> Unit = {
+        Column {
+            Text(label, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            VkMaskedRupees(paise, revealed = shown, style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.ExtraBold, fontSize = 26.sp))
+        }
+    }
     Column(modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         VkTileRow {
             VkTile(
                 VkIcon.FAMILY, stringResource(R.string.scr_sec_family), { onOpen(HomeRoutes.FAMILY) },
                 Modifier.weight(1f).fillMaxHeight(),
-                subtitle = stringResource(R.string.scr_this_month_amt, ScreensFormat.signedRupees(state.familyMonth)),
                 ornament = VkTileOrnament.FIELD, index = 1, testTag = "home_tile_family",
+                value = money(stringResource(R.string.v2_this_month), state.familyMonth),
             )
             VkTile(
                 VkIcon.PERSONAL, stringResource(R.string.scr_sec_personal), { onOpen(HomeRoutes.PERSONAL) },
                 Modifier.weight(1f).fillMaxHeight(),
-                subtitle = stringResource(R.string.scr_expense_amt, ScreensFormat.signedRupees(state.personalExpenseMonth)),
                 ornament = VkTileOrnament.RANGOLI, index = 2, testTag = "home_tile_personal",
+                value = money(stringResource(R.string.v3_expense_this_month), state.personalExpenseMonth),
             )
         }
         VkTileRow {
             VkTile(
                 VkIcon.UTILITY, stringResource(R.string.scr_sec_general), { onOpen(HomeRoutes.GENERAL) },
                 Modifier.weight(1f).fillMaxHeight(),
-                subtitle = stringResource(R.string.scr_this_month_amt, ScreensFormat.signedRupees(state.generalMonth)),
                 ornament = VkTileOrnament.SUN, index = 3, testTag = "home_tile_general",
+                value = money(stringResource(R.string.v2_this_month), state.generalMonth),
             )
             VkTile(
                 VkIcon.SHOPPING, stringResource(R.string.scr_sec_shop), { onOpen(HomeRoutes.SHOPPING) },
@@ -505,11 +531,25 @@ private fun SectionTiles(state: HomeUiState, onOpen: (String) -> Unit, modifier:
                 ornament = VkTileOrnament.LEAF, index = 4, testTag = "home_tile_shop",
             )
         }
+        VkTileRow {
+            VkTile(
+                VkIcon.ASSET, stringResource(R.string.v3_assets_tile), { onOpen(HomeRoutes.ASSETS) },
+                Modifier.weight(1f).fillMaxHeight(),
+                subtitle = stringResource(R.string.v3_assets_lent, state.assetsLent),
+                ornament = VkTileOrnament.WAVE, index = 5, testTag = "home_tile_assets",
+            )
+            VkTile(
+                VkIcon.ANIMAL, stringResource(R.string.v3_milk_title), { onOpen(HomeRoutes.MILK) },
+                Modifier.weight(1f).fillMaxHeight(),
+                subtitle = stringResource(R.string.v3_milk_sub),
+                ornament = VkTileOrnament.MOON, index = 6, testTag = "home_tile_milk",
+            )
+        }
     }
 }
 
 @Composable
-private fun RecentCard(rows: List<LedgerRowUi>, onViewBill: (String) -> Unit, onRow: (LedgerRowUi) -> Unit, modifier: Modifier) {
+private fun RecentCard(rows: List<LedgerRowUi>, shown: Boolean, onViewBill: (String) -> Unit, onRow: (LedgerRowUi) -> Unit, modifier: Modifier) {
     VkCard(modifier.fillMaxWidth(), contentPadding = 0.dp) {
         if (rows.isEmpty()) {
             Text(
@@ -531,6 +571,7 @@ private fun RecentCard(rows: List<LedgerRowUi>, onViewBill: (String) -> Unit, on
                 onViewBill = onViewBill,
                 pendingBadge = r.pending,
                 onClick = { onRow(r) },
+                masked = !shown,
             )
         }
     }

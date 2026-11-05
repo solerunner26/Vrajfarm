@@ -17,7 +17,7 @@ Offline-first Gujarati farm and personal accounting app for Android, built for t
 - SecurityCrypto, Biometric, OkHttp, Coil
 - minSdk 29, targetSdk 35. Package: `com.vraj.khetihisab`.
 
-There is no Firebase or Supabase. All data lives in local Room. Backup is one JSON file (all 13 tables + photos) sent to Google Drive (automatic nightly, via the system file picker), WhatsApp or e-mail, and restored from any of them (`backup/JsonBackup.kt`). The GoDaddy upload was removed on 2026-11-04. The database has **13 entities** (see handover/03).
+There is no Firebase or Supabase. All data lives in local Room. Backup is one JSON file (all 13 tables + photos) sent to Google Drive (automatic nightly, via the system file picker), WhatsApp or e-mail, and restored from any of them (`backup/JsonBackup.kt`). The GoDaddy upload was removed on 2026-11-04. The database has **14 entities, schema v2** (handover/03 + `milk_entry`, `farm.jointManagers`; see `AppDatabase.MIGRATION_1_2`).
 - The app updates itself from GitHub Releases (`update/AppUpdater.kt`). Release with `tools/release.ps1`; versionCode is the git commit count. The release key lives in `%USERPROFILE%\.vrajkheti\` and is never committed.
 
 ## Non-negotiable rules

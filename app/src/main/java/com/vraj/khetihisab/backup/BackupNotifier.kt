@@ -35,6 +35,46 @@ class BackupNotifier(context: Context) {
     /** Nightly, when no Drive file is chosen: the backup is ready — tap to send (opens the Backup screen). */
     fun notifyReadyToSend() = post(ID_RESULT, ctx.getString(R.string.v2_bk_notif_ready_title), ctx.getString(R.string.v2_bk_notif_ready_body))
 
+    /** 21:30: no backup today — a normal-priority, visible reminder that opens the Backup screen. */
+    fun notifyBackupDue() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+            ContextCompat.checkSelfPermission(ctx, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED
+        ) return
+        ensureChannel()
+        ensureReminderChannel()
+        val nm = NotificationManagerCompat.from(ctx)
+        if (!nm.areNotificationsEnabled()) return
+        val n = NotificationCompat.Builder(ctx, REMIND_CHANNEL_ID)
+            .setSmallIcon(R.drawable.ic_vk_backup)
+            .setContentTitle(ctx.getString(R.string.v3_bk_due_title))
+            .setContentText(ctx.getString(R.string.v3_bk_due_body))
+            .setStyle(NotificationCompat.BigTextStyle().bigText(ctx.getString(R.string.v3_bk_due_body)))
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setCategory(NotificationCompat.CATEGORY_REMINDER)
+            .setAutoCancel(true)
+            .setContentIntent(
+                PendingIntent.getActivity(
+                    ctx, 2,
+                    android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse(BACKUP_DEEP_LINK)).setPackage(ctx.packageName),
+                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+                ),
+            )
+            .build()
+        try {
+            nm.notify(ID_DUE, n)
+        } catch (_: SecurityException) {
+        }
+    }
+
+    private fun ensureReminderChannel() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return
+        val nm = ctx.getSystemService(NotificationManager::class.java) ?: return
+        if (nm.getNotificationChannel(REMIND_CHANNEL_ID) != null) return
+        nm.createNotificationChannel(
+            NotificationChannel(REMIND_CHANNEL_ID, ctx.getString(R.string.v3_bk_due_channel), NotificationManager.IMPORTANCE_HIGH),
+        )
+    }
+
     fun notifyFailed(failure: BackupFailure) =
         post(ID_RESULT, ctx.getString(R.string.bk_notif_failed_title), ctx.getString(failure.messageRes))
 
@@ -84,6 +124,8 @@ class BackupNotifier(context: Context) {
         const val CHANNEL_ID = "backup"
         const val ID_RESULT = 4501
         const val ID_PROGRESS = 4502
+        const val ID_DUE = 4503
+        const val REMIND_CHANNEL_ID = "backup_reminder"
         const val BACKUP_DEEP_LINK = "vraj://backup"
     }
 }

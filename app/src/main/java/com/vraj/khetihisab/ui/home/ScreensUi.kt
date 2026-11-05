@@ -109,14 +109,19 @@ fun PersonAvatar(
                 .clickable(role = Role.Button, onClick = onClick),
             contentAlignment = Alignment.Center,
         ) {
-            Text(
-                initial,
-                color = cs.onPrimaryContainer,
-                style = MaterialTheme.typography.headlineSmall.copy(fontSize = (size.value * 0.38f).sp),
-                maxLines = 1,
-                softWrap = false,
-                textAlign = TextAlign.Center,
-            )
+            if (initial.isBlank()) {
+                // No photo and no letter: the 3D embossed profile icon (owner request 2026-11-05).
+                com.vraj.khetihisab.ui.theme.VkIconImage(com.vraj.khetihisab.ui.theme.VkIcon.PROFILE, size = size * 0.72f)
+            } else {
+                Text(
+                    initial,
+                    color = cs.onPrimaryContainer,
+                    style = MaterialTheme.typography.headlineSmall.copy(fontSize = (size.value * 0.38f).sp),
+                    maxLines = 1,
+                    softWrap = false,
+                    textAlign = TextAlign.Center,
+                )
+            }
         }
     }
 }
@@ -152,6 +157,8 @@ fun TxnListRow(
     onLongClick: (() -> Unit)? = null,
     /** Tap → સુધારો / કાઢી નાખો sheet ([EntryActionsSheet]). */
     onClick: (() -> Unit)? = null,
+    /** Home privacy: amount shown as XXXXX.XX until the eye is tapped. */
+    masked: Boolean = false,
 ) {
     Column(
         modifier
@@ -170,7 +177,17 @@ fun TxnListRow(
             leadingIcon = icon,
             trailing = {
                 Column(horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                    VkAmount(amountPaise, kind)
+                    if (masked) {
+                        Text(
+                            com.vraj.khetihisab.ui.components.VK_MASK,
+                            style = MaterialTheme.typography.titleMedium.copy(fontWeight = androidx.compose.ui.text.font.FontWeight.ExtraBold),
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            maxLines = 1,
+                            softWrap = false,
+                        )
+                    } else {
+                        VkAmount(amountPaise, kind)
+                    }
                     if (pendingBadge) {
                         val cs = MaterialTheme.colorScheme
                         VkBadge(stringResource(R.string.scr_pending_badge), cs.errorContainer, cs.onErrorContainer)

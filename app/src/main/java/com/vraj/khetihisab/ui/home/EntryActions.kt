@@ -33,6 +33,8 @@ fun EntryActionsSheet(
     onEdit: () -> Unit,
     onDismiss: () -> Unit,
     onDeleted: () -> Unit = {},
+    /** ભાગિયા ઉપાડ rows: send this one advance on WhatsApp (pre-filled, never auto-sent). */
+    onWhatsApp: (() -> Unit)? = null,
 ) {
     val deps = rememberScreensDeps()
     var confirm by remember { mutableStateOf(false) }
@@ -46,6 +48,9 @@ fun EntryActionsSheet(
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
+            if (onWhatsApp != null) {
+                VkPrimaryButton(stringResource(R.string.scr_wa_send_receipt), { onDismiss(); onWhatsApp() }, Modifier.fillMaxWidth())
+            }
             VkTonalButton(stringResource(R.string.v2_edit), { onDismiss(); onEdit() }, Modifier.fillMaxWidth())
             VkOutlinedButton(stringResource(R.string.scr_delete), { confirm = true }, Modifier.fillMaxWidth())
             VkTextButton(stringResource(R.string.scr_cancel), onDismiss, Modifier.fillMaxWidth())

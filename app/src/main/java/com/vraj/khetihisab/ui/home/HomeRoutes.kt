@@ -49,6 +49,9 @@ object HomeRoutes {
     /** સામાન્ય ખર્ચ screen (same one-section screen as Personal). */
     const val GENERAL = "general"
 
+    /** દૂધ રજીસ્ટર (milk register, DB v2). */
+    const val MILK = "milk"
+
     const val KIND_EXPENSE = "expense"
     const val KIND_INCOME = "income"
 }

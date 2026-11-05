@@ -54,7 +54,7 @@ class RepoFamilySource(private val repos: DataRepositories, private val template
     override suspend fun delete(id: Long) = repos.ledger.softDelete(id)
 }
 
-data class FamilyRowUi(val id: Long, val title: String, val meta: String, val amountPaise: Long)
+data class FamilyRowUi(val id: Long, val title: String, val meta: String, val amountPaise: Long, val date: LocalDate? = null)
 
 data class FamilyUiState(
     val code: String = FamilyLogic.CODE_A,
@@ -67,6 +67,8 @@ data class FamilyUiState(
     val receipt: String = "",
     /** Tab labels: family code → ભાગિયા name (mirrored from the profile). */
     val names: Map<String, String> = emptyMap(),
+    /** Per-advance WhatsApp text (row id → message with that row's date and amount). */
+    val rowReceipts: Map<Long, String> = emptyMap(),
 ) {
     val phone: String? get() = family?.whatsappPhone?.takeIf { it.isNotBlank() }
     val displayName: String get() = family?.displayName.orEmpty()
@@ -114,6 +116,7 @@ object FamilyLogic {
             title = noteOf(it, categories) ?: fallback,
             meta = if (it.tithiLabel.isBlank()) ScreensFormat.dmy(it.date) else "${ScreensFormat.dmy(it.date)} · ${it.tithiLabel}",
             amountPaise = it.amountPaise,
+            date = it.date,
         )
     }
 
@@ -161,6 +164,9 @@ class FamilyViewModel(
                         rows = FamilyLogic.rows(entries, cats, fallbackTitle),
                         receipt = FamilyLogic.receipt(fam, sel.month, m, y, entries, cats, owner, source.template()),
                         names = names,
+                        rowReceipts = entries.associate { e ->
+                            e.id to FamilyLogic.receipt(fam, sel.month, m, y, listOf(e), cats, owner, source.template())
+                        },
                     )
                 }
             }

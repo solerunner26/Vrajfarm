@@ -81,6 +81,9 @@ object ReportLabels {
     const val FOOTER_OWNER = "ગિરવાનસિંહ વાળા · થોરાળા"
     const val GENERATED = "તૈયાર: %s"
     const val PAGE = "પાનું %d / %d"
+    /** Letterhead (2026-11-05). */
+    const val LH_DATE = "તારીખ: %s"
+    const val LH_PHONE = "મો. %s"
     const val NO_ENTRIES = "કોઈ નોંધ નથી"
     const val TOTAL = "કુલ"
     const val GRAND_TOTAL = "કુલ સરવાળો"

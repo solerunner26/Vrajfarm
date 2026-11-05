@@ -30,7 +30,8 @@ abstract class MasterDao {
     @Query("SELECT * FROM farm WHERE id=:id")
     abstract suspend fun farmById(id: Long): FarmEntity?
 
-    @Query("SELECT * FROM farm WHERE managerRole=:role ORDER BY sortOrder")
+    /** A ભાગિયા's farms, including farms run jointly by both (DB v2). */
+    @Query("SELECT * FROM farm WHERE managerRole=:role OR (jointManagers=1 AND :role!='OWNER') ORDER BY sortOrder")
     abstract fun farmsForManager(role: ProfileRole): Flow<List<FarmEntity>>
 
     @Insert abstract suspend fun insertFarm(f: FarmEntity): Long
@@ -47,17 +48,23 @@ abstract class MasterDao {
     abstract suspend fun renameFarm(farmId: Long, name: String, now: Long)
 
     /** One column per farm, so assignment is exclusive between the two managers by construction. */
-    @Query("UPDATE farm SET managerRole=:role, updatedAt=:now WHERE id=:farmId")
+    @Query("UPDATE farm SET managerRole=:role, jointManagers=0, updatedAt=:now WHERE id=:farmId")
     abstract suspend fun updateFarmManager(farmId: Long, role: ProfileRole?, now: Long)
+
+    @Query("UPDATE farm SET managerRole=:role, jointManagers=:joint, updatedAt=:now WHERE id=:farmId")
+    abstract suspend fun updateFarmManagers(farmId: Long, role: ProfileRole?, joint: Boolean, now: Long)
 
     /** Replace a manager's whole assignment in one go (profile edit dialog). */
     @Transaction
     open suspend fun setManagerFarms(role: ProfileRole, farmIds: Set<Long>, now: Long) {
+        // Not exclusive any more (2026-11-05): ticking a farm for ભાગિયા 2 that ભાગિયા 1 already runs
+        // makes it a joint farm; unticking removes only this ભાગિયા.
         farmsNow().forEach { f ->
-            val shouldOwn = f.id in farmIds
-            when {
-                shouldOwn && f.managerRole != role -> updateFarmManager(f.id, role, now)
-                !shouldOwn && f.managerRole == role -> updateFarmManager(f.id, null, now)
+            val now0 = f.managers
+            val next = if (f.id in farmIds) now0 + role else now0 - role
+            if (next != now0) {
+                val (r, joint) = FarmEntity.encode(next)
+                updateFarmManagers(f.id, r, joint, now)
             }
         }
     }

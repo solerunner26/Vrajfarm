@@ -124,6 +124,8 @@ fun VkTile(
     index: Int = 0,
     testTag: String? = null,
     value: (@Composable () -> Unit)? = null,
+    /** Red flag (M3 error) — e.g. backup not taken today. */
+    alert: Boolean = false,
 ) {
     val cs = MaterialTheme.colorScheme
     val x = LocalVkExtra.current
@@ -142,7 +144,10 @@ fun VkTile(
     ) {
         TileOrnament(ornament, x.ornament, cs.primaryContainer, Modifier.matchParentSize())
         Column(Modifier.fillMaxWidth().padding(14.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            IconDisc(icon)
+            Box {
+                IconDisc(icon)
+                if (alert) VkAlertFlag(Modifier.align(Alignment.TopEnd))
+            }
             Text(
                 title,
                 style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
@@ -154,8 +159,8 @@ fun VkTile(
             if (subtitle != null) {
                 Text(
                     subtitle,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = cs.onSurfaceVariant,
+                    style = MaterialTheme.typography.bodyMedium.copy(fontWeight = if (alert) FontWeight.Bold else FontWeight.Normal),
+                    color = if (alert) cs.error else cs.onSurfaceVariant,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                 )
@@ -435,3 +440,18 @@ fun VkEyeToggle(revealed: Boolean, onToggle: () -> Unit, showLabel: String, hide
     }
 }
 
+
+/** Small red "!" flag with a pulsing ring (error role only — red never means anything else). */
+@Composable
+fun VkAlertFlag(modifier: Modifier = Modifier, size: Dp = 20.dp) {
+    val cs = MaterialTheme.colorScheme
+    val t = rememberInfiniteTransition(label = "flag")
+    val pulse by t.animateFloat(0f, 1f, infiniteRepeatable(tween(1200, easing = LinearEasing), RepeatMode.Restart), label = "pulse")
+    Box(modifier.size(size).testTag("alert_flag"), contentAlignment = Alignment.Center) {
+        Canvas(Modifier.matchParentSize()) {
+            drawCircle(cs.error.copy(alpha = 0.35f * (1f - pulse)), radius = this.size.minDimension / 2f * (1f + 0.5f * pulse))
+            drawCircle(cs.error, radius = this.size.minDimension / 2f)
+        }
+        Text("!", color = cs.onError, style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.ExtraBold), maxLines = 1)
+    }
+}

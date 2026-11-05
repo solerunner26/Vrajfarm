@@ -71,6 +71,9 @@ internal val HelpFaqs = listOf(
     Faq(VkIcon.BACKUP, R.string.st_faq_q6, R.string.st_faq_a6),
     Faq(VkIcon.LOCK, R.string.st_faq_q7, R.string.st_faq_a7),
     Faq(VkIcon.SETTINGS, R.string.st_faq_q10, R.string.st_faq_a10),
+    Faq(VkIcon.MESSAGE, R.string.st_faq_q12, R.string.st_faq_a12),
+    Faq(VkIcon.BACKUP, R.string.st_faq_q13, R.string.st_faq_a13),
+    Faq(VkIcon.ANIMAL, R.string.st_faq_q14, R.string.st_faq_a14),
 )
 
 @Composable

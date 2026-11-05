@@ -86,6 +86,10 @@ sealed interface EntryEvent {
     data class SetSection(val section: AccountSection) : EntryEvent
     data class PickFarm(val farmId: Long) : EntryEvent
     data class PickFamily(val familyId: Long) : EntryEvent
+    /** Typed નોંધ (kept as typed; trimmed only when saved). */
+    data class SetNoteText(val text: String) : EntryEvent
+    /** Fill the whole form from speech ("ખાતર બે હજાર ખેતર ત્રણ ઉધાર રમેશભાઈ"). */
+    data class ApplyVoice(val parsed: VoiceEntry) : EntryEvent
     data class PickCategory(val categoryId: Long, val isCropSale: Boolean) : EntryEvent
     data class Key(val ch: Char) : EntryEvent
     data object Backspace : EntryEvent
@@ -122,6 +126,8 @@ object EntryReducer {
         is EntryEvent.SetPending -> s.copy(pending = e.pending, counterparty = if (e.pending) s.counterparty else "")
         is EntryEvent.SetCounterparty -> s.copy(counterparty = e.text.take(60))
         is EntryEvent.SetVoiceNote -> s.copy(voiceNote = e.text?.trim()?.ifEmpty { null })
+        is EntryEvent.SetNoteText -> s.copy(voiceNote = e.text.take(200).ifEmpty { null })
+        is EntryEvent.ApplyVoice -> VoiceEntryParser.apply(s, e.parsed)
         is EntryEvent.SetBill -> s.copy(billPath = e.path)
         is EntryEvent.SetDate -> s.copy(date = e.date)
         is EntryEvent.UseAmount -> if (s.apmcMode) s else s.copy(amountText = e.rupees.coerceIn(0, 9_999_999).toString())
