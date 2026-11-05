@@ -7,6 +7,10 @@ A static, responsive, multilingual product showcase for presenting the Android a
 - English, Gujarati and Hindi translations for the landing page, feature cards, screen selector and all screen previews.
 - 33 interactive screen previews: PIN setup and lock; dashboard; entry; farm list/detail; manager advances; personal and general accounts; milk register; Panchang alert, calendar, alert settings and guidance; shopping; asset register and lending; reminders and widgets; profiles; settings, themes, security, master data and sub-settings; WhatsApp templates; reports; backup/restore; help; and update notice.
 - Responsive mobile layout, animated presentation, keyboard navigation through the tour, and sample-only preview actions.
+- A single 30-second, playable launch story on the home page: timed screen scenes, captions in all three languages, pause/resume, previous/next and replay. It is an interactive HTML ad, not a video or audio recording.
+- Six guided workflows—entry, farm-season review, asset lending, PDF reporting, milk/payment comparison and app security—with step-by-step instructions and links to the matching screens.
+- A feature-set picker to prepare a local discussion list. It does not submit or store a request on a server.
+- Customization, security safeguards and shareable built-in PDF reports are highlighted. Security claims are limited to the controls documented in the Android source; no absolute-security or certification claim is made. The current app has seven built-in PDF report types; other requested reports/features require an agreed custom scope.
 - Locally bundled fonts and favicon. No build step, server-side code, API, database, analytics, or external runtime dependency is required.
 
 ## GoDaddy cPanel launch
