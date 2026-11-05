@@ -41,6 +41,7 @@ import com.vraj.khetihisab.backup.RestoreInbox
 import com.vraj.khetihisab.data.AppDatabase
 import com.vraj.khetihisab.ui.components.VkBadge
 import com.vraj.khetihisab.ui.components.VkCard
+import androidx.compose.foundation.layout.Box
 import com.vraj.khetihisab.ui.components.VkOutlinedButton
 import com.vraj.khetihisab.ui.components.VkPrimaryButton
 import com.vraj.khetihisab.ui.components.VkSectionTitle
@@ -94,7 +95,18 @@ fun BackupSettingsRoute(onBack: () -> Unit) {
     val msgMailNet = stringResource(R.string.v3_mail_err_net)
     val msgMailFail = stringResource(R.string.v3_mail_err_fail)
     var busy by remember { mutableStateOf(false) }
-    var message by remember { mutableStateOf<String?>(null) }
+    // Results (audit #20): success → snackbar with the tick; failure → an error card that stays.
+    val snackbar = com.vraj.khetihisab.ui.components.rememberVkSnackbar()
+    var errorMessage by remember { mutableStateOf<String?>(null) }
+    val okMessages = remember { mutableSetOf<String>() }
+    fun report(value: String) {
+        if (value in okMessages) {
+            errorMessage = null
+            snackbar.show(value, success = true)
+        } else {
+            errorMessage = value
+        }
+    }
     var restoreUri by remember { mutableStateOf<Uri?>(null) }
     var restoreInfo by remember { mutableStateOf<JsonBackup.Summary?>(null) }
     var restoreBad by remember { mutableStateOf(false) }
@@ -103,6 +115,9 @@ fun BackupSettingsRoute(onBack: () -> Unit) {
     val msgDriveFail = stringResource(R.string.v2_bk_err_drive)
     val msgFail = stringResource(R.string.bk_err_local)
     val msgNoApp = stringResource(R.string.v2_bk_no_app)
+    val msgRestored = stringResource(R.string.v2_bk_restored)
+    okMessages += listOf(msgDriveOk, msgMailSent, msgRestored)
+    val providerNames = Triple(stringResource(R.string.v5_provider_drive), stringResource(R.string.v5_provider_phone), stringResource(R.string.v5_provider_other))
 
     // A file opened with "Open with" from WhatsApp / Gmail.
     val inbox by RestoreInbox.uri.collectAsStateWithLifecycle()
@@ -123,7 +138,7 @@ fun BackupSettingsRoute(onBack: () -> Unit) {
         busy = true
         scope.launch {
             val f = runCatching { withContext(Dispatchers.IO) { deps.makeBackupFile() } }.getOrNull()
-            if (f == null) message = msgFail else then(f)
+            if (f == null) report(msgFail) else then(f)
             busy = false
         }
     }
@@ -134,14 +149,14 @@ fun BackupSettingsRoute(onBack: () -> Unit) {
             ctx.contentResolver.takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
         }
         deps.prefs.driveUri = uri
-        deps.prefs.driveLabel = uri.authority?.let(::providerLabel)
+        deps.prefs.driveLabel = uri.authority?.let { providerLabel(it, providerNames) }
         driveSet = true
         driveLabel = deps.prefs.driveLabel
         // First copy right away, so the user sees it work.
         withFreshFile { f ->
             val ok = withContext(Dispatchers.IO) { BackupShare.writeToDrive(ctx, uri, f) }
             if (ok) deps.status.recordSuccess(f.length(), "drive")
-            message = if (ok) msgDriveOk else msgDriveFail
+            report(if (ok) msgDriveOk else msgDriveFail)
         }
     }
     val pickRestore = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
@@ -167,20 +182,36 @@ fun BackupSettingsRoute(onBack: () -> Unit) {
                             overflow = TextOverflow.Ellipsis,
                         )
                     }
-                    val (bg, fg) = when (state) {
-                        BackupState.OK -> cs.primaryContainer to cs.onPrimaryContainer
-                        BackupState.FAILED -> cs.errorContainer to cs.onErrorContainer
-                        BackupState.STALE, BackupState.NEVER -> cs.surfaceContainer to cs.onSurface
+                    // Not taken today = red like the Home pill (audit #12). A3: cross-fade + one ring pulse when it turns OK.
+                    var celebrate by remember { mutableStateOf(0) }
+                    var wasOk by remember { mutableStateOf(state == BackupState.OK) }
+                    LaunchedEffect(state) {
+                        if (state == BackupState.OK && !wasOk) celebrate++
+                        wasOk = state == BackupState.OK
                     }
-                    VkBadge(stringResource(state.pillRes), bg, fg)
+                    Box(contentAlignment = Alignment.Center) {
+                        if (celebrate > 0) com.vraj.khetihisab.ui.components.VkPulseRing(celebrate, Modifier.matchParentSize())
+                        androidx.compose.animation.AnimatedContent(state, label = "bk_badge") { st ->
+                            val (bg, fg) = when (st) {
+                                BackupState.OK -> cs.primaryContainer to cs.onPrimaryContainer
+                                BackupState.FAILED, BackupState.STALE, BackupState.NEVER -> cs.errorContainer to cs.onErrorContainer
+                            }
+                            VkBadge(stringResource(st.pillRes), bg, fg)
+                        }
+                    }
                 }
                 if (state == BackupState.FAILED) status.lastFailure?.let { StError(stringResource(it.messageRes)) }
-                if (busy) Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) { CircularProgressIndicator() }
-                message?.let { StNote(it) }
+                if (busy) com.vraj.khetihisab.ui.components.VkLoading(text = stringResource(R.string.v5_loading))
+            }
+            errorMessage?.let { err ->
+                VkCard(Modifier.fillMaxWidth().testTag("backup_error"), tone = VkTone.Error) {
+                    Text(err, style = MaterialTheme.typography.bodyLarge)
+                    VkTextButton(stringResource(R.string.st_close), { errorMessage = null }, Modifier.fillMaxWidth())
+                }
             }
 
             // ---- 1. Google Drive (automatic) ----
-            VkSectionTitle(stringResource(R.string.v2_bk_drive_title))
+            VkSectionTitle(stringResource(R.string.v5_bk_drive_title))
             VkCard(Modifier.fillMaxWidth()) {
                 StNote(stringResource(if (driveSet) R.string.v2_bk_drive_on else R.string.v2_bk_drive_how))
                 if (driveSet) {
@@ -190,7 +221,7 @@ fun BackupSettingsRoute(onBack: () -> Unit) {
                         withFreshFile { f ->
                             val ok = withContext(Dispatchers.IO) { BackupShare.writeToDrive(ctx, uri, f) }
                             if (ok) deps.status.recordSuccess(f.length(), "drive") else deps.status.recordFailure(com.vraj.khetihisab.backup.BackupFailure.DRIVE)
-                            message = if (ok) msgDriveOk else msgDriveFail
+                            report(if (ok) msgDriveOk else msgDriveFail)
                         }
                     }, Modifier.fillMaxWidth().testTag("backup_drive_now"), enabled = !busy)
                     VkOutlinedButton(stringResource(R.string.v2_bk_drive_change), { pickDrive.launch(JsonBackup.fileName(deps.clock())) }, Modifier.fillMaxWidth())
@@ -200,18 +231,18 @@ fun BackupSettingsRoute(onBack: () -> Unit) {
             }
 
             // ---- 2. WhatsApp ----
-            VkSectionTitle(stringResource(R.string.v2_bk_wa_title))
+            VkSectionTitle(stringResource(R.string.v5_bk_wa_title))
             VkCard(Modifier.fillMaxWidth()) {
                 StNote(stringResource(R.string.v2_bk_wa_how))
-                VkTonalButton(stringResource(R.string.v2_bk_wa_send), {
+                VkPrimaryButton(stringResource(R.string.v2_bk_wa_send), {
                     withFreshFile { f ->
-                        if (BackupShare.whatsApp(ctx, f)) deps.status.recordSuccess(f.length(), "whatsapp") else message = msgNoApp
+                        if (BackupShare.whatsApp(ctx, f)) deps.status.recordSuccess(f.length(), "whatsapp") else report(msgNoApp)
                     }
                 }, Modifier.fillMaxWidth().testTag("backup_whatsapp"), enabled = !busy)
             }
 
             // ---- 3. E-mail ----
-            VkSectionTitle(stringResource(R.string.v2_bk_mail_title))
+            VkSectionTitle(stringResource(R.string.v5_bk_mail_title))
             VkCard(Modifier.fillMaxWidth().testTag("backup_mail_card")) {
                 if (mailReady && !editMail) {
                     // One tap: built + sent in the background, no Gmail screen (owner request 2026-11-05).
@@ -219,15 +250,15 @@ fun BackupSettingsRoute(onBack: () -> Unit) {
                     VkPrimaryButton(stringResource(R.string.v3_mail_send_now), {
                         withFreshFile { f ->
                             val r = withContext(Dispatchers.IO) { deps.email(f) }
-                            message = when (r) {
+                            report(when (r) {
                                 com.vraj.khetihisab.backup.GmailSender.Result.Sent -> { deps.status.recordSuccess(f.length(), "email"); msgMailSent }
                                 com.vraj.khetihisab.backup.GmailSender.Result.AuthFailed -> msgMailAuth
                                 com.vraj.khetihisab.backup.GmailSender.Result.NoNetwork -> msgMailNet
                                 is com.vraj.khetihisab.backup.GmailSender.Result.Failed -> msgMailFail
-                            }
+                            })
                         }
                     }, Modifier.fillMaxWidth().testTag("backup_email"), enabled = !busy)
-                    StSwitchRow(
+                    com.vraj.khetihisab.ui.components.VkSwitchRow(
                         title = stringResource(R.string.v3_mail_nightly),
                         meta = stringResource(R.string.v3_mail_nightly_sub),
                         checked = mailNightly,
@@ -272,7 +303,7 @@ fun BackupSettingsRoute(onBack: () -> Unit) {
                     // Old way still works without setup: opens Gmail with the file attached.
                     VkTextButton(stringResource(R.string.v3_mail_draft), {
                         withFreshFile { f ->
-                            if (BackupShare.email(ctx, f, mailUser.ifBlank { email })) deps.status.recordSuccess(f.length(), "email") else message = msgNoApp
+                            if (BackupShare.email(ctx, f, mailUser.ifBlank { email })) deps.status.recordSuccess(f.length(), "email") else report(msgNoApp)
                         }
                     }, Modifier.fillMaxWidth(), enabled = !busy)
                 }
@@ -311,13 +342,13 @@ fun BackupSettingsRoute(onBack: () -> Unit) {
                         busy = false
                         restoreUri = null
                         if (r is JsonBackup.RestoreResult.Ok) {
-                            message = ctx.getString(R.string.v2_bk_restored)
+                            report(msgRestored)
                             kotlinx.coroutines.delay(900)
                             RestoreInbox.restartApp(ctx)
                         } else {
-                            message = ctx.getString(
+                            report(ctx.getString(
                                 if (r is JsonBackup.RestoreResult.TooNew) R.string.v2_bk_restore_too_new else R.string.v2_bk_restore_bad_body,
-                            )
+                            ))
                         }
                     }
                 },
@@ -342,8 +373,9 @@ private fun lastText(ctx: Context, millis: Long): String {
     return SettingsFormat.backupWhen(millis, today, ctx.getString(R.string.st_today), ctx.getString(R.string.st_tomorrow))
 }
 
-private fun providerLabel(authority: String): String = when {
-    authority.contains("google.android.apps.docs") -> "Google Drive"
-    authority.contains("downloads") || authority.contains("externalstorage") -> "ફોનમાં"
-    else -> authority
+/** Where the nightly file goes, in Gujarati (audit #18): (drive, phone, other). */
+private fun providerLabel(authority: String, names: Triple<String, String, String>): String = when {
+    authority.contains("google.android.apps.docs") -> names.first
+    authority.contains("downloads") || authority.contains("externalstorage") -> names.second
+    else -> names.third
 }

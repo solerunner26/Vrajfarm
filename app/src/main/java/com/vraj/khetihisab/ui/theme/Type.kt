@@ -69,4 +69,7 @@ val VkTypography = Typography(
 /** Currency is at least 26sp bold (CLAUDE.md). */
 val VkCurrencyStyle = style(26, 800, 1.25)
 
+/** Amounts on list rows (audit #34, #35): 20sp extra-bold. */
+val VkCurrencyRow = style(20, 800, 1.25)
+
 val VkWordmarkStyle = TextStyle(fontFamily = VkWordmark, fontWeight = FontWeight.ExtraBold, fontSize = 30.sp, lineHeight = 1.3.em)

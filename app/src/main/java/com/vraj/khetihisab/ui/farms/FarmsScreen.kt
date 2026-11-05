@@ -19,6 +19,11 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
+import com.vraj.khetihisab.ui.components.vkAppear
+import com.vraj.khetihisab.ui.home.MoneyStat
+import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowLeft
+import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowRight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -91,7 +96,7 @@ fun FarmsScreen(
     LazyColumn(
         Modifier.fillMaxSize().background(cs.surface).testTag("farms_list"),
         contentPadding = PaddingValues(bottom = PlainBottomPadding),
-        verticalArrangement = Arrangement.spacedBy(14.dp),
+        verticalArrangement = Arrangement.spacedBy(com.vraj.khetihisab.ui.theme.VkDimens.listGap),
     ) {
         item(key = "header") {
             VkTopHeader(
@@ -110,8 +115,11 @@ fun FarmsScreen(
         }
         item(key = "year") {
             Row(pad.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                val prevCd = stringResource(R.string.hm_prev_year)
-                VkTextButton("‹", { onShiftYear(-1) }, Modifier.semantics { contentDescription = prevCd })
+                com.vraj.khetihisab.ui.components.VkIconAction(
+                    androidx.compose.material.icons.Icons.AutoMirrored.Rounded.KeyboardArrowLeft,
+                    stringResource(R.string.hm_prev_year),
+                    { onShiftYear(-1) },
+                )
                 Text(
                     stringResource(R.string.hm_crop_year, SeasonRange.cropYearLabel(state.choice.cropYear)),
                     style = MaterialTheme.typography.titleMedium,
@@ -121,11 +129,14 @@ fun FarmsScreen(
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.weight(1f),
                 )
-                val nextCd = stringResource(R.string.hm_next_year)
-                VkTextButton("›", { onShiftYear(1) }, Modifier.semantics { contentDescription = nextCd })
+                com.vraj.khetihisab.ui.components.VkIconAction(
+                    androidx.compose.material.icons.Icons.AutoMirrored.Rounded.KeyboardArrowRight,
+                    stringResource(R.string.hm_next_year),
+                    { onShiftYear(1) },
+                )
             }
         }
-        item(key = "summary") { SummaryCard(state, pad) }
+        item(key = "summary") { SummaryCard(state, pad.vkAppear(0, "farms_summary")) }
         item(key = "score_title") { VkSectionTitle(stringResource(R.string.scr_scorecard), pad) }
         item(key = "seg") {
             VkSegmented(
@@ -135,7 +146,12 @@ fun FarmsScreen(
                 modifier = pad,
             )
         }
-        items(state.rows, key = { it.score.farmId }) { r -> ScoreRow(r, state.byVigha, { onOpenFarm(r.score.farmId) }, pad) }
+        if (state.rows.isEmpty()) {
+            item(key = "empty") { VkCard(pad.fillMaxWidth()) { com.vraj.khetihisab.ui.components.VkEmptyState(VkIcon.FARM, stringResource(R.string.v5_no_farms)) } }
+        }
+        itemsIndexed(state.rows, key = { _, r -> r.score.farmId }) { i, r ->
+            ScoreRow(r, state.byVigha, { onOpenFarm(r.score.farmId) }, pad.vkAppear((i + 1).coerceAtMost(6), "farm_${r.score.farmId}"))
+        }
     }
 }
 
@@ -145,16 +161,15 @@ private fun SummaryCard(state: FarmsUiState, modifier: Modifier) {
     val t = state.totals
     VkCard(modifier.fillMaxWidth().testTag("farms_summary"), tone = VkTone.Primary) {
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            StatTile(stringResource(R.string.scr_farm_income), ScreensFormat.signedRupees(t.income), Modifier.weight(1f), cs.onSecondaryContainer, big = true)
-            StatTile(stringResource(R.string.scr_farm_expense), ScreensFormat.signedRupees(t.expense), Modifier.weight(1f), cs.onSecondaryContainer, big = true)
+            MoneyStat(stringResource(R.string.scr_farm_income), t.income, Modifier.weight(1f), cs.onSecondaryContainer)
+            MoneyStat(stringResource(R.string.scr_farm_expense), t.expense, Modifier.weight(1f), cs.onSecondaryContainer)
         }
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            StatTile(
+            MoneyStat(
                 stringResource(R.string.scr_net_profit),
-                ScreensFormat.signedRupees(t.net),
+                t.net,
                 Modifier.weight(1f),
                 if (t.net < 0) cs.error else cs.primary,
-                big = true,
             )
             StatTile(
                 stringResource(R.string.scr_total_land),
@@ -182,14 +197,14 @@ private fun ScoreRow(r: ScoreRowUi, byVigha: Boolean, onClick: () -> Unit, modif
                 Text(
                     r.rank.toString(),
                     color = if (top) cs.primary else cs.onSurface,
-                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.ExtraBold, fontSize = 16.sp),
+                    style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.ExtraBold),
                     maxLines = 1,
                     softWrap = false,
                 )
             }
             Spacer(Modifier.width(12.dp))
             Column(Modifier.weight(1f)) {
-                Text(s.name, style = MaterialTheme.typography.titleMedium.copy(fontSize = 18.sp, fontWeight = FontWeight.ExtraBold), maxLines = 1, overflow = TextOverflow.Ellipsis)
+                Text(s.name, style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.ExtraBold), maxLines = 1, overflow = TextOverflow.Ellipsis)
                 val vigha = if (s.hasVigha) stringResource(R.string.scr_vigha_value, FarmScoring.vighaText(s.vigha)) else stringResource(R.string.scr_vigha_not_set)
                 Text(
                     if (s.crop != null) stringResource(R.string.hm_crop_vigha, s.crop, vigha) else vigha,
@@ -204,7 +219,7 @@ private fun ScoreRow(r: ScoreRowUi, byVigha: Boolean, onClick: () -> Unit, modif
                 val v = r.valuePaise
                 Text(
                     if (v == null) stringResource(R.string.scr_none_dash) else ScreensFormat.signedRupees(v),
-                    style = MaterialTheme.typography.titleLarge.copy(fontSize = 20.sp, fontWeight = FontWeight.ExtraBold),
+                    style = com.vraj.khetihisab.ui.theme.VkCurrencyRow,
                     color = if (v != null && v < 0) cs.error else cs.primary,
                     maxLines = 1,
                     softWrap = false,
@@ -223,10 +238,6 @@ private fun ScoreRow(r: ScoreRowUi, byVigha: Boolean, onClick: () -> Unit, modif
 
 @Composable
 private fun ScoreBar(fraction: Float) {
-    val cs = MaterialTheme.colorScheme
-    Box(Modifier.fillMaxWidth().height(8.dp).clip(RoundedCornerShape(4.dp)).background(cs.surfaceContainer)) {
-        if (fraction > 0f) {
-            Box(Modifier.fillMaxWidth(fraction).height(8.dp).clip(RoundedCornerShape(4.dp)).background(cs.primary))
-        }
-    }
+    // A5: the bar grows in from 0.
+    com.vraj.khetihisab.ui.components.VkProgressBar(fraction, height = 8.dp)
 }

@@ -58,6 +58,7 @@ class VrajApp : Application() {
                 c.repos.profiles.syncBhagiya()
                 AlarmRescheduler.rescheduleEverything(this@VrajApp)
                 c.backupScheduler.ensureScheduled()
+                com.vraj.khetihisab.update.UpdateCheckWorker.ensureScheduled(this@VrajApp)
             }.onFailure { Log.w(TAG, "start-up scheduling failed", it) }
         }
     }

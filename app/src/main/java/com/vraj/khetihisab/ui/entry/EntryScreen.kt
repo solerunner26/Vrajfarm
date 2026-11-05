@@ -1,6 +1,7 @@
 package com.vraj.khetihisab.ui.entry
 
 import androidx.compose.foundation.background
+import androidx.compose.material.icons.rounded.Close
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
@@ -28,9 +29,6 @@ import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.InputChip
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDatePickerState
@@ -66,7 +64,9 @@ import com.vraj.khetihisab.ui.components.VkFormat
 import com.vraj.khetihisab.ui.components.VkHeaderButton
 import com.vraj.khetihisab.ui.components.VkHeaderChip
 import com.vraj.khetihisab.ui.components.VkNumericKeypad
-import com.vraj.khetihisab.ui.components.VkOutlinedButton
+import com.vraj.khetihisab.ui.components.VkActionBar
+import com.vraj.khetihisab.ui.components.VkTextField
+import com.vraj.khetihisab.ui.components.VkTonalButton
 import com.vraj.khetihisab.ui.components.VkPrimaryButton
 import com.vraj.khetihisab.ui.components.VkSectionTitle
 import com.vraj.khetihisab.ui.components.VkSegmented
@@ -99,7 +99,7 @@ fun EntryScreen(onBack: () -> Unit, onSaved: (Long) -> Unit) {
     val savedId by vm.savedId.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
-    val snackbar = remember { SnackbarHostState() }
+    val snackbar = com.vraj.khetihisab.ui.components.rememberVkSnackbar()
     var viewer by remember { mutableStateOf<String?>(null) }
     val photoFailed = stringResource(R.string.scr_photo_failed)
     val voiceUnavailable = stringResource(R.string.scr_voice_unavailable)
@@ -110,19 +110,19 @@ fun EntryScreen(onBack: () -> Unit, onSaved: (Long) -> Unit) {
     LaunchedEffect(form.kgNormalized) {
         if (form.kgNormalized) {
             vm.onEvent(EntryEvent.NoticeShown)
-            snackbar.showSnackbar(kgMsg)
+            snackbar.show(kgMsg)
         }
     }
 
     val capture = rememberPhotoCapture("bill") { uri, temp ->
         scope.launch {
             val path = BillPhotoHelper.process(context, uri, temp)
-            if (path == null) snackbar.showSnackbar(photoFailed) else vm.onEvent(EntryEvent.SetBill(path))
+            if (path == null) snackbar.show(photoFailed) else vm.onEvent(EntryEvent.SetBill(path))
         }
     }
     val voice = rememberGujaratiVoiceInput(
         onText = { vm.applyVoice(it) },
-        onUnavailable = { scope.launch { snackbar.showSnackbar("$voiceUnavailable. $voiceTip") } },
+        onUnavailable = { snackbar.show("$voiceUnavailable. $voiceTip") },
     )
 
     Box(Modifier.fillMaxSize()) {
@@ -137,7 +137,6 @@ fun EntryScreen(onBack: () -> Unit, onSaved: (Long) -> Unit) {
             onViewBill = { viewer = it },
             onAddCategory = vm::addCategory,
         )
-        SnackbarHost(snackbar, Modifier.align(Alignment.BottomCenter).padding(bottom = 110.dp))
     }
 
     if (confirm != null) {
@@ -192,7 +191,11 @@ fun EntryContent(
                         ) { VkIconImage(VkIcon.MIC, size = 30.dp) }
                     },
                 ) {
-                    VkHeaderChip(todayLabel, Modifier.clickable(role = Role.Button) { showDate = true })
+                    // 60dp touch box around the date pill (audit #13).
+                    Box(
+                        Modifier.heightIn(min = 60.dp).clip(RoundedCornerShape(30.dp)).clickable(role = Role.Button) { showDate = true },
+                        contentAlignment = Alignment.CenterStart,
+                    ) { VkHeaderChip(todayLabel) }
                 }
             }
             item {
@@ -264,18 +267,12 @@ fun EntryContent(
                         errorSelected = form.pending,
                     )
                     if (form.pending) {
-                        OutlinedTextField(
+                        VkTextField(
                             value = form.counterparty,
                             onValueChange = { onEvent(EntryEvent.SetCounterparty(it)) },
-                            label = { Text(stringResource(if (income) R.string.v2_cp_from else R.string.v2_cp_to), maxLines = 1) },
-                            singleLine = true,
+                            label = stringResource(if (income) R.string.v2_cp_from else R.string.v2_cp_to),
                             isError = form.needsName,
-                            supportingText = if (form.needsName) {
-                                { Text(stringResource(R.string.v2_cp_required)) }
-                            } else {
-                                null
-                            },
-                            modifier = Modifier.fillMaxWidth(),
+                            supporting = if (form.needsName) stringResource(R.string.v2_cp_required) else null,
                         )
                         val who = form.counterparty.trim().ifEmpty { stringResource(R.string.v2_cp_someone) }
                         val amt = ScreensFormat.signedRupees(form.amountPaise)
@@ -290,21 +287,24 @@ fun EntryContent(
                 }
             }
             item {
-                Row(Modifier.padding(horizontal = 16.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                    VkOutlinedButton(stringResource(R.string.scr_bill_photo), onTakePhoto, Modifier.weight(1f))
-                    VkOutlinedButton(stringResource(R.string.scr_voice_note), onVoice, Modifier.weight(1f))
-                }
+                // One voice entry point: the header mic (audit #26). The bill photo gets the full width.
+                VkTonalButton(
+                    stringResource(R.string.scr_bill_photo),
+                    onTakePhoto,
+                    Modifier.padding(horizontal = 16.dp).fillMaxWidth(),
+                    icon = VkIcon.CAMERA,
+                )
             }
             // Typed note (owner request 2026-11-05): speech fills it too, and it can be edited by hand.
             item {
-                OutlinedTextField(
+                VkTextField(
                     value = form.voiceNote.orEmpty(),
                     onValueChange = { onEvent(EntryEvent.SetNoteText(it)) },
-                    label = { Text(stringResource(R.string.v3_note), maxLines = 1) },
+                    label = stringResource(R.string.v3_note),
+                    singleLine = false,
                     minLines = 1,
                     maxLines = 3,
-                    keyboardOptions = com.vraj.khetihisab.ui.components.VkGujaratiKeyboard,
-                    modifier = Modifier.padding(horizontal = 16.dp).fillMaxWidth().testTag("entry_note"),
+                    modifier = Modifier.padding(horizontal = 16.dp).testTag("entry_note"),
                 )
             }
             if (form.billPath != null || form.voiceNote != null) {
@@ -343,21 +343,14 @@ fun EntryContent(
             }
         }
 
-        // Sticky save
-        Column(
-            Modifier
-                .align(Alignment.BottomCenter)
-                .fillMaxWidth()
-                .background(LocalVkExtra.current.dock)
-                .navigationBarsPadding()
-                .padding(start = 16.dp, end = 16.dp, top = 12.dp, bottom = 16.dp),
-        ) {
+        // Sticky save (audit #23)
+        VkActionBar(Modifier.align(Alignment.BottomCenter)) {
             val amt = form.amountPaise
             VkPrimaryButton(
                 text = if (amt > 0) stringResource(R.string.scr_save_amount, VkFormat.rupees(amt)) else stringResource(R.string.scr_save),
                 onClick = onSave,
                 enabled = form.canSave,
-                modifier = Modifier.fillMaxWidth().heightIn(min = 64.dp).testTag(EntryTestTags.SAVE),
+                modifier = Modifier.weight(1f).heightIn(min = 64.dp).testTag(EntryTestTags.SAVE),
             )
         }
     }
@@ -388,8 +381,14 @@ private fun RemoveChip(label: String, onRemove: () -> Unit) {
         selected = false,
         onClick = onRemove,
         label = { Text(label, maxLines = 1, softWrap = false, overflow = TextOverflow.Ellipsis, modifier = Modifier.widthIn(max = 200.dp)) },
-        trailingIcon = { Text("✕", color = MaterialTheme.colorScheme.onSurfaceVariant) },
-        modifier = Modifier.semantics { contentDescription = label },
+        trailingIcon = {
+            androidx.compose.material3.Icon(
+                androidx.compose.material.icons.Icons.Rounded.Close,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        },
+        modifier = Modifier.heightIn(min = 48.dp).semantics { contentDescription = label },
     )
 }
 
@@ -418,7 +417,8 @@ private fun Tap2(form: EntryForm, lists: EntryLists, onEvent: (EntryEvent) -> Un
                         repeat(4 - row.size) { Spacer(Modifier.weight(1f)) }
                     }
                 }
-                Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                // Wraps onto more lines instead of hiding types off-screen (audit #25).
+                FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     lists.categories.forEach { c ->
                         VkChip(c.label, form.categoryId == c.id, { onEvent(EntryEvent.PickCategory(c.id, c.isCropSale)) })
                     }
@@ -473,12 +473,11 @@ private fun AmountArea(form: EntryForm, onEvent: (EntryEvent) -> Unit) {
         if (!form.apmcMode) {
             VkCard(Modifier.fillMaxWidth()) {
                 Text(stringResource(R.string.scr_amount), style = MaterialTheme.typography.bodySmall, color = cs.onSurfaceVariant, maxLines = 1)
-                Text(
+                com.vraj.khetihisab.ui.components.VkFitText(
                     "₹" + groupTyped(form.amountText.ifEmpty { "0" }),
                     style = MaterialTheme.typography.displaySmall,
                     color = cs.onSurface,
-                    maxLines = 1,
-                    softWrap = false,
+                    minSize = 22,
                     modifier = Modifier.testTag(EntryTestTags.AMOUNT),
                 )
             }
@@ -513,14 +512,13 @@ private fun AmountArea(form: EntryForm, onEvent: (EntryEvent) -> Unit) {
                             maxLines = 1,
                         )
                     }
-                    Column(horizontalAlignment = Alignment.End) {
+                    Column(Modifier.weight(1f), horizontalAlignment = Alignment.End) {
                         Text(stringResource(R.string.scr_total_amount), style = MaterialTheme.typography.bodySmall, color = cs.onSurfaceVariant, maxLines = 1)
-                        Text(
+                        com.vraj.khetihisab.ui.components.VkFitText(
                             VkFormat.rupees(form.amountPaise),
-                            style = MaterialTheme.typography.displaySmall.copy(fontSize = 30.sp),
+                            style = MaterialTheme.typography.displaySmall,
                             color = cs.primary,
-                            maxLines = 1,
-                            softWrap = false,
+                            minSize = 20,
                             modifier = Modifier.testTag(EntryTestTags.AMOUNT),
                         )
                     }
@@ -548,7 +546,7 @@ private fun ApmcFieldTile(label: String, value: String, active: Boolean, modifie
         Text(label, style = MaterialTheme.typography.bodySmall, color = cs.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
         Text(
             value.ifEmpty { "0" },
-            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.ExtraBold, fontSize = 20.sp),
+            style = com.vraj.khetihisab.ui.theme.VkCurrencyRow,
             color = cs.onSurface,
             maxLines = 1,
             softWrap = false,
@@ -592,7 +590,7 @@ fun EntryTile(
         if (sub != null) {
             Text(
                 sub,
-                style = MaterialTheme.typography.bodySmall.copy(fontSize = 12.sp),
+                style = MaterialTheme.typography.bodySmall,
                 color = if (selected) cs.onPrimaryContainer else cs.onSurfaceVariant,
                 maxLines = 1,
                 softWrap = false,
@@ -614,20 +612,18 @@ private fun groupTyped(text: String): String {
 @Composable
 private fun NewTypeDialog(onDismiss: () -> Unit, onSave: (String) -> Unit) {
     var name by rememberSaveable { mutableStateOf("") }
-    androidx.compose.material3.AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text(stringResource(R.string.v3_new_type_title), style = MaterialTheme.typography.headlineSmall) },
-        text = {
-            OutlinedTextField(
-                value = name,
-                onValueChange = { name = it.take(40) },
-                label = { Text(stringResource(R.string.st_display_name)) },
-                singleLine = true,
-                keyboardOptions = com.vraj.khetihisab.ui.components.VkGujaratiKeyboard,
-                modifier = Modifier.fillMaxWidth().testTag("new_type_name"),
-            )
-        },
-        confirmButton = { VkPrimaryButton(stringResource(R.string.scr_save), { onSave(name) }, enabled = name.isNotBlank()) },
-        dismissButton = { com.vraj.khetihisab.ui.components.VkTextButton(stringResource(R.string.scr_cancel), onDismiss) },
-    )
+    com.vraj.khetihisab.ui.components.VkDialog(
+        title = stringResource(R.string.v3_new_type_title),
+        onDismiss = onDismiss,
+        confirmLabel = stringResource(R.string.scr_save),
+        onConfirm = { onSave(name) },
+        confirmEnabled = name.isNotBlank(),
+    ) {
+        VkTextField(
+            value = name,
+            onValueChange = { name = it.take(40) },
+            label = stringResource(R.string.st_display_name),
+            modifier = Modifier.testTag("new_type_name"),
+        )
+    }
 }

@@ -37,6 +37,7 @@ import com.vraj.khetihisab.data.repo.DateRange
 import com.vraj.khetihisab.report.ReportShare
 import com.vraj.khetihisab.report.ReportType
 import com.vraj.khetihisab.ui.components.VkCard
+import com.vraj.khetihisab.ui.components.vkAppear
 import com.vraj.khetihisab.ui.components.VkChip
 import com.vraj.khetihisab.ui.components.VkListRow
 import com.vraj.khetihisab.ui.components.VkPrimaryButton
@@ -78,12 +79,13 @@ fun ReportsScreen(vm: ReportsViewModel, onBack: () -> Unit) {
     val deps = rememberScreensDeps()
     val noViewer = stringResource(R.string.st_rep_no_viewer)
     val shareTitle = stringResource(R.string.st_rep_share)
+    val snackbar = com.vraj.khetihisab.ui.components.rememberVkSnackbar()
 
     fun open(path: String) {
         deps.lockManager.suppressNextLock = true
         val f = File(path)
         if (!ReportShare.open(context, f)) {
-            Toast.makeText(context, noViewer, Toast.LENGTH_SHORT).show()
+            snackbar.show(noViewer)
             runCatching { ReportShare.share(context, f, shareTitle) }
         }
     }
@@ -98,7 +100,7 @@ fun ReportsScreen(vm: ReportsViewModel, onBack: () -> Unit) {
         StBodyColumn {
             val last = u.lastFile
             if (last != null && u.lastType != null) {
-                VkCard(Modifier.fillMaxWidth(), tone = VkTone.Primary) {
+                VkCard(Modifier.fillMaxWidth().vkAppear(0, "rep_ready"), tone = VkTone.Primary) {
                     Text(stringResource(R.string.st_rep_ready, stringResource(u.lastType!!.titleRes)), style = MaterialTheme.typography.titleMedium)
                     Text(File(last).name, style = MaterialTheme.typography.bodySmall)
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -108,7 +110,7 @@ fun ReportsScreen(vm: ReportsViewModel, onBack: () -> Unit) {
                 }
             }
             VkSectionTitle(stringResource(R.string.st_rep_pick))
-            VkCard(Modifier.fillMaxWidth(), contentPadding = 0.dp) {
+            VkCard(Modifier.fillMaxWidth().vkAppear(1, "rep_list"), contentPadding = 0.dp) {
                 Column {
                     ReportType.entries.forEachIndexed { i, t ->
                         VkListRow(
@@ -128,22 +130,18 @@ fun ReportsScreen(vm: ReportsViewModel, onBack: () -> Unit) {
 
     val sel = u.selected
     if (sel != null && !u.generating) {
-        val sheet = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-        ModalBottomSheet(onDismissRequest = vm::close, sheetState = sheet) {
-        com.vraj.khetihisab.ui.components.VkSheetSystemBars()
+        com.vraj.khetihisab.ui.components.VkBottomSheet(stringResource(sel.titleRes), vm::close, scrollable = false) {
             ReportOptions(sel, u.range, u.failed, vm)
         }
     }
 
     if (u.generating) {
-        AlertDialog(
-            onDismissRequest = {},
-            confirmButton = {},
-            title = { Text(stringResource(R.string.st_rep_generating), style = MaterialTheme.typography.titleMedium) },
-            text = {
-                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) { CircularProgressIndicator() }
-            },
-        )
+        com.vraj.khetihisab.ui.components.VkDialog(
+            title = stringResource(R.string.st_rep_generating),
+            onDismiss = {},
+            dismissLabel = null,
+            dismissible = false,
+        ) { com.vraj.khetihisab.ui.components.VkLoading() }
     }
 }
 
@@ -155,11 +153,9 @@ private fun ReportOptions(type: ReportType, range: DateRange?, failed: Boolean, 
         Modifier
             .fillMaxWidth()
             .verticalScroll(rememberScrollState())
-            .navigationBarsPadding()
-            .padding(start = 16.dp, end = 16.dp, bottom = 24.dp),
+            .padding(start = 16.dp, end = 16.dp, bottom = 8.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        Text(stringResource(type.titleRes), style = MaterialTheme.typography.headlineSmall)
         if (type.usesRange && range != null) {
             val presets = ReportsViewModel.presetsFor(type)
             if (presets.isNotEmpty()) {

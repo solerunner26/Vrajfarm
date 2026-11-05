@@ -7,6 +7,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import com.vraj.khetihisab.ui.components.vkAppear
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -100,22 +101,17 @@ fun PersonalScreen(
         LazyColumn(
             Modifier.weight(1f).fillMaxWidth().testTag("personal_list"),
             contentPadding = PaddingValues(bottom = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(14.dp),
+            verticalArrangement = Arrangement.spacedBy(com.vraj.khetihisab.ui.theme.VkDimens.listGap),
         ) {
             item(key = "header") {
                 VkTopHeader(
                     stringResource(if (general) R.string.scr_sec_general else R.string.scr_sec_personal),
                     onBack = onBack,
-                    actions = {
-                        Box(
-                            Modifier.heightIn(min = 48.dp).clip(CircleShape).clickable(role = Role.Button) { pickMonth = true },
-                            contentAlignment = Alignment.Center,
-                        ) { VkHeaderChip(ScreensFormat.monthYearGu(state.month) + " ▾") }
-                    },
+                    actions = { com.vraj.khetihisab.ui.components.VkMonthChip(ScreensFormat.monthYearGu(state.month), { pickMonth = true }) },
                 )
             }
             item(key = "info") {
-                VkCard(pad.fillMaxWidth(), tone = VkTone.Primary) {
+                VkCard(pad.fillMaxWidth().vkAppear(0, "personal_info"), tone = VkTone.Primary) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         VkIconImage(if (general) VkIcon.UTILITY else VkIcon.LOCK, size = 28.dp)
                         Spacer(Modifier.width(12.dp))
@@ -124,18 +120,18 @@ fun PersonalScreen(
                 }
             }
             item(key = "stats") {
-                Column(pad.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Column(pad.fillMaxWidth().vkAppear(1, "personal_stats"), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Row(Modifier.fillMaxWidth().height(IntrinsicSize.Min), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                         VkCard(Modifier.weight(1f).fillMaxHeight()) {
-                            StatTile(stringResource(R.string.scr_income_month, monthGu), ScreensFormat.signedRupees(state.totals.income), valueColor = cs.primary, big = true)
+                            com.vraj.khetihisab.ui.home.MoneyStat(stringResource(R.string.scr_income_month, monthGu), state.totals.income, valueColor = cs.primary)
                         }
                         VkCard(Modifier.weight(1f).fillMaxHeight()) {
-                            StatTile(stringResource(R.string.scr_expense_month, monthGu), ScreensFormat.signedRupees(state.totals.expense), big = true)
+                            com.vraj.khetihisab.ui.home.MoneyStat(stringResource(R.string.scr_expense_month, monthGu), state.totals.expense)
                         }
                     }
                     if (!general) Text(
                         stringResource(R.string.scr_savings, ScreensFormat.signedRupees(state.savings)),
-                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.ExtraBold),
+                        style = com.vraj.khetihisab.ui.theme.VkCurrencyRow,
                         color = if (state.savings < 0) cs.error else cs.primary,
                         maxLines = 1,
                         softWrap = false,
@@ -145,7 +141,7 @@ fun PersonalScreen(
             }
             if (state.showUdhaar) {
                 item(key = "udhaar") {
-                    VkCard(pad.fillMaxWidth(), tone = VkTone.Error) {
+                    VkCard(pad.fillMaxWidth().vkAppear(2, "personal_udhaar"), tone = VkTone.Error) {
                         Text(stringResource(if (general) R.string.scr_udhaar_title else R.string.scr_personal_udhaar), style = MaterialTheme.typography.titleMedium, color = cs.onErrorContainer, maxLines = 1)
                         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                             StatTile(stringResource(if (general) R.string.scr_udhaar_payable else R.string.hm_personal_payable), ScreensFormat.signedRupees(state.udhaar.payable), Modifier.weight(1f), cs.onErrorContainer, big = true)
@@ -156,15 +152,19 @@ fun PersonalScreen(
             }
             if (state.isEmpty) {
                 item(key = "empty") {
-                    Column(pad.fillMaxWidth().padding(vertical = 24.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                        VkLeafDivider()
-                        Text(stringResource(R.string.scr_empty_month), style = MaterialTheme.typography.bodyLarge, color = cs.onSurfaceVariant, textAlign = TextAlign.Center)
+                    VkCard(pad.fillMaxWidth()) {
+                        com.vraj.khetihisab.ui.components.VkEmptyState(
+                            if (general) VkIcon.UTILITY else VkIcon.PERSONAL,
+                            stringResource(R.string.scr_empty_month),
+                            actionLabel = stringResource(R.string.v5_no_entries_action),
+                            onAction = onExpense,
+                        )
                     }
                 }
             } else {
                 if (state.bars.isNotEmpty()) {
                     item(key = "bars") {
-                        VkCard(pad.fillMaxWidth().testTag("personal_bars")) {
+                        VkCard(pad.fillMaxWidth().vkAppear(3, "personal_bars").testTag("personal_bars")) {
                             Text(stringResource(R.string.scr_where_spent), style = MaterialTheme.typography.titleMedium, maxLines = 1, overflow = TextOverflow.Ellipsis)
                             state.bars.forEach { b -> CategoryBarRow(b) }
                         }
@@ -172,7 +172,7 @@ fun PersonalScreen(
                 }
                 item(key = "recent_title") { VkSectionTitle(stringResource(R.string.scr_recent), pad) }
                 item(key = "recent") {
-                    VkCard(pad.fillMaxWidth(), contentPadding = 0.dp) {
+                    VkCard(pad.fillMaxWidth().vkAppear(4, "personal_recent"), contentPadding = 0.dp) {
                         state.rows.forEachIndexed { i, r ->
                             if (i > 0) VkRowDivider()
                             TxnListRow(
@@ -210,10 +210,9 @@ private fun CategoryBarRow(b: CategoryBar) {
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
             Text(b.name, style = MaterialTheme.typography.bodyLarge, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f))
             Spacer(Modifier.width(8.dp))
-            Text(ScreensFormat.signedRupees(b.totalPaise), style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold), maxLines = 1, softWrap = false)
+            Text(ScreensFormat.signedRupees(b.totalPaise), style = com.vraj.khetihisab.ui.theme.VkCurrencyRow, maxLines = 1, softWrap = false)
         }
-        Box(Modifier.fillMaxWidth().height(10.dp).clip(RoundedCornerShape(5.dp)).background(cs.surfaceContainer)) {
-            if (b.fraction > 0f) Box(Modifier.fillMaxWidth(b.fraction).height(10.dp).clip(RoundedCornerShape(5.dp)).background(cs.primary))
-        }
+        // A5: bars grow in from 0.
+        com.vraj.khetihisab.ui.components.VkProgressBar(b.fraction, color = cs.primary)
     }
 }

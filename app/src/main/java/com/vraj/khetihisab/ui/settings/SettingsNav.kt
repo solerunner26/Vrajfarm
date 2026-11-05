@@ -25,6 +25,9 @@ object SettingsRoutes {
     const val CATEGORIES = "settings/categories"
     const val SECURITY = "settings/security"
     const val TEMPLATES = "settings/templates"
+    /** Routes owned by other graphs, opened from Settings tiles (audit #38). */
+    const val ASSETS_ALL = "assets?tab=all"
+    const val MILK = "milk"
 
     const val REPORTS = "reports?type={type}"
     const val PROFILES = "profiles"

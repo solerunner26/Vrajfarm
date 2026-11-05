@@ -4,7 +4,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -18,8 +17,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.vraj.khetihisab.R
 import com.vraj.khetihisab.ui.components.VkPrimaryButton
-import com.vraj.khetihisab.ui.components.VkOutlinedButton
-import com.vraj.khetihisab.ui.components.VkTextButton
+import com.vraj.khetihisab.ui.components.VkConfirmDeleteDialog
+import com.vraj.khetihisab.ui.components.VkDangerButton
 import com.vraj.khetihisab.ui.components.VkTonalButton
 import kotlinx.coroutines.launch
 
@@ -37,6 +36,9 @@ fun EntryActionsSheet(
     onWhatsApp: (() -> Unit)? = null,
 ) {
     val deps = rememberScreensDeps()
+    val snackbar = com.vraj.khetihisab.ui.components.rememberVkSnackbar()
+    val deletedMsg = stringResource(R.string.v5_deleted)
+    val undoLabel = stringResource(R.string.v5_undo)
     var confirm by remember { mutableStateOf(false) }
     HomeBottomSheet(row.title, onDismiss) {
         Column(
@@ -52,27 +54,26 @@ fun EntryActionsSheet(
                 VkPrimaryButton(stringResource(R.string.scr_wa_send_receipt), { onDismiss(); onWhatsApp() }, Modifier.fillMaxWidth())
             }
             VkTonalButton(stringResource(R.string.v2_edit), { onDismiss(); onEdit() }, Modifier.fillMaxWidth())
-            VkOutlinedButton(stringResource(R.string.scr_delete), { confirm = true }, Modifier.fillMaxWidth())
-            VkTextButton(stringResource(R.string.scr_cancel), onDismiss, Modifier.fillMaxWidth())
+            VkDangerButton(stringResource(R.string.scr_delete), { confirm = true }, Modifier.fillMaxWidth())
         }
     }
     if (confirm) {
-        AlertDialog(
-            onDismissRequest = { confirm = false },
-            title = { Text(stringResource(R.string.scr_delete_entry_title)) },
-            text = { Text("${row.title} · ${ScreensFormat.signedRupees(row.amountPaise)}") },
-            confirmButton = {
-                VkPrimaryButton(stringResource(R.string.scr_delete), {
-                    confirm = false
-                    // App-lifetime scope: this sheet leaves composition right after the tap.
-                    kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.IO).launch {
-                        deps.repos.ledger.softDelete(row.id)
+        VkConfirmDeleteDialog(
+            what = "${row.title} · ${ScreensFormat.signedRupees(row.amountPaise)}",
+            onConfirm = {
+                confirm = false
+                val id = row.id
+                // Activity-lifetime scope (VkRoot): this sheet leaves composition right after the tap.
+                snackbar.scope.launch {
+                    deps.repos.ledger.softDelete(id)
+                    snackbar.show(deletedMsg, actionLabel = undoLabel) {
+                        snackbar.scope.launch { deps.repos.ledger.restore(id) }
                     }
-                    onDeleted()
-                    onDismiss()
-                })
+                }
+                onDeleted()
+                onDismiss()
             },
-            dismissButton = { VkTextButton(stringResource(R.string.scr_cancel), { confirm = false }) },
+            onDismiss = { confirm = false },
         )
     }
 }

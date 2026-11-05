@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Final round (2026-11-05): updates, asset management. -->
+<resources>
+    <string name="v4_up_channel">એપ અપડેટ</string>
+    <string name="v4_up_nt_body">આવૃત્તિ %s તૈયાર છે. અપડેટ કરવા દબાવો.</string>
+
+    <string name="v4_assets_total">કુલ મિલકત</string>
+    <string name="v4_assets_out">ઉછીની</string>
+    <string name="v4_assets_late">મોડું</string>
+    <string name="v4_assets_empty">હજી કોઈ મિલકત નથી. ઉપર "+ નવી મિલકત ઉમેરો" દબાવો.</string>
+    <string name="v4_asset_add">નવી મિલકત ઉમેરો</string>
+    <string name="v4_asset_add_title">નવી મિલકત</string>
+    <string name="v4_asset_new_short">નવી</string>
+    <string name="v4_asset_added">મિલકત ઉમેરાઈ ગઈ.</string>
+    <string name="v4_asset_price">કિંમત ₹ (જરૂરી નથી)</string>
+    <string name="v4_asset_note">નોંધ (જરૂરી નથી)</string>
+    <string name="v4_asset_delete_body">આ મિલકત યાદીમાંથી નીકળી જશે. જૂનો ઉછીનો ઇતિહાસ રહેશે.</string>
+    <string name="v4_asset_pick">મિલકત પસંદ કરો</string>
+    <string name="v4_asset_none_yet">પહેલાં "+ નવી" થી મિલકત ઉમેરો</string>
+    <string name="v4_days_n">%d દિવસ</string>
+</resources>

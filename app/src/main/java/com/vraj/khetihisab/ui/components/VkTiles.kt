@@ -85,13 +85,17 @@ import kotlin.math.sin
 /** Which corner ornament a tile draws. All use the theme's single hue. */
 enum class VkTileOrnament { LEAF, RANGOLI, MOON, FIELD, WAVE, SUN }
 
-/** Rise + fade in, staggered by [index]; plays once per screen visit (not on every scroll). */
+/**
+ * Rise + fade in, staggered by [index] (capped at 6, so nothing waits long); plays once per screen
+ * visit (not on every scroll). Skipped when the phone's animations are off ([LocalVkMotion]).
+ */
 fun Modifier.vkAppear(index: Int, key: String = "appear"): Modifier = composed {
     var played by rememberSaveable(key) { mutableStateOf(false) }
-    val a = remember { Animatable(if (played) 1f else 0f) }
+    val motion = LocalVkMotion.current.enabled
+    val a = remember { Animatable(if (played || !motion) 1f else 0f) }
     LaunchedEffect(Unit) {
-        if (!played) {
-            delay(40L * index.coerceAtMost(10))
+        if (!played && motion) {
+            delay(40L * index.coerceIn(0, 6))
             a.animateTo(1f, tween(durationMillis = 420, easing = FastOutSlowInEasing))
             played = true
         }
@@ -103,9 +107,10 @@ fun Modifier.vkAppear(index: Int, key: String = "appear"): Modifier = composed {
 }
 
 /** Springy 0.96 press scale for any clickable surface sharing [interaction]. */
-fun Modifier.vkPressScale(interaction: MutableInteractionSource): Modifier = composed {
+fun Modifier.vkPressScale(interaction: MutableInteractionSource, pressedScale: Float = 0.96f): Modifier = composed {
     val pressed by interaction.collectIsPressedAsState()
-    val s by animateFloatAsState(if (pressed) 0.96f else 1f, spring(dampingRatio = 0.55f, stiffness = 600f), label = "press")
+    val motion = LocalVkMotion.current.enabled
+    val s by animateFloatAsState(if (pressed && motion) pressedScale else 1f, spring(dampingRatio = 0.55f, stiffness = 600f), label = "press")
     graphicsLayer { scaleX = s; scaleY = s }
 }
 
@@ -143,10 +148,20 @@ fun VkTile(
             .then(if (testTag != null) Modifier.testTag(testTag) else Modifier),
     ) {
         TileOrnament(ornament, x.ornament, cs.primaryContainer, Modifier.matchParentSize())
-        Column(Modifier.fillMaxWidth().padding(14.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Column(Modifier.fillMaxWidth().padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            // A3: when the red flag clears (e.g. backup taken) the flag fades and one ring pulses.
+            var hadAlert by remember { mutableStateOf(alert) }
+            var cleared by remember { mutableStateOf(0) }
+            LaunchedEffect(alert) {
+                if (hadAlert && !alert) cleared++
+                hadAlert = alert
+            }
             Box {
-                IconDisc(icon)
-                if (alert) VkAlertFlag(Modifier.align(Alignment.TopEnd))
+                IconDisc(icon, breathe = alert)
+                if (cleared > 0) VkPulseRing(cleared, Modifier.matchParentSize())
+                androidx.compose.animation.AnimatedVisibility(alert, Modifier.align(Alignment.TopEnd), enter = fadeIn(), exit = fadeOut() + androidx.compose.animation.scaleOut()) {
+                    VkAlertFlag()
+                }
             }
             Text(
                 title,
@@ -169,13 +184,20 @@ fun VkTile(
     }
 }
 
-/** Icon on a soft disc with a slow "breathing" ring — the tile's focal point. */
+/**
+ * Icon on a soft disc — the tile's focal point. The slow "breathing" ring plays only when
+ * [breathe] (alert tiles), so calm tiles stay still.
+ */
 @Composable
-fun IconDisc(icon: VkIcon, size: Dp = 52.dp, onGradient: Boolean = false) {
+fun IconDisc(icon: VkIcon, size: Dp = 52.dp, onGradient: Boolean = false, breathe: Boolean = false) {
     val cs = MaterialTheme.colorScheme
     val x = LocalVkExtra.current
-    val t = rememberInfiniteTransition(label = "disc")
-    val ring by t.animateFloat(0.0f, 1f, infiniteRepeatable(tween(2600, easing = LinearEasing), RepeatMode.Reverse), label = "ring")
+    val ring = if (breathe && LocalVkMotion.current.enabled) {
+        val t = rememberInfiniteTransition(label = "disc")
+        t.animateFloat(0.0f, 1f, infiniteRepeatable(tween(2600, easing = LinearEasing), RepeatMode.Reverse), label = "ring").value
+    } else {
+        0.5f
+    }
     val disc = if (onGradient) x.headerButton else cs.primaryContainer
     val ringColor = if (onGradient) x.onGradient else cs.primary
     Box(Modifier.size(size), contentAlignment = Alignment.Center) {
@@ -279,8 +301,11 @@ fun VkHeroTile(
 ) {
     val x = LocalVkExtra.current
     val shape = RoundedCornerShape(16.dp)
-    val t = rememberInfiniteTransition(label = "hero")
-    val sweep by t.animateFloat(-0.4f, 1.4f, infiniteRepeatable(tween(4200, easing = LinearEasing)), label = "sweep")
+    // Light sweep plays once per visit (audit #52), not forever.
+    val motion = LocalVkMotion.current.enabled
+    val sweepA = remember { Animatable(if (motion) -0.4f else 1.4f) }
+    LaunchedEffect(Unit) { if (motion) sweepA.animateTo(1.4f, tween(1800, easing = FastOutSlowInEasing)) }
+    val sweep = sweepA.value
     Box(modifier.vkAppear(0, "hero_$title").clip(shape).background(x.brandBrush)) {
         Canvas(Modifier.matchParentSize()) {
             // Light sweep — a soft diagonal band moving across the gradient.
@@ -300,7 +325,7 @@ fun VkHeroTile(
                 drawLine(x.onGradient.copy(alpha = 0.10f), Offset(w * 0.55f + i * 10.dp.toPx(), y), Offset(w, y - 18.dp.toPx()), strokeWidth = 2.dp.toPx(), cap = StrokeCap.Round)
             }
         }
-        Column(Modifier.fillMaxWidth().padding(14.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        Column(Modifier.fillMaxWidth().padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 IconDisc(icon, size = 48.dp, onGradient = true)
                 Spacer(Modifier.width(12.dp))
@@ -327,7 +352,7 @@ fun VkSubTile(
 ) {
     val cs = MaterialTheme.colorScheme
     val interaction = remember { MutableInteractionSource() }
-    val shape = RoundedCornerShape(14.dp)
+    val shape = RoundedCornerShape(16.dp)
     Column(
         modifier
             .vkPressScale(interaction)
@@ -349,11 +374,12 @@ fun VkSubTile(
 // ------------------------------------------------------------------ masked money
 
 /** Text shown instead of a hidden amount (owner wording "XXXXX.XX"). */
-const val VK_MASK = "₹ XXXXX.XX"
+const val VK_MASK = "₹XXXXX.XX"
 
 /**
  * Money that can be hidden. Revealed amounts count up from 0 (600 ms) — a small delight that also
- * shows the number is live. Never shrinks (single line, no ellipsis on digits).
+ * shows the number is live. Single line; long amounts autosize down to 20sp (audit #4), never clip
+ * with an ellipsis.
  */
 @Composable
 fun VkMaskedRupees(
@@ -373,10 +399,13 @@ fun VkMaskedRupees(
         if (!show) {
             FitText(VK_MASK, style, color.copy(alpha = 0.75f))
         } else {
-            val a = remember { Animatable(0f) }
+            val motion = LocalVkMotion.current.enabled
+            val a = remember { Animatable(if (motion) 0f else 1f) }
             LaunchedEffect(paise) {
-                a.snapTo(0f)
-                a.animateTo(1f, tween(600, easing = FastOutSlowInEasing))
+                if (motion) {
+                    a.snapTo(0f)
+                    a.animateTo(1f, tween(600, easing = FastOutSlowInEasing))
+                }
             }
             val shown = (paise * a.value).toLong()
             val text = (if (paise < 0) "−" else "") + VkFormat.rupees(kotlin.math.abs(shown))
@@ -385,20 +414,9 @@ fun VkMaskedRupees(
     }
 }
 
-/** One line that shrinks (down to 14sp) instead of clipping — big lakh amounts stay whole. */
 @Composable
-private fun FitText(text: String, style: TextStyle, color: Color) {
-    androidx.compose.foundation.text.BasicText(
-        text = text,
-        style = style.copy(color = color),
-        maxLines = 1,
-        softWrap = false,
-        autoSize = androidx.compose.foundation.text.TextAutoSize.StepBased(
-            minFontSize = androidx.compose.ui.unit.TextUnit(14f, androidx.compose.ui.unit.TextUnitType.Sp),
-            maxFontSize = style.fontSize,
-        ),
-    )
-}
+private fun FitText(text: String, style: TextStyle, color: Color) =
+    VkFitText(text, style, color, minSize = 20)
 
 /** Eye toggle (like a password field). 60dp touch target, 44dp visible disc. */
 @Composable

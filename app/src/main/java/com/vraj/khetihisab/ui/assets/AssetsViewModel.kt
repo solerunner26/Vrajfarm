@@ -56,6 +56,7 @@ sealed interface AssetsEvent {
     data class Dial(val phone: String) : AssetsEvent
     data object Returned : AssetsEvent
     data object DeleteBlocked : AssetsEvent
+    data object Added : AssetsEvent
 }
 
 /** Owner signature for the WhatsApp templates. */
@@ -68,9 +69,11 @@ class AssetsViewModel(
     private val today: () -> LocalDate = LocalDate::now,
     private val loanTemplate: () -> String = { WhatsAppTemplates.DEFAULT_LOAN_REMINDER },
     remindLoanId: Long? = null,
+    /** Settings / Home "મિલકત વ્યવસ્થા" open on "બધી મિલકત"; loan alerts open on "ઉછીની". */
+    initialTab: AssetsTab = AssetsTab.LENT,
 ) : ViewModel() {
 
-    private val tab = MutableStateFlow(AssetsTab.LENT)
+    private val tab = MutableStateFlow(initialTab)
     private val query = MutableStateFlow("")
     private val confirmReturn = MutableStateFlow<LoanWithAsset?>(null)
     private val detailId = MutableStateFlow<Long?>(null)
@@ -178,6 +181,15 @@ class AssetsViewModel(
         detailId.value = null
     }
 
+    /** "+ નવી મિલકત" from asset management (owner 2026-11-05: add all assets when starting the app). */
+    fun addAsset(name: String, priceText: String, note: String) {
+        if (name.isBlank()) return
+        viewModelScope.launch {
+            store.addAssetFull(name, com.vraj.khetihisab.ui.shopping.MoneyInput.toPaise(priceText), note)
+            events.send(AssetsEvent.Added)
+        }
+    }
+
     fun editAsset(assetId: Long, name: String, priceText: String) {
         if (name.isBlank()) return
         viewModelScope.launch { store.updateAsset(assetId, name, com.vraj.khetihisab.ui.shopping.MoneyInput.toPaise(priceText)) }
@@ -201,11 +213,11 @@ class AssetsViewModel(
             return inv.map { AssetTile(it.asset, it.isLent, borrower[it.asset.id]) }
         }
 
-        fun factory(store: AssetsStore, loanTemplate: () -> String, remindLoanId: Long?): ViewModelProvider.Factory =
+        fun factory(store: AssetsStore, loanTemplate: () -> String, remindLoanId: Long?, initialTab: AssetsTab = AssetsTab.LENT): ViewModelProvider.Factory =
             object : ViewModelProvider.Factory {
                 @Suppress("UNCHECKED_CAST")
                 override fun <T : ViewModel> create(modelClass: Class<T>): T =
-                    AssetsViewModel(store, loanTemplate = loanTemplate, remindLoanId = remindLoanId) as T
+                    AssetsViewModel(store, loanTemplate = loanTemplate, remindLoanId = remindLoanId, initialTab = initialTab) as T
             }
     }
 }

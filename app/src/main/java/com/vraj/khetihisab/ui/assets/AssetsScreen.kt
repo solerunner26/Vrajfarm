@@ -38,10 +38,15 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.background
+import androidx.compose.ui.platform.testTag
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -83,6 +88,8 @@ fun AssetsScreen(
     val snackbar = remember { SnackbarHostState() }
     val returnedMsg = stringResource(R.string.as_saved)
     val blockedMsg = stringResource(R.string.as_delete_blocked)
+    val addedMsg = stringResource(R.string.v4_asset_added)
+    var adding by rememberSaveable { mutableStateOf(false) }
 
     LaunchedEffect(vm) {
         vm.eventFlow.collect { e ->
@@ -98,20 +105,29 @@ fun AssetsScreen(
                 }
                 AssetsEvent.Returned -> snackbar.showSnackbar(returnedMsg)
                 AssetsEvent.DeleteBlocked -> snackbar.showSnackbar(blockedMsg)
+                AssetsEvent.Added -> snackbar.showSnackbar(addedMsg)
             }
         }
     }
 
-    Box(Modifier.fillMaxSize()) {
-        Column(Modifier.fillMaxSize()) {
-            VkTopHeader(title = stringResource(R.string.as_assets_title), onBack = onBack) {
+    // Header · list · bottom bar in one Column: the bar sits BELOW the list, never over a card.
+    Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.surface)) {
+            VkTopHeader(title = stringResource(R.string.v3_assets_tile), onBack = onBack) {
                 AsSearchField(st.query, vm::onQuery, stringResource(R.string.as_search_who))
             }
             LazyColumn(
-                Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 12.dp, bottom = 120.dp),
+                Modifier.weight(1f).fillMaxWidth().testTag("assets_list"),
+                contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 12.dp, bottom = 16.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
+                item(key = "summary") {
+                    val late = st.lent.count { it.status.isOverdue }
+                    Row(Modifier.fillMaxWidth().height(IntrinsicSize.Min), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                        SummaryTile(stringResource(R.string.v4_assets_total), st.allCount.toString(), Modifier.weight(1f).fillMaxHeight())
+                        SummaryTile(stringResource(R.string.v4_assets_out), st.lentCount.toString(), Modifier.weight(1f).fillMaxHeight())
+                        SummaryTile(stringResource(R.string.v4_assets_late), late.toString(), Modifier.weight(1f).fillMaxHeight(), alert = late > 0)
+                    }
+                }
                 item(key = "tabs") {
                     VkSegmented(
                         options = listOf(
@@ -131,10 +147,13 @@ fun AssetsScreen(
                         }
                     }
                     AssetsTab.ALL -> {
-                        if (st.loaded && st.inventory.isEmpty()) item(key = "e") { EmptyLine(stringResource(R.string.as_no_assets)) }
+                        item(key = "add") {
+                            VkTonalButton(stringResource(R.string.v4_asset_add), { adding = true }, Modifier.fillMaxWidth().testTag("asset_add"), sign = "+")
+                        }
+                        if (st.loaded && st.inventory.isEmpty()) item(key = "e") { EmptyLine(stringResource(R.string.v4_assets_empty)) }
                         items(st.inventory.chunked(2), key = { "a${it.first().asset.id}" }) { pair ->
-                            Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                                pair.forEach { t -> AssetTileView(t, Modifier.weight(1f)) { vm.openDetail(t.asset.id) } }
+                            Row(Modifier.fillMaxWidth().height(IntrinsicSize.Min), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                                pair.forEachIndexed { i, t -> AssetTileView(t, Modifier.weight(1f).fillMaxHeight(), i) { vm.openDetail(t.asset.id) } }
                                 if (pair.size == 1) Spacer(Modifier.weight(1f))
                             }
                         }
@@ -145,14 +164,25 @@ fun AssetsScreen(
                     }
                 }
             }
-        }
         Column(
-            Modifier.align(Alignment.BottomCenter).fillMaxWidth().navigationBarsPadding().padding(16.dp),
+            Modifier
+                .fillMaxWidth()
+                .background(LocalVkExtra.current.dock)
+                .navigationBarsPadding()
+                .padding(start = 16.dp, end = 16.dp, top = 12.dp, bottom = 16.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             SnackbarHost(snackbar)
-            VkPrimaryButton(stringResource(R.string.as_lend_fab), onClick = { onLend(null) }, modifier = Modifier.fillMaxWidth(), icon = VkIcon.LEND)
+            VkPrimaryButton(stringResource(R.string.as_lend_fab), onClick = { onLend(null) }, modifier = Modifier.fillMaxWidth().testTag("lend_open"), icon = VkIcon.LEND)
         }
+    }
+    if (adding) {
+        AssetFormDialog(
+            title = stringResource(R.string.v4_asset_add_title),
+            initialName = "", initialPrice = "", initialNote = "",
+            onDismiss = { adding = false },
+            onSave = { n, p, note -> vm.addAsset(n, p, note); adding = false },
+        )
     }
 
     st.confirmReturn?.let { l -> ConfirmReturnDialog(l, onYes = vm::confirmReturned, onNo = vm::cancelReturn) }
@@ -227,7 +257,7 @@ private fun LoanCardView(c: LoanCard, onRemind: () -> Unit, onReturned: () -> Un
             if (!l.borrowerPhone.isNullOrBlank()) {
                 FilledTonalIconButton(
                     onClick = onCall,
-                    modifier = Modifier.size(48.dp),
+                    modifier = Modifier.size(60.dp),
                     colors = IconButtonDefaults.filledTonalIconButtonColors(containerColor = cs.primaryContainer, contentColor = cs.onPrimaryContainer),
                 ) { Icon(Icons.Rounded.Call, contentDescription = stringResource(R.string.as_call)) }
             }
@@ -249,17 +279,61 @@ private fun takenLabel(date: java.time.LocalDate, tithi: String): String =
     if (tithi.isBlank()) AssetsFormat.dmy(date) else "${AssetsFormat.dmy(date)} · $tithi"
 
 @Composable
-private fun AssetTileView(t: AssetTile, modifier: Modifier, onClick: () -> Unit) {
+private fun AssetTileView(t: AssetTile, modifier: Modifier, index: Int, onClick: () -> Unit) {
+    // Same tile as Home / Settings (owner 2026-11-05: one standard design everywhere).
+    com.vraj.khetihisab.ui.components.VkTile(
+        icon = AssetsFormat.icon(t.asset.iconKey),
+        title = t.asset.name,
+        onClick = onClick,
+        modifier = modifier,
+        subtitle = if (t.isLent) stringResource(R.string.as_lent_to, t.borrowerName.orEmpty()) else stringResource(R.string.as_at_home),
+        ornament = if (t.isLent) com.vraj.khetihisab.ui.components.VkTileOrnament.WAVE else com.vraj.khetihisab.ui.components.VkTileOrnament.LEAF,
+        index = index,
+        value = t.asset.pricePaise?.let { p -> { Text(VkFormat.rupees(p), style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.ExtraBold), maxLines = 1, softWrap = false) } },
+    )
+}
+
+@Composable
+private fun SummaryTile(label: String, value: String, modifier: Modifier, alert: Boolean = false) {
     val cs = MaterialTheme.colorScheme
-    VkCard(modifier.heightIn(min = 132.dp), onClick = onClick, contentPadding = 14.dp) {
-        VkIconImage(AssetsFormat.icon(t.asset.iconKey), size = 40.dp)
-        Text(t.asset.name, style = MaterialTheme.typography.titleMedium, maxLines = 1, overflow = TextOverflow.Ellipsis)
-        if (t.isLent) {
-            VkBadge(t.borrowerName?.let { stringResource(R.string.as_lent_to, it) } ?: stringResource(R.string.as_lent_to, ""), cs.secondaryContainer, cs.onSecondaryContainer)
-        } else {
-            VkBadge(stringResource(R.string.as_at_home), cs.primaryContainer, cs.onPrimaryContainer)
-        }
+    VkCard(modifier, tone = if (alert) com.vraj.khetihisab.ui.components.VkTone.Error else com.vraj.khetihisab.ui.components.VkTone.Primary, contentPadding = 12.dp) {
+        Text(label, style = MaterialTheme.typography.bodyMedium, color = if (alert) cs.onErrorContainer else cs.onSecondaryContainer, maxLines = 1, overflow = TextOverflow.Ellipsis)
+        Text(value, style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.ExtraBold), color = if (alert) cs.error else cs.primary, maxLines = 1)
     }
+}
+
+/** One add / edit form for assets (asset management and the lend screen use the same dialog). */
+@Composable
+internal fun AssetFormDialog(
+    title: String,
+    initialName: String,
+    initialPrice: String,
+    initialNote: String,
+    onDismiss: () -> Unit,
+    onSave: (name: String, price: String, note: String) -> Unit,
+) {
+    var name by rememberSaveable { mutableStateOf(initialName) }
+    var price by rememberSaveable { mutableStateOf(initialPrice) }
+    var note by rememberSaveable { mutableStateOf(initialNote) }
+    androidx.compose.material3.AlertDialog(
+        onDismissRequest = onDismiss,
+        shape = RoundedCornerShape(28.dp),
+        title = { Text(title, style = MaterialTheme.typography.headlineSmall) },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                AsTextField(value = name, onValueChange = { name = it.take(40) }, label = stringResource(R.string.v3_asset_name))
+                AsTextField(
+                    value = price,
+                    onValueChange = { v -> price = v.filter { it.isDigit() || it == '.' } },
+                    label = stringResource(R.string.v4_asset_price),
+                    keyboard = androidx.compose.foundation.text.KeyboardOptions(keyboardType = androidx.compose.ui.text.input.KeyboardType.Decimal),
+                )
+                AsTextField(value = note, onValueChange = { note = it.take(80) }, label = stringResource(R.string.v4_asset_note))
+            }
+        },
+        confirmButton = { VkPrimaryButton(stringResource(R.string.scr_save), { onSave(name.trim(), price, note) }, enabled = name.isNotBlank()) },
+        dismissButton = { VkTextButton(stringResource(R.string.scr_cancel), onDismiss) },
+    )
 }
 
 @Composable
@@ -325,25 +399,25 @@ private fun AssetDetailSheet(
 ) {
     val sheet = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     var editing by remember { mutableStateOf(false) }
+    var confirmDelete by remember { mutableStateOf(false) }
     if (editing) {
-        var name by remember { mutableStateOf(d.asset.name) }
-        var price by remember { mutableStateOf(d.asset.pricePaise?.let(com.vraj.khetihisab.ui.shopping.MoneyInput::fromPaise).orEmpty()) }
+        AssetFormDialog(
+            title = stringResource(R.string.v2_edit),
+            initialName = d.asset.name,
+            initialPrice = d.asset.pricePaise?.let(com.vraj.khetihisab.ui.shopping.MoneyInput::fromPaise).orEmpty(),
+            initialNote = d.asset.note.orEmpty(),
+            onDismiss = { editing = false },
+            onSave = { n, p, _ -> onEdit(n, p); editing = false },
+        )
+    }
+    if (confirmDelete) {
         androidx.compose.material3.AlertDialog(
-            onDismissRequest = { editing = false },
-            title = { Text(stringResource(R.string.v2_edit), style = MaterialTheme.typography.headlineSmall) },
-            text = {
-                Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                    AsTextField(value = name, onValueChange = { name = it.take(40) }, label = stringResource(R.string.v3_asset_name))
-                    AsTextField(
-                        value = price,
-                        onValueChange = { v -> price = v.filter { it.isDigit() || it == '.' } },
-                        label = stringResource(R.string.as_est_price),
-                        keyboard = androidx.compose.foundation.text.KeyboardOptions(keyboardType = androidx.compose.ui.text.input.KeyboardType.Decimal),
-                    )
-                }
-            },
-            confirmButton = { VkPrimaryButton(stringResource(R.string.scr_save), { onEdit(name, price); editing = false }, enabled = name.isNotBlank()) },
-            dismissButton = { VkTextButton(stringResource(R.string.scr_cancel), { editing = false }) },
+            onDismissRequest = { confirmDelete = false },
+            shape = RoundedCornerShape(28.dp),
+            title = { Text(stringResource(R.string.v2_delete_q, d.asset.name), style = MaterialTheme.typography.headlineSmall) },
+            text = { Text(stringResource(R.string.v4_asset_delete_body), style = MaterialTheme.typography.bodyLarge) },
+            confirmButton = { VkPrimaryButton(stringResource(R.string.v2_yes_delete), { confirmDelete = false; onDelete() }) },
+            dismissButton = { VkTextButton(stringResource(R.string.scr_cancel), { confirmDelete = false }) },
         )
     }
     ModalBottomSheet(onDismissRequest = onDismiss, sheetState = sheet, containerColor = MaterialTheme.colorScheme.surfaceContainerLowest) {
@@ -383,7 +457,7 @@ private fun AssetDetailSheet(
             }
             if (!d.isLent) VkPrimaryButton(stringResource(R.string.as_lend_fab), onLend, Modifier.fillMaxWidth(), icon = VkIcon.LEND)
             VkTonalButton(stringResource(R.string.v2_edit), { editing = true }, Modifier.fillMaxWidth())
-            VkTextButton(stringResource(R.string.as_delete), onDelete, Modifier.fillMaxWidth())
+            com.vraj.khetihisab.ui.components.VkOutlinedButton(stringResource(R.string.as_delete), { confirmDelete = true }, Modifier.fillMaxWidth())
         }
     }
 }

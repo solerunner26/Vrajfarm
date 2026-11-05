@@ -125,7 +125,7 @@ fun HomeScreen(
         LazyColumn(
             Modifier.weight(1f).fillMaxWidth().testTag("home_list"),
             contentPadding = PaddingValues(bottom = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(14.dp),
+            verticalArrangement = Arrangement.spacedBy(com.vraj.khetihisab.ui.theme.VkDimens.listGap),
         ) {
             item(key = "header") { HomeHeader(state, onOpen) }
             item(key = "panchang") { UpcomingCard(state.today, state.upcoming, { onOpen(HomeRoutes.PANCHANG) }, pad) }
@@ -167,7 +167,8 @@ fun HomeScreen(
                     stringResource(R.string.scr_recent),
                     pad,
                     action = stringResource(R.string.scr_see_all),
-                    onAction = { onOpen(HomeRoutes.FARMS) },
+                    // The Panchang calendar lists every entry per day (audit #17).
+                    onAction = { onOpen(HomeRoutes.PANCHANG) },
                 )
             }
             item(key = "recent") { RecentCard(state.recent, shown, { billPath = it }, { actionsFor = it }, pad) }
@@ -212,34 +213,34 @@ private fun HomeHeader(state: HomeUiState, onOpen: (String) -> Unit) {
         },
     ) {
         val day = state.panchang
-        // Tap today's date → Panchang calendar (owner request 2026-11-05).
-        Text(
-            if (day != null) stringResource(R.string.hm_date_weekday, ScreensFormat.longDate(state.today), day.weekdayGu) else ScreensFormat.longDate(state.today),
-            color = x.onGradient,
-            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold, fontSize = 18.sp),
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-            modifier = Modifier
-                .heightIn(min = 48.dp)
-                .clip(RoundedCornerShape(12.dp))
-                .clickable(role = Role.Button) { onOpen(HomeRoutes.PANCHANG) }
-                .testTag("home_date")
-                .wrapContentHeight(),
-        )
-        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            if (day != null) {
-                Text(
-                    stringResource(R.string.hm_tithi_vs, day.tithiGu, day.vsLabel),
-                    color = x.onGradient,
-                    style = MaterialTheme.typography.bodyLarge,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier.weight(1f),
-                )
-            } else {
-                Spacer(Modifier.weight(1f))
-            }
+        // Date + backup pill on one row; the tithi line gets the full width below (audit #11).
+        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            // Tap today's date → Panchang calendar (owner request 2026-11-05).
+            Text(
+                if (day != null) stringResource(R.string.hm_date_weekday, ScreensFormat.longDate(state.today), day.weekdayGu) else ScreensFormat.longDate(state.today),
+                color = x.onGradient,
+                style = MaterialTheme.typography.titleMedium,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier
+                    .weight(1f)
+                    .heightIn(min = 48.dp)
+                    .clip(RoundedCornerShape(12.dp))
+                    .clickable(role = Role.Button) { onOpen(HomeRoutes.PANCHANG) }
+                    .testTag("home_date")
+                    .wrapContentHeight(),
+            )
             BackupPill(state.backup) { onOpen(HomeRoutes.BACKUP_SETTINGS) }
+        }
+        if (day != null) {
+            Text(
+                stringResource(R.string.hm_tithi_vs, day.tithiGu, day.vsLabel),
+                color = x.onGradient,
+                style = MaterialTheme.typography.bodyLarge,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.fillMaxWidth(),
+            )
         }
     }
 }
@@ -254,22 +255,33 @@ private fun BackupPill(status: BackupUiStatus, onOpenSettings: () -> Unit) {
         },
     )
     val cs = MaterialTheme.colorScheme
+    val x = LocalVkExtra.current
+    // A3: when the backup turns OK while Home is open, the badge cross-fades and a ring pulses once.
+    var wasBad by remember { mutableStateOf(status != BackupUiStatus.OK) }
+    var celebrate by remember { mutableStateOf(0) }
+    androidx.compose.runtime.LaunchedEffect(status) {
+        if (status == BackupUiStatus.OK && wasBad) celebrate++
+        wasBad = status != BackupUiStatus.OK
+    }
     // Not taken today (or failed) → red pill with a flag, so it cannot be missed (owner 2026-11-05).
     Box(
         Modifier
-            .heightIn(min = 48.dp)
+            .heightIn(min = 60.dp)
             .clip(CircleShape)
             .clickable(role = Role.Button, onClick = onOpenSettings)
             .testTag("home_backup"),
         contentAlignment = Alignment.Center,
     ) {
-        if (status == BackupUiStatus.OK) {
-            VkHeaderChip(label)
-        } else {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                com.vraj.khetihisab.ui.components.VkAlertFlag(size = 22.dp)
-                Spacer(Modifier.width(6.dp))
-                VkBadge(label, cs.error, cs.onError)
+        if (celebrate > 0) com.vraj.khetihisab.ui.components.VkPulseRing(celebrate, Modifier.matchParentSize(), x.onGradient)
+        androidx.compose.animation.AnimatedContent(status == BackupUiStatus.OK, label = "backup") { ok ->
+            if (ok) {
+                VkHeaderChip(label)
+            } else {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    com.vraj.khetihisab.ui.components.VkAlertFlag(size = 22.dp)
+                    Spacer(Modifier.width(6.dp))
+                    VkBadge(label, cs.error, cs.onError)
+                }
             }
         }
     }
@@ -403,7 +415,7 @@ private fun CardTitleRow(icon: VkIcon, title: String, chip: String? = null) {
         Spacer(Modifier.width(12.dp))
         Text(
             title,
-            style = MaterialTheme.typography.titleLarge.copy(fontSize = 22.sp),
+            style = MaterialTheme.typography.headlineSmall,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
             modifier = Modifier.weight(1f),
@@ -415,17 +427,22 @@ private fun CardTitleRow(icon: VkIcon, title: String, chip: String? = null) {
     }
 }
 
-/** આવક / ખર્ચ / ચોખ્ખો નફો in three columns; the net is primary, or error when negative. */
+/**
+ * આવક + ખર્ચ side by side, ચોખ્ખો નફો full width below (audit #3) so no amount is squeezed into a
+ * third of the width. The net is primary, or error when negative; all count up (A2).
+ */
 @Composable
 internal fun ThreeStats(t: Totals) {
     val cs = MaterialTheme.colorScheme
-    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        StatTile(stringResource(R.string.scr_income), ScreensFormat.signedRupees(t.income), Modifier.weight(1f))
-        StatTile(stringResource(R.string.scr_expense), ScreensFormat.signedRupees(t.expense), Modifier.weight(1f))
-        StatTile(
+    Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            MoneyStat(stringResource(R.string.scr_income), t.income, Modifier.weight(1f), big = false)
+            MoneyStat(stringResource(R.string.scr_expense), t.expense, Modifier.weight(1f), big = false)
+        }
+        MoneyStat(
             stringResource(R.string.scr_net_profit),
-            ScreensFormat.signedRupees(t.net),
-            Modifier.weight(1f),
+            t.net,
+            Modifier.fillMaxWidth(),
             valueColor = if (t.net < 0) cs.error else cs.primary,
         )
     }
@@ -452,7 +469,7 @@ private fun HisabHero(
         paise,
         revealed = shown,
         color = if (paise < 0) cs.error else cs.primary,
-        style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.ExtraBold, fontSize = 26.sp),
+        style = com.vraj.khetihisab.ui.theme.VkCurrencyStyle,
         testTag = tag,
     )
     VkHeroTile(
@@ -499,7 +516,7 @@ private fun SectionTiles(state: HomeUiState, shown: Boolean, onOpen: (String) ->
     fun money(label: String, paise: Long): @Composable () -> Unit = {
         Column {
             Text(label, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
-            VkMaskedRupees(paise, revealed = shown, style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.ExtraBold, fontSize = 26.sp))
+            VkMaskedRupees(paise, revealed = shown, style = com.vraj.khetihisab.ui.theme.VkCurrencyStyle)
         }
     }
     Column(modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -533,7 +550,7 @@ private fun SectionTiles(state: HomeUiState, shown: Boolean, onOpen: (String) ->
         }
         VkTileRow {
             VkTile(
-                VkIcon.ASSET, stringResource(R.string.v3_assets_tile), { onOpen(HomeRoutes.ASSETS) },
+                VkIcon.ASSET, stringResource(R.string.v3_assets_tile), { onOpen(HomeRoutes.ASSETS + "?tab=all") },
                 Modifier.weight(1f).fillMaxHeight(),
                 subtitle = stringResource(R.string.v3_assets_lent, state.assetsLent),
                 ornament = VkTileOrnament.WAVE, index = 5, testTag = "home_tile_assets",
@@ -552,12 +569,7 @@ private fun SectionTiles(state: HomeUiState, shown: Boolean, onOpen: (String) ->
 private fun RecentCard(rows: List<LedgerRowUi>, shown: Boolean, onViewBill: (String) -> Unit, onRow: (LedgerRowUi) -> Unit, modifier: Modifier) {
     VkCard(modifier.fillMaxWidth(), contentPadding = 0.dp) {
         if (rows.isEmpty()) {
-            Text(
-                stringResource(R.string.scr_no_entries),
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(16.dp),
-            )
+            com.vraj.khetihisab.ui.components.VkEmptyState(VkIcon.BILL, stringResource(R.string.scr_no_entries))
         }
         rows.forEachIndexed { i, r ->
             if (i > 0) VkRowDivider()

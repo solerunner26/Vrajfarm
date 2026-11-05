@@ -84,27 +84,16 @@ internal fun AsTextField(
     isError: Boolean = false,
     supporting: String? = null,
     leading: (@Composable () -> Unit)? = null,
-) {
-    val cs = MaterialTheme.colorScheme
-    OutlinedTextField(
-        value = value,
-        onValueChange = onValueChange,
-        label = { Text(label, maxLines = 1, overflow = TextOverflow.Ellipsis) },
-        singleLine = true,
-        isError = isError,
-        keyboardOptions = keyboard.gujarati(),
-        leadingIcon = leading,
-        supportingText = supporting?.let { { Text(it, maxLines = 1, overflow = TextOverflow.Ellipsis) } },
-        shape = RoundedCornerShape(16.dp),
-        textStyle = MaterialTheme.typography.bodyLarge,
-        colors = OutlinedTextFieldDefaults.colors(
-            focusedContainerColor = cs.surfaceContainerLowest,
-            unfocusedContainerColor = cs.surfaceContainerLowest,
-            unfocusedBorderColor = cs.outline,
-        ),
-        modifier = modifier.fillMaxWidth().heightIn(min = 60.dp),
-    )
-}
+) = com.vraj.khetihisab.ui.components.VkTextField(
+    value = value,
+    onValueChange = onValueChange,
+    label = label,
+    modifier = modifier,
+    keyboard = keyboard,
+    isError = isError,
+    supporting = supporting,
+    leading = leading,
+)
 
 /** Header search field (Assets: "કોણ લઈ ગયું? નામ, તારીખ…"). */
 @Composable

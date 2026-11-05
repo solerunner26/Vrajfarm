@@ -115,14 +115,14 @@ fun PanchangAlertHost(vm: PanchangAlertViewModel, onOpenCalendar: (epochDay: Lon
     val created = stringResource(R.string.st_reminder_created)
     val exists = stringResource(R.string.st_reminder_exists)
     val failed = stringResource(R.string.st_reminder_failed)
+    val snackbar = com.vraj.khetihisab.ui.components.rememberVkSnackbar()
     LaunchedEffect(vm) {
         vm.events.collect { o ->
-            val msg = when (o) {
-                ReminderOutcome.CREATED -> created
-                ReminderOutcome.EXISTS -> exists
-                ReminderOutcome.FAILED -> failed
+            when (o) {
+                ReminderOutcome.CREATED -> snackbar.show(created, success = true)
+                ReminderOutcome.EXISTS -> snackbar.show(exists)
+                ReminderOutcome.FAILED -> snackbar.show(failed)
             }
-            Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
         }
     }
     alert?.let { a ->

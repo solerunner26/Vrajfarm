@@ -1,38 +1,24 @@
 package com.vraj.khetihisab.ui.settings
 
-import com.vraj.khetihisab.ui.components.gujarati
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
-import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.semantics.role
-import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.semantics.stateDescription
-import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.input.VisualTransformation
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.vraj.khetihisab.ui.components.VkListRow
-import com.vraj.khetihisab.ui.components.VkPrimaryButton
-import com.vraj.khetihisab.ui.components.VkTextButton
+import com.vraj.khetihisab.ui.components.VkDialog
+import com.vraj.khetihisab.ui.components.VkSwitchRow
+import com.vraj.khetihisab.ui.components.VkTextField
 import com.vraj.khetihisab.ui.theme.VkIcon
 
 /*
@@ -72,7 +58,7 @@ internal fun StBodyColumn(content: @Composable ColumnScope.() -> Unit) {
     )
 }
 
-/** Outlined text field in the app's input style (16dp radius, card fill, 60dp min height). */
+/** Settings-family alias of [com.vraj.khetihisab.ui.components.VkTextField] (kept for call sites). */
 @Composable
 internal fun StTextField(
     value: String,
@@ -86,32 +72,21 @@ internal fun StTextField(
     supporting: String? = null,
     placeholder: String? = null,
     password: Boolean = false,
-) {
-    val cs = MaterialTheme.colorScheme
-    OutlinedTextField(
-        value = value,
-        onValueChange = onValueChange,
-        label = { Text(label, maxLines = 1, overflow = TextOverflow.Ellipsis) },
-        placeholder = placeholder?.let { { Text(it, maxLines = 1, overflow = TextOverflow.Ellipsis) } },
-        singleLine = singleLine,
-        minLines = if (singleLine) 1 else minLines,
-        isError = isError,
-        // Gujarati keyboard by default (owner request 2026-11-05); e-mail fields keep a Latin keyboard.
-        keyboardOptions = if (keyboard.keyboardType == androidx.compose.ui.text.input.KeyboardType.Email) keyboard else keyboard.gujarati(),
-        visualTransformation = if (password) PasswordVisualTransformation() else VisualTransformation.None,
-        supportingText = supporting?.let { { Text(it) } },
-        shape = RoundedCornerShape(16.dp),
-        textStyle = MaterialTheme.typography.bodyLarge,
-        colors = OutlinedTextFieldDefaults.colors(
-            focusedContainerColor = cs.surfaceContainerLowest,
-            unfocusedContainerColor = cs.surfaceContainerLowest,
-            unfocusedBorderColor = cs.outline,
-        ),
-        modifier = modifier.fillMaxWidth().heightIn(min = 60.dp),
-    )
-}
+) = VkTextField(
+    value = value,
+    onValueChange = onValueChange,
+    label = label,
+    modifier = modifier,
+    singleLine = singleLine,
+    minLines = minLines,
+    keyboard = keyboard,
+    isError = isError,
+    supporting = supporting,
+    placeholder = placeholder,
+    password = password,
+)
 
-/** A VkListRow with an M3 Switch (touch target = whole row, ≥ 64dp). */
+/** Alias of [VkSwitchRow]. */
 @Composable
 internal fun StSwitchRow(
     title: String,
@@ -123,24 +98,9 @@ internal fun StSwitchRow(
     enabled: Boolean = true,
     onLabel: String,
     offLabel: String,
-) {
-    VkListRow(
-        title = title,
-        meta = meta,
-        leadingIcon = icon,
-        modifier = modifier.semantics {
-            role = Role.Switch
-            stateDescription = if (checked) onLabel else offLabel
-        },
-        onClick = if (enabled) ({ onCheckedChange(!checked) }) else null,
-        trailing = { Switch(checked = checked, onCheckedChange = null, enabled = enabled) },
-    )
-}
+) = VkSwitchRow(title, checked, onCheckedChange, onLabel, offLabel, modifier, meta, icon, enabled)
 
-/**
- * M3 dialog (28dp radius by default) with a scrollable body and stacked full-width actions
- * (filled → text), so two actions never squeeze side by side (doc 01 §8.5).
- */
+/** Alias of [VkDialog] with a confirm and a dismiss action. */
 @Composable
 internal fun StDialog(
     title: String,
@@ -149,26 +109,18 @@ internal fun StDialog(
     dismissLabel: String,
     onDismiss: () -> Unit,
     confirmEnabled: Boolean = true,
+    danger: Boolean = false,
     content: @Composable ColumnScope.() -> Unit,
-) {
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text(title, style = MaterialTheme.typography.headlineSmall) },
-        text = {
-            Column(
-                Modifier.verticalScroll(rememberScrollState()),
-                verticalArrangement = Arrangement.spacedBy(12.dp),
-                content = content,
-            )
-        },
-        confirmButton = {
-            Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                VkPrimaryButton(confirmLabel, onConfirm, Modifier.fillMaxWidth(), enabled = confirmEnabled)
-                VkTextButton(dismissLabel, onDismiss, Modifier.fillMaxWidth())
-            }
-        },
-    )
-}
+) = VkDialog(
+    title = title,
+    onDismiss = onDismiss,
+    confirmLabel = confirmLabel,
+    onConfirm = onConfirm,
+    dismissLabel = dismissLabel,
+    confirmEnabled = confirmEnabled,
+    danger = danger,
+    content = content,
+)
 
 /** Small meta text (bodySmall, onSurfaceVariant), wraps. */
 @Composable

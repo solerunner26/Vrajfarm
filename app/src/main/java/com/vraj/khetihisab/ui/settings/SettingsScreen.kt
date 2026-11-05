@@ -33,7 +33,6 @@ import com.vraj.khetihisab.ui.components.VkTopHeader
 import com.vraj.khetihisab.ui.components.themeFullNameRes
 import com.vraj.khetihisab.ui.home.screenViewModel
 import com.vraj.khetihisab.ui.theme.VkIcon
-import com.vraj.khetihisab.update.AppUpdater
 import com.vraj.khetihisab.update.UpdateState
 import kotlinx.coroutines.launch
 import java.time.LocalDate
@@ -78,7 +77,7 @@ fun SettingsScreen(vm: SettingsViewModel, actions: SettingsActions) {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 VkTileRow {
                     VkTile(
-                        VkIcon.SETTINGS, stringResource(R.string.v2_tile_theme), { actions.onOpen(SettingsRoutes.THEME) },
+                        VkIcon.MOON, stringResource(R.string.v2_tile_theme), { actions.onOpen(SettingsRoutes.THEME) },
                         Modifier.weight(1f).fillMaxHeight(), subtitle = stringResource(themeFullNameRes(s.theme.themeId)),
                         ornament = VkTileOrnament.WAVE, index = 0, testTag = "st_tile_theme",
                     )
@@ -104,7 +103,7 @@ fun SettingsScreen(vm: SettingsViewModel, actions: SettingsActions) {
                 }
                 VkTileRow {
                     VkTile(
-                        VkIcon.FARM, stringResource(R.string.v2_tile_general), { actions.onOpen(SettingsRoutes.GENERAL) },
+                        VkIcon.SETTINGS, stringResource(R.string.v2_tile_general), { actions.onOpen(SettingsRoutes.GENERAL) },
                         Modifier.weight(1f).fillMaxHeight(), subtitle = stringResource(R.string.v2_general_sub),
                         ornament = VkTileOrnament.FIELD, index = 4, testTag = "st_tile_general",
                     )
@@ -116,12 +115,12 @@ fun SettingsScreen(vm: SettingsViewModel, actions: SettingsActions) {
                 }
                 VkTileRow {
                     VkTile(
-                        VkIcon.ASSET, stringResource(R.string.v3_assets_tile), { actions.onOpen("assets") },
+                        VkIcon.ASSET, stringResource(R.string.v3_assets_tile), { actions.onOpen(SettingsRoutes.ASSETS_ALL) },
                         Modifier.weight(1f).fillMaxHeight(), subtitle = stringResource(R.string.v3_assets_sub),
                         ornament = VkTileOrnament.WAVE, index = 6, testTag = "st_tile_assets",
                     )
                     VkTile(
-                        VkIcon.ANIMAL, stringResource(R.string.v3_milk_title), { actions.onOpen("milk") },
+                        VkIcon.ANIMAL, stringResource(R.string.v3_milk_title), { actions.onOpen(SettingsRoutes.MILK) },
                         Modifier.weight(1f).fillMaxHeight(), subtitle = stringResource(R.string.v3_milk_sub),
                         ornament = VkTileOrnament.MOON, index = 7, testTag = "st_tile_milk",
                     )
@@ -130,17 +129,17 @@ fun SettingsScreen(vm: SettingsViewModel, actions: SettingsActions) {
                     VkTile(
                         VkIcon.HELP, stringResource(R.string.st_set_help), { actions.onOpen(SettingsRoutes.HELP) },
                         Modifier.weight(1f).fillMaxHeight(), subtitle = stringResource(R.string.v2_help_sub),
-                        ornament = VkTileOrnament.LEAF, index = 6, testTag = "st_tile_help",
+                        ornament = VkTileOrnament.LEAF, index = 8, testTag = "st_tile_help",
                     )
                     VkTile(
-                        VkIcon.INCOME, stringResource(R.string.v2_tile_update), {
+                        VkIcon.BACKUP, stringResource(R.string.v2_tile_update), {
                             if (!checking) {
                                 checking = true
                                 upToDate = false
                                 scope.launch {
-                                    val u = AppUpdater.check()
+                                    val u = UpdateState.refresh(force = true)
                                     checking = false
-                                    if (u == null) upToDate = true else UpdateState.available.value = u
+                                    if (u == null) upToDate = true
                                 }
                             }
                         },
@@ -150,7 +149,7 @@ fun SettingsScreen(vm: SettingsViewModel, actions: SettingsActions) {
                             upToDate -> stringResource(R.string.v2_up_latest)
                             else -> stringResource(R.string.v2_version, BuildConfig.VERSION_NAME)
                         },
-                        ornament = VkTileOrnament.SUN, index = 7, testTag = "st_tile_update",
+                        ornament = VkTileOrnament.SUN, index = 9, testTag = "st_tile_update",
                     )
                 }
             }

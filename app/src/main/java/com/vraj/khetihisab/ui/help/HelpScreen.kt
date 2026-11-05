@@ -12,6 +12,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.rounded.ExpandMore
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -123,9 +126,13 @@ fun HelpScreen(vm: HelpViewModel, onBack: () -> Unit) {
                     title = stringResource(R.string.st_licenses),
                     leadingIcon = VkIcon.HELP,
                     onClick = { licenses = !licenses },
-                    trailing = { Text(if (licenses) "−" else "+", style = MaterialTheme.typography.headlineSmall, color = cs.onSurfaceVariant) },
+                    trailing = { ExpandIcon(licenses) },
                 )
-                if (licenses) {
+                androidx.compose.animation.AnimatedVisibility(
+                    licenses,
+                    enter = androidx.compose.animation.fadeIn() + androidx.compose.animation.expandVertically(),
+                    exit = androidx.compose.animation.fadeOut() + androidx.compose.animation.shrinkVertically(),
+                ) {
                     StNote(stringResource(R.string.st_licenses_body), Modifier.fillMaxWidth().padding(start = 16.dp, end = 16.dp, bottom = 16.dp))
                 }
             }
@@ -158,10 +165,27 @@ private fun FaqItem(f: Faq, expanded: Boolean, onToggle: () -> Unit) {
             Spacer(Modifier.width(12.dp))
             Text(stringResource(f.q), style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f))
             Spacer(Modifier.width(8.dp))
-            Text(if (expanded) "−" else "+", style = MaterialTheme.typography.headlineSmall, color = cs.onSurfaceVariant)
+            ExpandIcon(expanded)
         }
-        if (expanded) {
+        // #54: the answer fades in instead of popping.
+        androidx.compose.animation.AnimatedVisibility(
+            expanded,
+            enter = androidx.compose.animation.fadeIn(androidx.compose.animation.core.tween(240)),
+            exit = androidx.compose.animation.fadeOut(androidx.compose.animation.core.tween(120)),
+        ) {
             Text(stringResource(f.a), style = MaterialTheme.typography.bodyLarge, color = cs.onSurfaceVariant)
         }
     }
+}
+
+/** Expand / collapse chevron (Material icon, audit #31) that turns as the section opens. */
+@Composable
+private fun ExpandIcon(expanded: Boolean) {
+    val turn by androidx.compose.animation.core.animateFloatAsState(if (expanded) 180f else 0f, label = "expand")
+    androidx.compose.material3.Icon(
+        androidx.compose.material.icons.Icons.Rounded.ExpandMore,
+        contentDescription = null,
+        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+        modifier = Modifier.size(28.dp).graphicsLayer { rotationZ = turn },
+    )
 }

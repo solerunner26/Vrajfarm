@@ -9,6 +9,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
@@ -27,6 +29,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -46,7 +49,8 @@ import com.vraj.khetihisab.ui.theme.LocalVkExtra
 
 /**
  * Segmented button (css .vk-seg): outlined 28dp pill track, equal segments, 56dp tall.
- * The ✓ comes from the selected style, never from the label (doc 17 #2). Labels clip with ellipsis.
+ * The selected fill is one pill that slides between segments (A8). The ✓ comes from the selected
+ * style, never from the label (doc 17 #2). Labels are 16sp, one line, ellipsis.
  */
 @Composable
 fun <T> VkSegmented(
@@ -58,55 +62,71 @@ fun <T> VkSegmented(
 ) {
     val cs = MaterialTheme.colorScheme
     val shape = RoundedCornerShape(28.dp)
-    Row(
+    val index = options.indexOfFirst { it.first == selected }
+    val motion = LocalVkMotion.current.enabled
+    val pos by androidx.compose.animation.core.animateFloatAsState(
+        targetValue = index.coerceAtLeast(0).toFloat(),
+        animationSpec = if (motion) androidx.compose.animation.core.spring(dampingRatio = 0.8f, stiffness = 500f) else androidx.compose.animation.core.snap(),
+        label = "seg",
+    )
+    val pill = if (errorSelected) cs.errorContainer else cs.primaryContainer
+    androidx.compose.foundation.layout.BoxWithConstraints(
         modifier
             .fillMaxWidth()
             .height(56.dp)
             .clip(shape)
-            .border(1.dp, cs.outline, shape)
-            .selectableGroup(),
+            .border(1.dp, cs.outline, shape),
     ) {
-        options.forEachIndexed { i, (value, label) ->
-            val on = value == selected
-            if (i > 0) Box(Modifier.width(1.dp).fillMaxHeight().background(cs.outline))
-            val bg = when {
-                !on -> androidx.compose.ui.graphics.Color.Transparent
-                errorSelected -> cs.errorContainer
-                else -> cs.primaryContainer
-            }
-            val fg = when {
-                !on -> cs.onSurfaceVariant
-                errorSelected -> cs.onErrorContainer
-                else -> cs.onPrimaryContainer
-            }
-            Row(
+        val n = options.size.coerceAtLeast(1)
+        val segW = maxWidth / n
+        if (index >= 0) {
+            Box(
                 Modifier
-                    .weight(1f)
+                    .offset(x = segW * pos)
+                    .width(segW)
                     .fillMaxHeight()
-                    .background(bg)
-                    .selectable(selected = on, role = Role.RadioButton, onClick = { onSelect(value) })
-                    .padding(horizontal = 8.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center,
-            ) {
-                if (on) {
-                    Icon(Icons.Rounded.Check, contentDescription = null, tint = fg, modifier = Modifier.size(18.dp))
-                    Spacer(Modifier.width(4.dp))
+                    .background(pill),
+            )
+        }
+        Row(Modifier.fillMaxSize().selectableGroup()) {
+            options.forEachIndexed { i, (value, label) ->
+                val on = value == selected
+                if (i > 0) Box(Modifier.width(1.dp).fillMaxHeight().background(cs.outline))
+                val fg = when {
+                    !on -> cs.onSurfaceVariant
+                    errorSelected -> cs.onErrorContainer
+                    else -> cs.onPrimaryContainer
                 }
-                Text(
-                    label,
-                    color = fg,
-                    style = MaterialTheme.typography.labelLarge.copy(fontSize = 15.sp),
-                    maxLines = 1,
-                    softWrap = false,
-                    overflow = TextOverflow.Ellipsis,
-                )
+                Row(
+                    Modifier
+                        .weight(1f)
+                        .fillMaxHeight()
+                        .selectable(selected = on, role = Role.RadioButton, onClick = { onSelect(value) })
+                        .padding(horizontal = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center,
+                ) {
+                    androidx.compose.animation.AnimatedVisibility(on, enter = androidx.compose.animation.fadeIn() + androidx.compose.animation.expandHorizontally(), exit = androidx.compose.animation.fadeOut() + androidx.compose.animation.shrinkHorizontally()) {
+                        Row {
+                            Icon(Icons.Rounded.Check, contentDescription = null, tint = fg, modifier = Modifier.size(18.dp))
+                            Spacer(Modifier.width(4.dp))
+                        }
+                    }
+                    Text(
+                        label,
+                        color = fg,
+                        style = MaterialTheme.typography.labelLarge,
+                        maxLines = 1,
+                        softWrap = false,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                }
             }
         }
     }
 }
 
-/** Filter chip, 48dp, 12dp radius, selected = primaryContainer + check (doc 01 §2). */
+/** Filter chip, 56dp, 12dp radius, 16sp label, selected = primaryContainer + check (doc 01 §2). */
 @Composable
 fun VkChip(text: String, selected: Boolean, onClick: () -> Unit, modifier: Modifier = Modifier) {
     val cs = MaterialTheme.colorScheme
@@ -114,14 +134,14 @@ fun VkChip(text: String, selected: Boolean, onClick: () -> Unit, modifier: Modif
         selected = selected,
         onClick = onClick,
         label = {
-            Text(text, style = MaterialTheme.typography.labelLarge.copy(fontSize = 15.sp), maxLines = 1, softWrap = false, overflow = TextOverflow.Ellipsis)
+            Text(text, style = MaterialTheme.typography.labelLarge, maxLines = 1, softWrap = false, overflow = TextOverflow.Ellipsis)
         },
         leadingIcon = if (selected) {
             { Icon(Icons.Rounded.Check, contentDescription = null, modifier = Modifier.size(18.dp)) }
         } else {
             null
         },
-        modifier = modifier.heightIn(min = 48.dp),
+        modifier = modifier.heightIn(min = 56.dp),
         shape = RoundedCornerShape(12.dp),
         colors = FilterChipDefaults.filterChipColors(
             containerColor = cs.surfaceContainerLowest,

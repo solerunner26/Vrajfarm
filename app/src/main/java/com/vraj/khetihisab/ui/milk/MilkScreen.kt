@@ -15,10 +15,7 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -45,21 +42,30 @@ import com.vraj.khetihisab.data.dao.MilkTotals
 import com.vraj.khetihisab.data.entity.MilkEntryEntity
 import com.vraj.khetihisab.data.entity.MilkSession
 import com.vraj.khetihisab.data.repo.DateRange
+import com.vraj.khetihisab.ui.components.VkActionBar
+import com.vraj.khetihisab.ui.components.VkBottomSheet
 import com.vraj.khetihisab.ui.components.VkCard
+import com.vraj.khetihisab.ui.components.VkConfirmDeleteDialog
+import com.vraj.khetihisab.ui.components.VkDangerButton
+import com.vraj.khetihisab.ui.components.VkDateChip
+import com.vraj.khetihisab.ui.components.VkDatePickerDialog
+import com.vraj.khetihisab.ui.components.VkEmptyState
+import com.vraj.khetihisab.ui.components.VkMonthChip
+import com.vraj.khetihisab.ui.components.VkTextField
+import com.vraj.khetihisab.ui.components.rememberVkSnackbar
+import com.vraj.khetihisab.ui.home.MoneyStat
+import com.vraj.khetihisab.ui.theme.VkCurrencyRow
+import com.vraj.khetihisab.ui.theme.VkDimens
 import com.vraj.khetihisab.ui.components.VkChip
 import com.vraj.khetihisab.ui.components.VkFormat
-import com.vraj.khetihisab.ui.components.VkHeaderChip
 import com.vraj.khetihisab.ui.components.VkListRow
 import com.vraj.khetihisab.ui.components.VkOutlinedButton
 import com.vraj.khetihisab.ui.components.VkPrimaryButton
 import com.vraj.khetihisab.ui.components.VkRowDivider
 import com.vraj.khetihisab.ui.components.VkSectionTitle
 import com.vraj.khetihisab.ui.components.VkSegmented
-import com.vraj.khetihisab.ui.components.VkTextButton
 import com.vraj.khetihisab.ui.components.VkTone
 import com.vraj.khetihisab.ui.components.VkTopHeader
-import com.vraj.khetihisab.ui.components.gujarati
-import com.vraj.khetihisab.ui.components.VkGujaratiKeyboard
 import com.vraj.khetihisab.ui.components.vkAppear
 import com.vraj.khetihisab.ui.home.MonthPickerDialog
 import com.vraj.khetihisab.ui.home.ScreensFormat
@@ -128,6 +134,9 @@ class MilkViewModel(private val dao: MilkDao, today: LocalDate = ScreensFormat.t
     }
 
     fun delete(e: MilkEntryEntity) { viewModelScope.launch { dao.delete(e) } }
+
+    /** Undo for [delete]: the same row (same id) goes back. */
+    fun restore(e: MilkEntryEntity) { viewModelScope.launch { dao.insert(e) } }
 }
 
 @Composable
@@ -135,7 +144,22 @@ fun MilkRoute(onBack: () -> Unit, onDairyPayment: () -> Unit) {
     val vm = screenViewModel { deps, _ -> MilkViewModel(deps.repos.milk) }
     val s by vm.state.collectAsStateWithLifecycle()
     val lastRate by vm.lastRate.collectAsStateWithLifecycle()
-    MilkScreen(s, lastRate, onBack, vm::selectMonth, vm::save, vm::delete, onDairyPayment)
+    val snackbar = rememberVkSnackbar()
+    val saved = stringResource(R.string.v5_saved)
+    val deleted = stringResource(R.string.v5_deleted)
+    val undo = stringResource(R.string.v5_undo)
+    MilkScreen(
+        s, lastRate, onBack, vm::selectMonth,
+        onSave = { e, d, ses, a, l, f, r ->
+            vm.save(e, d, ses, a, l, f, r)
+            snackbar.show(saved, success = true)
+        },
+        onDelete = { e ->
+            vm.delete(e)
+            snackbar.show(deleted, actionLabel = undo) { vm.restore(e) }
+        },
+        onDairyPayment = onDairyPayment,
+    )
 }
 
 @OptIn(ExperimentalLayoutApi::class)
@@ -159,18 +183,13 @@ fun MilkScreen(
         LazyColumn(
             Modifier.weight(1f).fillMaxWidth().testTag("milk_list"),
             contentPadding = PaddingValues(bottom = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(14.dp),
+            verticalArrangement = Arrangement.spacedBy(VkDimens.listGap),
         ) {
             item(key = "header") {
                 VkTopHeader(
                     stringResource(R.string.v3_milk_title),
                     onBack = onBack,
-                    actions = {
-                        Box(
-                            Modifier.heightIn(min = 48.dp).clip(CircleShape).clickable(role = Role.Button) { pickMonth = true },
-                            contentAlignment = Alignment.Center,
-                        ) { VkHeaderChip(ScreensFormat.monthYearGu(s.month) + " ▾") }
-                    },
+                    actions = { VkMonthChip(ScreensFormat.monthYearGu(s.month), { pickMonth = true }) },
                 )
             }
             item(key = "totals") {
@@ -178,16 +197,15 @@ fun MilkScreen(
                 VkCard(pad.fillMaxWidth().vkAppear(0, "milk_totals").testTag("milk_totals"), tone = VkTone.Primary) {
                     Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                         StatTile(stringResource(R.string.v3_milk_litres), stringResource(R.string.v3_milk_litres_value, fmt(s.totals.litres)), Modifier.weight(1f), big = true)
-                        StatTile(stringResource(R.string.v3_milk_should), ScreensFormat.signedRupees(s.totals.amountPaise), Modifier.weight(1f), valueColor = cs.primary, big = true)
+                        MoneyStat(stringResource(R.string.v3_milk_should), s.totals.amountPaise, Modifier.weight(1f), valueColor = cs.primary)
                     }
                     Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                        StatTile(stringResource(R.string.v3_milk_paid), ScreensFormat.signedRupees(s.paid), Modifier.weight(1f), big = true)
-                        StatTile(
+                        MoneyStat(stringResource(R.string.v3_milk_paid), s.paid, Modifier.weight(1f))
+                        MoneyStat(
                             stringResource(R.string.v3_milk_diff),
-                            ScreensFormat.signedRupees(diff),
+                            diff,
                             Modifier.weight(1f),
                             valueColor = if (diff < 0) cs.error else cs.primary,
-                            big = true,
                         )
                     }
                     Text(
@@ -199,19 +217,22 @@ fun MilkScreen(
                                 else -> R.string.v3_milk_diff_equal
                             },
                         ),
-                        style = MaterialTheme.typography.bodyMedium,
+                        style = MaterialTheme.typography.bodyLarge,
                         color = cs.onSecondaryContainer,
                     )
                     VkOutlinedButton(stringResource(R.string.v3_milk_record_payment), onDairyPayment, Modifier.fillMaxWidth())
                 }
             }
-            item(key = "add") { VkPrimaryButton(stringResource(R.string.v3_milk_add), { adding = true }, pad.fillMaxWidth().testTag("milk_add"), sign = "+") }
-            item(key = "title") { VkSectionTitle(stringResource(R.string.v3_milk_entries), pad) }
+            item(key = "title") { VkSectionTitle(stringResource(R.string.v3_milk_entries), pad.vkAppear(1, "milk_title")) }
             if (s.entries.isEmpty()) {
-                item(key = "empty") { Text(stringResource(R.string.v3_milk_empty), style = MaterialTheme.typography.bodyLarge, color = cs.onSurfaceVariant, modifier = pad) }
+                item(key = "empty") {
+                    VkCard(pad.fillMaxWidth()) {
+                        VkEmptyState(VkIcon.ANIMAL, stringResource(R.string.v3_milk_empty), actionLabel = stringResource(R.string.v3_milk_add), onAction = { adding = true })
+                    }
+                }
             } else {
                 item(key = "rows") {
-                    VkCard(pad.fillMaxWidth(), contentPadding = 0.dp) {
+                    VkCard(pad.fillMaxWidth().vkAppear(2, "milk_rows"), contentPadding = 0.dp) {
                         s.entries.forEachIndexed { i, e ->
                             if (i > 0) VkRowDivider()
                             VkListRow(
@@ -220,18 +241,22 @@ fun MilkScreen(
                                     (e.fatPercent?.let { " · " + stringResource(R.string.v3_milk_fat_value, fmt(it)) } ?: ""),
                                 leadingIcon = VkIcon.ANIMAL,
                                 onClick = { editing = e },
-                                trailing = { Text(VkFormat.rupees(e.amountPaise), style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.ExtraBold), maxLines = 1, softWrap = false) },
+                                trailing = { Text(VkFormat.rupees(e.amountPaise), style = VkCurrencyRow, maxLines = 1, softWrap = false) },
                             )
                         }
                     }
                 }
             }
         }
+        // Add sits in the bottom action bar, always reachable (audit #23).
+        VkActionBar {
+            VkPrimaryButton(stringResource(R.string.v3_milk_add), { adding = true }, Modifier.weight(1f).testTag("milk_add"), sign = "+")
+        }
     }
 
     if (pickMonth) MonthPickerDialog(s.month, onPick = { onSelectMonth(it); pickMonth = false }, onDismiss = { pickMonth = false })
     if (adding || editing != null) {
-        MilkDialog(
+        MilkSheet(
             existing = editing,
             animals = s.animals,
             lastRate = lastRate,
@@ -244,9 +269,10 @@ fun MilkScreen(
 
 private fun fmt(v: Double): String = if (v == Math.floor(v)) v.toLong().toString() else "%.2f".format(v).trimEnd('0').trimEnd('.')
 
+/** Add / edit one milk entry in a bottom sheet that rises with the keyboard (audit #9). */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun MilkDialog(
+private fun MilkSheet(
     existing: MilkEntryEntity?,
     animals: List<String>,
     lastRate: Long?,
@@ -255,6 +281,8 @@ private fun MilkDialog(
     onDelete: (() -> Unit)?,
 ) {
     val today = ScreensFormat.today()
+    var date by remember { mutableStateOf(existing?.date ?: today) }
+    var pickDate by remember { mutableStateOf(false) }
     var session by rememberSaveable { mutableStateOf(existing?.session ?: if (java.time.LocalTime.now().hour < 14) MilkSession.MORNING else MilkSession.EVENING) }
     var animal by rememberSaveable { mutableStateOf(existing?.animal ?: animals.firstOrNull().orEmpty()) }
     var litres by rememberSaveable { mutableStateOf(existing?.litres?.let(::fmt).orEmpty()) }
@@ -264,35 +292,47 @@ private fun MilkDialog(
     val l = MilkLogic.number(litres)
     val r = MilkLogic.ratePaise(rate)
     val ok = animal.isNotBlank() && l != null && l > 0 && r != null && r > 0
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text(stringResource(if (existing == null) R.string.v3_milk_add else R.string.v2_edit), style = MaterialTheme.typography.headlineSmall) },
-        text = {
-            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                VkSegmented(
-                    options = listOf(MilkSession.MORNING to stringResource(R.string.v3_milk_am), MilkSession.EVENING to stringResource(R.string.v3_milk_pm)),
-                    selected = session,
-                    onSelect = { session = it },
-                )
-                if (animals.isNotEmpty()) {
-                    FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                        animals.take(8).forEach { a -> VkChip(a, animal == a, { animal = a }) }
-                    }
-                }
-                OutlinedTextField(animal, { animal = it.take(40) }, label = { Text(stringResource(R.string.v3_milk_animal)) }, singleLine = true, keyboardOptions = VkGujaratiKeyboard, modifier = Modifier.fillMaxWidth())
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    OutlinedTextField(litres, { litres = it.filter { c -> c.isDigit() || c == '.' } }, label = { Text(stringResource(R.string.v3_milk_litres)) }, singleLine = true, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal).gujarati(), modifier = Modifier.weight(1f))
-                    OutlinedTextField(fat, { fat = it.filter { c -> c.isDigit() || c == '.' } }, label = { Text(stringResource(R.string.v3_milk_fat)) }, singleLine = true, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal).gujarati(), modifier = Modifier.weight(1f))
-                }
-                OutlinedTextField(rate, { rate = it.filter { c -> c.isDigit() || c == '.' } }, label = { Text(stringResource(R.string.v3_milk_rate)) }, singleLine = true, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal).gujarati(), modifier = Modifier.fillMaxWidth())
-                if (ok) Text(stringResource(R.string.v3_milk_amount_line, VkFormat.rupees(Math.round(l!! * r!!))), style = MaterialTheme.typography.titleMedium, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                if (onDelete != null) {
-                    if (confirmDelete) Text(stringResource(R.string.v2_delete_q, existing?.animal.orEmpty()), color = MaterialTheme.colorScheme.error)
-                    VkOutlinedButton(stringResource(if (confirmDelete) R.string.v2_yes_delete else R.string.scr_delete), { if (confirmDelete) onDelete() else confirmDelete = true }, Modifier.fillMaxWidth())
+    val decimal = { t: String -> t.filter { c -> c.isDigit() || c == '.' } }
+    VkBottomSheet(stringResource(if (existing == null) R.string.v3_milk_add else R.string.v2_edit), onDismiss) {
+        Column(Modifier.fillMaxWidth().padding(horizontal = 16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            VkDateChip(
+                if (date == today) stringResource(R.string.scr_today_chip, ScreensFormat.dmy(date)) else ScreensFormat.dmy(date),
+                { pickDate = true },
+            )
+            VkSegmented(
+                options = listOf(MilkSession.MORNING to stringResource(R.string.v3_milk_am), MilkSession.EVENING to stringResource(R.string.v3_milk_pm)),
+                selected = session,
+                onSelect = { session = it },
+            )
+            if (animals.isNotEmpty()) {
+                FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    animals.take(8).forEach { a -> VkChip(a, animal == a, { animal = a }) }
                 }
             }
-        },
-        confirmButton = { VkPrimaryButton(stringResource(R.string.scr_save), { if (ok) onSave(existing?.date ?: today, session, animal, l!!, MilkLogic.number(fat), r!!) }, enabled = ok) },
-        dismissButton = { VkTextButton(stringResource(R.string.scr_cancel), onDismiss) },
-    )
+            VkTextField(animal, { animal = it.take(40) }, stringResource(R.string.v3_milk_animal))
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                VkTextField(litres, { litres = decimal(it) }, stringResource(R.string.v3_milk_litres), Modifier.weight(1f), keyboardType = KeyboardType.Decimal)
+                VkTextField(fat, { fat = decimal(it) }, stringResource(R.string.v3_milk_fat), Modifier.weight(1f), keyboardType = KeyboardType.Decimal)
+            }
+            VkTextField(rate, { rate = decimal(it) }, stringResource(R.string.v3_milk_rate), keyboardType = KeyboardType.Decimal)
+            if (ok) Text(stringResource(R.string.v3_milk_amount_line, VkFormat.rupees(Math.round(l!! * r!!))), style = MaterialTheme.typography.titleMedium, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            VkPrimaryButton(
+                stringResource(R.string.scr_save),
+                { if (ok) onSave(date, session, animal, l!!, MilkLogic.number(fat), r!!) },
+                Modifier.fillMaxWidth().testTag("milk_save"),
+                enabled = ok,
+            )
+            if (onDelete != null) {
+                VkDangerButton(stringResource(R.string.scr_delete), { confirmDelete = true }, Modifier.fillMaxWidth())
+            }
+        }
+    }
+    if (pickDate) VkDatePickerDialog(date, { date = it }, { pickDate = false }, maxDate = today)
+    if (confirmDelete && onDelete != null) {
+        VkConfirmDeleteDialog(
+            what = existing?.let { "${it.animal} · ${ScreensFormat.dmy(it.date)} · ${VkFormat.rupees(it.amountPaise)}" }.orEmpty(),
+            onConfirm = { confirmDelete = false; onDelete() },
+            onDismiss = { confirmDelete = false },
+        )
+    }
 }

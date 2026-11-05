@@ -170,6 +170,11 @@ class ShoppingViewModel(
         viewModelScope.launch { store.delete(id) }
     }
 
+    /** Undo for [delete] (soft delete): the item comes back as it was. */
+    fun restore(item: ShoppingItemEntity) {
+        viewModelScope.launch { store.update(item.copy(isDeleted = false)) }
+    }
+
     fun undo(id: Long) {
         viewModelScope.launch { store.setBought(id, false) }
     }

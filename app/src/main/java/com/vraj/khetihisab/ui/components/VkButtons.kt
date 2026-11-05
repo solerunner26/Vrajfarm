@@ -41,7 +41,7 @@ import com.vraj.khetihisab.ui.theme.VkIconImage
  * label in a button narrower than 160dp (§8.4) — pass icon = null there.
  */
 
-private enum class VkButtonKind { Filled, Tonal, Outlined, Text }
+private enum class VkButtonKind { Filled, Tonal, Outlined, Text, Danger }
 
 @Composable
 private fun VkButtonBase(
@@ -56,6 +56,7 @@ private fun VkButtonBase(
 ) {
     val cs = MaterialTheme.colorScheme
     val x = LocalVkExtra.current
+    val interaction = androidx.compose.runtime.remember { androidx.compose.foundation.interaction.MutableInteractionSource() }
     // M3 disabled style: 12% onSurface container, 38% onSurface content (no gradient, no shadow).
     val disabledFill = kind == VkButtonKind.Filled || kind == VkButtonKind.Tonal
     val bg: Brush = when {
@@ -68,6 +69,7 @@ private fun VkButtonBase(
         !enabled -> cs.onSurface.copy(alpha = 0.38f)
         kind == VkButtonKind.Filled -> x.onGradient
         kind == VkButtonKind.Tonal -> cs.onPrimaryContainer
+        kind == VkButtonKind.Danger -> cs.error
         else -> cs.primary
     }
     var m = modifier
@@ -78,7 +80,9 @@ private fun VkButtonBase(
     }
     m = m.clip(CircleShape).background(bg)
     if (kind == VkButtonKind.Outlined) m = m.border(1.dp, cs.outline, CircleShape)
-    m = m.clickable(enabled = enabled, role = Role.Button, onClick = onClick)
+    if (kind == VkButtonKind.Danger) m = m.border(1.dp, if (enabled) cs.error else cs.onSurface.copy(alpha = 0.12f), CircleShape)
+    m = m.vkPressScale(interaction)
+        .clickable(interactionSource = interaction, indication = androidx.compose.material3.ripple(), enabled = enabled, role = Role.Button, onClick = onClick)
         .padding(horizontal = if (icon != null) 12.dp else 20.dp)
 
     Box(m, contentAlignment = Alignment.Center) {
@@ -125,12 +129,20 @@ fun VkTonalButton(
     enabled: Boolean = true,
 ) = VkButtonBase(text, onClick, VkButtonKind.Tonal, modifier, icon, sign, enabled, VkDimens.buttonHeight)
 
-/** Tertiary: outlined pill. */
+/** Tertiary: outlined pill, 60dp touch target. */
 @Composable
-fun VkOutlinedButton(text: String, onClick: () -> Unit, modifier: Modifier = Modifier, enabled: Boolean = true) =
-    VkButtonBase(text, onClick, VkButtonKind.Outlined, modifier, null, null, enabled, 56.dp)
+fun VkOutlinedButton(text: String, onClick: () -> Unit, modifier: Modifier = Modifier, enabled: Boolean = true, icon: VkIcon? = null) =
+    VkButtonBase(text, onClick, VkButtonKind.Outlined, modifier, icon, null, enabled, VkDimens.minTouch)
 
-/** Text action (dialogs, "બધું જુઓ"). 56dp touch target. */
+/** Text action (dialogs, "બધું જુઓ"). 60dp touch target. */
 @Composable
 fun VkTextButton(text: String, onClick: () -> Unit, modifier: Modifier = Modifier, enabled: Boolean = true) =
-    VkButtonBase(text, onClick, VkButtonKind.Text, modifier, null, null, enabled, 56.dp)
+    VkButtonBase(text, onClick, VkButtonKind.Text, modifier, null, null, enabled, VkDimens.minTouch)
+
+/**
+ * Destructive action (કાઢી નાખો): outlined pill with the M3 `error` border and text, 60dp.
+ * Red is the error role only (CLAUDE.md), so this is the one place a button turns red.
+ */
+@Composable
+fun VkDangerButton(text: String, onClick: () -> Unit, modifier: Modifier = Modifier, enabled: Boolean = true) =
+    VkButtonBase(text, onClick, VkButtonKind.Danger, modifier, null, null, enabled, VkDimens.buttonHeight)
