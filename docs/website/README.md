@@ -7,7 +7,7 @@ A static, responsive, multilingual product showcase for presenting the Android a
 - English, Gujarati and Hindi translations for the landing page, feature cards, screen selector and all screen previews.
 - 33 interactive screen previews: PIN setup and lock; dashboard; entry; farm list/detail; manager advances; personal and general accounts; milk register; Panchang alert, calendar, alert settings and guidance; shopping; asset register and lending; reminders and widgets; profiles; settings, themes, security, master data and sub-settings; WhatsApp templates; reports; backup/restore; help; and update notice.
 - Responsive mobile layout, animated presentation, keyboard navigation through the tour, and sample-only preview actions.
-- A single 30-second, playable launch story on the home page: timed screen scenes, captions in all three languages, pause/resume, previous/next and replay. It is an interactive HTML ad, not a video or audio recording.
+- A single 30-second, playable launch story that auto-starts on page load and loops until paused or closed: timed screen scenes, captions in all three languages, previous/next and replay. It is an interactive HTML ad, not a video or audio recording.
 - Six guided workflows—entry, farm-season review, asset lending, PDF reporting, milk/payment comparison and app security—with step-by-step instructions and links to the matching screens.
 - A feature-set picker to prepare a local discussion list. It does not submit or store a request on a server.
 - Customization, security safeguards and shareable built-in PDF reports are highlighted. Security claims are limited to the controls documented in the Android source; no absolute-security or certification claim is made. The current app has seven built-in PDF report types; other requested reports/features require an agreed custom scope.
@@ -17,8 +17,8 @@ A static, responsive, multilingual product showcase for presenting the Android a
 
 This is a static website. It does **not** need Node, PHP, a database, or a GoDaddy backup endpoint.
 
-1. In cPanel, open **File Manager** and the domain's document root (commonly `public_html/`; an addon domain may have a different document root).
-2. Upload the **contents of this `website/` folder** so `index.html` is directly in that document root. Preserve the `assets/` folder and its subfolders. Do not upload the Android source repository as the website.
+1. Download [`Farm-Ledger-Website.zip`](../Farm-Ledger-Website.zip) from GitHub (or the repository's ZIP), then open cPanel **File Manager** and the domain's document root (commonly `public_html/`; an addon domain may have a different document root).
+2. Upload `Farm-Ledger-Website.zip` and extract its contents directly into that document root so `index.html` is at the root. The archive already includes `assets/` and its font subfolders. Do not upload the Android source repository as the website.
 3. Enable the domain's SSL certificate, then visit the HTTPS URL on a phone and desktop. The page adapts to narrow screens and honors the device's reduced-motion setting.
 4. If replacing an existing site, keep a copy of its files first. A browser/CDN cache may need clearing after deployment.
 

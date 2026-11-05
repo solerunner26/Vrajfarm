@@ -59,6 +59,7 @@ Built for the Vala family farm in Thorala (Ta. Mahuva, Dist. Bhavnagar). All dat
 | AI agents continuing the work | [AGENTS.md](AGENTS.md), then [HANDOVER.md](HANDOVER.md) |
 | Feature specs | [handover/](handover/00_README.md) |
 | Design system | [handover/01_Design_System.md](handover/01_Design_System.md), [design/](design/canvas/README.md) |
+| Customer-gathering website | [source and GoDaddy instructions](docs/website/README.md), [download the ready-to-upload ZIP](docs/Farm-Ledger-Website.zip) |
 
 ## Requirements
 
