@@ -111,6 +111,7 @@
 - The GoDaddy URL is still a placeholder (open question 6).
 
 ## Change log
+- **2026-11-07 (Claude, entry note fix):** on the new-entry page the નોંધ field now sits above the મણ ગણક / amount / number pad (it was at the bottom against the save bar and hidden by the keyboard). The save bar sits below the list instead of over it, and the entry screen shrinks above the keyboard (imePadding). Voice: the heard sentence is shown in a "તમે આ બોલ્યા – બરાબર છે?" dialog (હા, બરાબર છે / ફરી બોલો / રદ કરો) with what it will fill, before anything reaches the form. The "₹… વાપરો?" suggestion uses the whole-entry parser (no more ₹2,003 from "બે હજાર … ખેતર ત્રણ") and ignores counts under ₹10. Home and every other screen are unchanged (owner instruction). Tests: `VoiceNoteAmountTest`, `EntryVoiceUiTest`.
 - **2026-11-05 (Claude, selection-controls fix after owner review):** the owner rejected the lend screen's wrapping day chips. Root cause: the UI audit had been told to skip ui/assets/*. Every chip group in the app was re-checked and replaced:
   - New `ui/components/VkSelect.kt` with the rule for the whole app: fixed choices → `VkDropdownField`; type-or-pick → `VkComboField`; dates/times → `VkPickerField`; main pick of a flow → `VkChoiceGrid` (equal tiles, optional same-shape "+ add" tile).
   - Lend: borrower combo, asset dropdown, handover date field, return-period dropdown (+ custom date); preview hidden until name + asset are set.

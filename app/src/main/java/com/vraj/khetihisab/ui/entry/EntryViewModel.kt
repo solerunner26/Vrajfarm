@@ -116,15 +116,17 @@ class EntryViewModel(private val deps: ScreensDeps, private val handle: SavedSta
     }
 
     /** Whole-entry speech: farms, family and categories are matched by name. */
-    fun applyVoice(text: String) {
+    fun applyVoice(text: String) = onEvent(EntryEvent.ApplyVoice(parseVoice(text)))
+
+    /** What [text] would fill, without touching the form — shown in the voice confirm dialog. */
+    fun parseVoice(text: String): VoiceEntry {
         val l = lists.value
-        val parsed = VoiceEntryParser.parse(
+        return VoiceEntryParser.parse(
             text,
             farms = l.farms.map { it.id to it.label },
             families = l.families.map { it.id to it.label },
             categories = l.allCategories,
         )
-        onEvent(EntryEvent.ApplyVoice(parsed))
     }
 
     fun confirmApmc(accept: Boolean) {
