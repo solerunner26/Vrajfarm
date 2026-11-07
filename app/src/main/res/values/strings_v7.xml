@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Round 7: voice entry is checked before it fills the form (owner request 2026-11-07). -->
+<resources>
+    <string name="v7_voice_check_title">તમે આ બોલ્યા – બરાબર છે?</string>
+    <string name="v7_voice_heard">સાંભળેલી નોંધ</string>
+    <string name="v7_voice_fills">એપ આ ભરશે</string>
+    <string name="v7_voice_only_note">આ ફક્ત નોંધ તરીકે સચવાશે.</string>
+    <string name="v7_voice_yes">હા, બરાબર છે</string>
+    <string name="v7_voice_again">ફરી બોલો</string>
+    <string name="v7_vf_kind">આવક / ખર્ચ</string>
+    <string name="v7_vf_section">વિભાગ</string>
+    <string name="v7_vf_type">પ્રકાર</string>
+    <string name="v7_vf_amount">રકમ</string>
+    <string name="v7_vf_farm">ખેતર</string>
+    <string name="v7_vf_bhagiya">ભાગિયા</string>
+    <string name="v7_vf_credit">ઉધાર</string>
+</resources>

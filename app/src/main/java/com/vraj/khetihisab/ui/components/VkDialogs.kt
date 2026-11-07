@@ -66,6 +66,9 @@ fun VkDialog(
     /** Delete lives with the actions (never inside scrolling content, where it can be cut off). */
     deleteLabel: String? = null,
     onDelete: (() -> Unit)? = null,
+    /** A second real choice (e.g. "ફરી બોલો"), drawn as a tonal button between confirm and dismiss. */
+    secondaryLabel: String? = null,
+    onSecondary: (() -> Unit)? = null,
     content: @Composable ColumnScope.() -> Unit = {},
 ) {
     val scroll = rememberScrollState()
@@ -102,6 +105,7 @@ fun VkDialog(
                         VkPrimaryButton(confirmLabel, onConfirm, Modifier.fillMaxWidth(), enabled = confirmEnabled)
                     }
                 }
+                if (secondaryLabel != null && onSecondary != null) VkTonalButton(secondaryLabel, onSecondary, Modifier.fillMaxWidth())
                 if (deleteLabel != null && onDelete != null) VkDangerButton(deleteLabel, onDelete, Modifier.fillMaxWidth())
                 if (dismissLabel != null) VkTextButton(dismissLabel, onDismiss, Modifier.fillMaxWidth())
             }

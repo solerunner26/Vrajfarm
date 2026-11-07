@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -87,6 +88,8 @@ import java.time.ZoneOffset
 object EntryTestTags {
     const val SAVE = "entry_save"
     const val AMOUNT = "entry_amount"
+    const val NOTE = "entry_note"
+    const val VOICE_DIALOG = "entry_voice_dialog"
 }
 
 /** Stateful Entry destination (doc 06, artboard 03). [onSaved] receives the new transaction id. */
@@ -120,8 +123,10 @@ fun EntryScreen(onBack: () -> Unit, onSaved: (Long) -> Unit) {
             if (path == null) snackbar.show(photoFailed) else vm.onEvent(EntryEvent.SetBill(path))
         }
     }
+    // Speech is shown back first (owner request 2026-11-07): nothing fills the form until "હા, બરાબર છે".
+    var heard by androidx.compose.runtime.saveable.rememberSaveable { mutableStateOf<String?>(null) }
     val voice = rememberGujaratiVoiceInput(
-        onText = { vm.applyVoice(it) },
+        onText = { heard = it.trim().ifEmpty { null } },
         onUnavailable = { snackbar.show("$voiceUnavailable. $voiceTip") },
     )
 
@@ -148,7 +153,76 @@ fun EntryScreen(onBack: () -> Unit, onSaved: (Long) -> Unit) {
             onDismiss = { vm.confirmApmc(false) },
         )
     }
+    heard?.let { text ->
+        VoiceConfirmDialog(
+            text = text,
+            parsed = remember(text, lists) { vm.parseVoice(text) },
+            lists = lists,
+            onYes = { vm.applyVoice(text); heard = null },
+            onAgain = { heard = null; voice() },
+            onCancel = { heard = null },
+        )
+    }
     viewer?.let { BillViewer(it) { viewer = null } }
+}
+
+/**
+ * "તમે આ બોલ્યા – બરાબર છે?": the heard sentence in full, then what it will fill, with
+ * હા, બરાબર છે / ફરી બોલો / રદ કરો. Nothing reaches the form before the first button.
+ */
+@Composable
+fun VoiceConfirmDialog(
+    text: String,
+    parsed: VoiceEntry,
+    lists: EntryLists,
+    onYes: () -> Unit,
+    onAgain: () -> Unit,
+    onCancel: () -> Unit,
+) {
+    val cs = MaterialTheme.colorScheme
+    val rows = buildList {
+        parsed.kind?.let { add(R.string.v7_vf_kind to stringResource(if (it == EntryKind.INCOME) R.string.scr_kind_income else R.string.scr_kind_expense)) }
+        parsed.section?.let { sec ->
+            val l = when (sec) {
+                AccountSection.FARM -> R.string.scr_sec_farm_short
+                AccountSection.ANIMAL -> R.string.scr_sec_animal_short
+                AccountSection.FAMILY -> R.string.scr_sec_family_short
+                AccountSection.GENERAL -> R.string.scr_sec_general_short
+                AccountSection.PERSONAL -> R.string.scr_sec_personal_short
+            }
+            add(R.string.v7_vf_section to stringResource(l))
+        }
+        parsed.farmId?.let { id -> lists.farms.firstOrNull { it.id == id }?.let { add(R.string.v7_vf_farm to it.label) } }
+        parsed.familyId?.let { id -> lists.families.firstOrNull { it.id == id }?.let { add(R.string.v7_vf_bhagiya to it.label) } }
+        parsed.categoryId?.let { id -> lists.allCategories.firstOrNull { it.id == id }?.let { add(R.string.v7_vf_type to it.name) } }
+        parsed.rupees?.let { add(R.string.v7_vf_amount to VkFormat.rupees(it * 100)) }
+        if (parsed.pending) add(R.string.v7_vf_credit to (parsed.counterparty ?: stringResource(R.string.v2_cp_someone)))
+    }
+    com.vraj.khetihisab.ui.components.VkDialog(
+        title = stringResource(R.string.v7_voice_check_title),
+        onDismiss = onCancel,
+        confirmLabel = stringResource(R.string.v7_voice_yes),
+        onConfirm = onYes,
+        secondaryLabel = stringResource(R.string.v7_voice_again),
+        onSecondary = onAgain,
+        modifier = Modifier.testTag(EntryTestTags.VOICE_DIALOG),
+    ) {
+        Text(stringResource(R.string.v7_voice_heard), style = MaterialTheme.typography.bodySmall, color = cs.onSurfaceVariant)
+        VkCard(Modifier.fillMaxWidth(), tone = VkTone.Primary) {
+            Text("“$text”", style = MaterialTheme.typography.titleMedium)
+        }
+        if (rows.isEmpty()) {
+            Text(stringResource(R.string.v7_voice_only_note), style = MaterialTheme.typography.bodyLarge)
+        } else {
+            Text(stringResource(R.string.v7_voice_fills), style = MaterialTheme.typography.bodySmall, color = cs.onSurfaceVariant)
+            rows.forEach { (label, value) ->
+                Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.Top) {
+                    Text(stringResource(label), style = MaterialTheme.typography.bodyLarge, color = cs.onSurfaceVariant, modifier = Modifier.weight(0.42f))
+                    Text(value, style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(0.58f))
+                }
+            }
+        }
+    }
 }
 
 /** Stateless 3-tap entry UI. Used by [EntryScreen] and the Compose UI test. */
@@ -173,10 +247,13 @@ fun EntryContent(
         ScreensFormat.dmy(form.date)
     }
 
-    Box(Modifier.fillMaxSize().background(cs.surface)) {
+    // The save bar sits BELOW the list (Column), never over it: nothing — the note, a field the
+    // keyboard scrolls to, the last card — can slide under the Save button (2026-11-07 audit).
+    // imePadding: the screen shrinks above the keyboard, so the note being typed stays in view.
+    Column(Modifier.fillMaxSize().background(cs.surface).imePadding()) {
         LazyColumn(
-            Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(bottom = 120.dp),
+            Modifier.weight(1f).fillMaxWidth(),
+            contentPadding = PaddingValues(bottom = 16.dp),
             verticalArrangement = Arrangement.spacedBy(14.dp),
         ) {
             item {
@@ -241,6 +318,36 @@ fun EntryContent(
             if (form.section != null) {
                 item { Tap2(form, lists, onEvent, onAddCategory) }
             }
+            // ---- Note: above the amount and keypad so a spoken or typed note is read before
+            // the numbers (owner request 2026-11-07); never down by the sticky save bar. ----
+            item {
+                Column(Modifier.padding(horizontal = 16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    VkTextField(
+                        value = form.voiceNote.orEmpty(),
+                        onValueChange = { onEvent(EntryEvent.SetNoteText(it)) },
+                        label = stringResource(R.string.v3_note),
+                        singleLine = false,
+                        minLines = 1,
+                        maxLines = 4,
+                        modifier = Modifier.fillMaxWidth().testTag(EntryTestTags.NOTE),
+                    )
+                    form.voiceNote?.let { note ->
+                        // The whole-entry parser, not a bare number scan: "ખાતર બે હજાર ખેતર ત્રણ" is
+                        // ₹2,000 for farm 3, never ₹2,003 (2026-11-07 audit).
+                        val suggestion = remember(note, lists) {
+                            VoiceEntryParser.parse(note, lists.farms.map { it.id to it.label }, lists.families.map { it.id to it.label }, lists.allCategories).rupees
+                        }
+                        // Under ₹10 is a count, not money ("બે થેલી" ≠ ₹2).
+                        if (suggestion != null && suggestion >= 10 && !form.apmcMode && form.amountPaise != suggestion * 100) {
+                            VkTonalButton(
+                                stringResource(R.string.scr_voice_use_amount, VkFormat.rupees(suggestion * 100)),
+                                { onEvent(EntryEvent.UseAmount(suggestion)) },
+                                Modifier.fillMaxWidth(),
+                            )
+                        }
+                    }
+                }
+            }
             // ---- Amount ----
             item { AmountArea(form, onEvent) }
             item {
@@ -295,19 +402,7 @@ fun EntryContent(
                     icon = VkIcon.CAMERA,
                 )
             }
-            // Typed note (owner request 2026-11-05): speech fills it too, and it can be edited by hand.
-            item {
-                VkTextField(
-                    value = form.voiceNote.orEmpty(),
-                    onValueChange = { onEvent(EntryEvent.SetNoteText(it)) },
-                    label = stringResource(R.string.v3_note),
-                    singleLine = false,
-                    minLines = 1,
-                    maxLines = 3,
-                    modifier = Modifier.padding(horizontal = 16.dp).testTag("entry_note"),
-                )
-            }
-            if (form.billPath != null || form.voiceNote != null) {
+            if (form.billPath != null) {
                 item {
                     FlowRow(
                         Modifier.padding(horizontal = 16.dp),
@@ -328,23 +423,13 @@ fun EntryContent(
                                 RemoveChip(stringResource(R.string.scr_bill_photo)) { onEvent(EntryEvent.SetBill(null)) }
                             }
                         }
-                        form.voiceNote?.let { note ->
-                            val suggestion = VoiceAmountParser.parseRupees(note)
-                            if (suggestion != null && !form.apmcMode && form.amountPaise != suggestion * 100) {
-                                VkChip(
-                                    text = stringResource(R.string.scr_voice_use_amount, VkFormat.rupees(suggestion * 100)),
-                                    selected = false,
-                                    onClick = { onEvent(EntryEvent.UseAmount(suggestion)) },
-                                )
-                            }
-                        }
                     }
                 }
             }
         }
 
         // Sticky save (audit #23)
-        VkActionBar(Modifier.align(Alignment.BottomCenter)) {
+        VkActionBar {
             val amt = form.amountPaise
             VkPrimaryButton(
                 text = if (amt > 0) stringResource(R.string.scr_save_amount, VkFormat.rupees(amt)) else stringResource(R.string.scr_save),
